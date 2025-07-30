@@ -1,16 +1,20 @@
 
 import './App.css'
-import LandingPage from './features/landing/LandingPage'
+import JoinEventPage from './features/join-event/JoinEventPage';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { BrowserRouter, Routes, Route } from "react-router";
+import RootLayout from './layout/RootLayout';
+import { Navigate } from 'react-router';
+
 
 // Dark theme configuration
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#032418', // Dark blue,
-      light: '#354F46',
-      dark: '#021910',
+      main: '#04291b', // Dark blue,
+      light: '#365348',
+      dark: '#021C12',
     },
     background: {
       default: '#121212',
@@ -29,7 +33,15 @@ const darkTheme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={darkTheme}>
-      <LandingPage />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<RootLayout />}>
+            <Route index element={<Navigate to="/join-event" replace />} /> {/* Redirect root to join event page, for good UX */}
+            <Route path="join-event" element={<JoinEventPage />} />
+            <Route path="create-event" element={<JoinEventPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
