@@ -42,7 +42,7 @@ export const mockEvents: Event[] = [
     id: '2',
     name: 'Coffee Chat & Networking',
     description: 'Casual networking event over coffee and pastries.',
-    location: 'Starbucks Central Plaza',
+    location: 'Starbucks Central Plaza Two',
     date: '2025-08-10T09:30:00.000Z',
     isPrivate: false,
     role: 'guest',
