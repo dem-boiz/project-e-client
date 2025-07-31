@@ -25,6 +25,8 @@ const darkTheme = createTheme({
       primary: '#ffffff',
       secondary: '#b3b3b3',
     },
+
+    divider: '#161616',
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
