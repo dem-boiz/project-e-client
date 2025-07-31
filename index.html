@@ -4,8 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/project-e-client/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-    <script type="module" crossorigin src="/project-e-client/assets/index-Dddjf9Rd.js"></script>
+    <title>Project E</title>
+    <!-- SPA redirect handler for GitHub Pages -->
+    <script>
+      // Check if we have a redirect parameter from 404.html
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get('redirect');
+      
+      if (redirect) {
+        // Remove the redirect parameter and navigate to the intended path
+        // The basename will be handled by React Router
+        const newUrl = window.location.origin + window.location.pathname + redirect;
+        window.history.replaceState(null, '', newUrl);
+        
+        // Remove the redirect parameter from the URL
+        const url = new URL(window.location);
+        url.searchParams.delete('redirect');
+        window.history.replaceState(null, '', url.toString());
+      }
+    </script>
+    <script type="module" crossorigin src="/project-e-client/assets/index-CmxVk92C.js"></script>
     <link rel="stylesheet" crossorigin href="/project-e-client/assets/index-BJFnEu7W.css">
   </head>
   <body>
