@@ -34,9 +34,12 @@ const darkTheme = createTheme({
 });
 
 function App() {
+  // Set the basename for GitHub Pages deployment
+  const basename = import.meta.env.PROD ? '/project-e-client' : '';
+  
   return (
     <ThemeProvider theme={darkTheme}>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<RootLayout />}>
             <Route index element={<Navigate to="/join-event" replace />} /> {/* Redirect root to join event page, for good UX */}
