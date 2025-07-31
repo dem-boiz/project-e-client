@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,10 +19,12 @@ import {
   Schedule as TimeIcon,
   Event as EventIcon,
   Description as DescriptionIcon,
+  QrCode as QrCodeIcon,
 } from '@mui/icons-material';
 import type { Event } from '../../../types/event';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import EventPassQR from './EventPassQR';
 
 dayjs.extend(relativeTime);
 
@@ -33,6 +35,8 @@ interface EventTileExpandedProps {
 }
 
 const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onClose }) => {
+  const [qrOpen, setQrOpen] = useState(false);
+  
   if (!event) return null;
 
   const eventDate = dayjs(event.date);
@@ -190,25 +194,35 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
               </>
             )}
 
-            {/* Event Code (if available) */}
-            {event.eventCode && (
+            {/* Event Pass (if available) */}
+            {event.eventPass && (
               <Box>
-                <Typography variant="h6" sx={{ color: 'text.primary', marginBottom: 1 }}>
-                  Event Code
+                <Typography variant="h6" sx={{ color: 'text.primary', marginBottom: 2 }}>
+                  Event Pass
                 </Typography>
-                <Typography
-                  variant="body1"
+                <Button
+                  variant="contained"
+                  startIcon={<QrCodeIcon />}
+                  onClick={() => setQrOpen(true)}
                   sx={{
-                    color: 'text.secondary',
-                    fontSize: '1rem',
-                    fontFamily: 'monospace',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    padding: '8px 12px',
-                    borderRadius: 1,
-                    display: 'inline-block',
+                    textTransform: 'none',
+                    backgroundColor: 'primary.main',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark',
+                    },
                   }}
                 >
-                  {event.eventCode}
+                  View Event Pass
+                </Button>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                    marginTop: 1,
+                    fontSize: '0.875rem',
+                  }}
+                >
+                  Show QR code at event entrance for access
                 </Typography>
               </Box>
             )}
@@ -245,6 +259,14 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
           </Button>
         )}
       </DialogActions>
+
+      {/* Event Pass QR Code Modal */}
+      <EventPassQR
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        eventName={event.name}
+        eventPassData={event.eventPass}
+      />
     </Dialog>
   );
 };

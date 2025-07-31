@@ -19,7 +19,7 @@ export interface Event {
   status: 'upcoming' | 'ongoing' | 'past';
   attendeeCount?: number;
   createdAt: string;
-  eventCode?: string; // Optional: Code used to join the event
+  eventPass?: string; // QR code data for free event pass access
 }
 
 // Mock data for development
@@ -36,7 +36,7 @@ export const mockEvents: Event[] = [
     status: 'upcoming',
     attendeeCount: 12,
     createdAt: '2025-07-20T10:00:00.000Z',
-    eventCode: 'TEAM2025'
+    eventPass: 'EVENT_PASS_TEAM_2025_QR_DATA'
   },
   {
     id: '2',
@@ -49,7 +49,7 @@ export const mockEvents: Event[] = [
     status: 'upcoming',
     attendeeCount: 8,
     createdAt: '2025-07-18T15:30:00.000Z',
-    eventCode: 'COFFEE24'
+    eventPass: 'EVENT_PASS_COFFEE_2025_QR_DATA'
   },
   {
     id: '3',
@@ -63,7 +63,7 @@ export const mockEvents: Event[] = [
     status: 'upcoming',
     attendeeCount: 7,
     createdAt: '2025-07-25T11:15:00.000Z',
-    eventCode: 'KICK2025'
+    eventPass: 'EVENT_PASS_KICK_2025_QR_DATA'
   },
   {
     id: '4',
@@ -76,7 +76,7 @@ export const mockEvents: Event[] = [
     status: 'upcoming',
     attendeeCount: 23,
     createdAt: '2025-07-12T09:45:00.000Z',
-    eventCode: 'BOOK085'
+    eventPass: 'EVENT_PASS_BOOK_2025_QR_DATA'
   },
   {
     id: '5',
@@ -90,7 +90,7 @@ export const mockEvents: Event[] = [
     status: 'upcoming',
     attendeeCount: 9,
     createdAt: '2025-07-28T14:20:00.000Z',
-    eventCode: 'SALES Q3'
+    eventPass: 'EVENT_PASS_SALES_Q3_2025_QR_DATA'
   },
   {
     id: '6',
@@ -103,6 +103,6 @@ export const mockEvents: Event[] = [
     status: 'upcoming',
     attendeeCount: 16,
     createdAt: '2025-07-15T16:00:00.000Z',
-    eventCode: 'HIKE812'
+    eventPass: 'EVENT_PASS_HIKE_2025_QR_DATA'
   }
 ];
