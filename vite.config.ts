@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const base = mode === 'production' ? '/project-e-client/' : '/'
+  const base = mode === 'production' ? '/project-e-client/' : '/project-e-client/'
   
   return {
     plugins: [react()],
