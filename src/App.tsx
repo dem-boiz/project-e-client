@@ -5,16 +5,17 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route } from "react-router";
 import RootLayout from './layout/RootLayout';
 import { Navigate } from 'react-router';
-
+import CreateEventPage from './features/create-event/CreateEventPage';
+import MyEventsPage from './features/my-events/MyEventsPage';
 
 // Dark theme configuration
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#04291b', // Dark blue,
-      light: '#365348',
-      dark: '#021C12',
+      main: '#5C8374', // Dark blue,
+      light: '#93B1A6',
+      dark: '#183D3D',
     },
     background: {
       default: '#121212',
@@ -38,7 +39,8 @@ function App() {
           <Route path="/" element={<RootLayout />}>
             <Route index element={<Navigate to="/join-event" replace />} /> {/* Redirect root to join event page, for good UX */}
             <Route path="join-event" element={<JoinEventPage />} />
-            <Route path="create-event" element={<JoinEventPage />} />
+            <Route path="create-event" element={<CreateEventPage />} />
+            <Route path="my-events" element={<MyEventsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
