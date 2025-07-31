@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
 import {
   Box,
   TextField,
@@ -13,14 +14,14 @@ import {
 
 const JoinEventPage: React.FC = () => {
   const [accessCode, setAccessCode] = useState('');
+  const navigate = useNavigate();
 
   const handleJoinEvent = () => {
     // TODO: Implement join event logic
   };
 
   const handleCreateEvent = () => {
-    // TODO: Implement create event logic
-    console.log('Create new event');
+    navigate('/create-event');
   };
 
   return (
