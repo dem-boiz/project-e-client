@@ -52,7 +52,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Settings',
     icon: <SettingsIcon />,
     route: '/settings',
-    enabled: true, // Disabled for now, future feature
+    enabled: false, // Disabled for now, future feature
   },
 ];
 
