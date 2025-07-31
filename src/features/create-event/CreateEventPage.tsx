@@ -21,6 +21,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dayjs, { Dayjs } from 'dayjs';
+import { useNavigate } from 'react-router';
 
 const schema = z.object({
   name: z.string().min(1, "Event name is required"),
@@ -39,6 +40,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const CreateEventForm: React.FC = () => {
+  const navigate = useNavigate();
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -307,6 +309,25 @@ const CreateEventForm: React.FC = () => {
                   >
                     Create Event
                   </Button>
+
+                  {/* Join Event Link */}
+                  <Typography
+                    onClick={() => navigate('/join-event')}
+                    sx={{
+                      textAlign: 'center',
+                      color: 'text.secondary',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      marginTop: 2,
+                      '&:hover': {
+                        color: 'primary.main',
+                        textDecoration: 'underline',
+                      },
+                      transition: 'color 0.2s ease-in-out',
+                    }}
+                  >
+                    Have an event code? Join
+                  </Typography>
                 </Stack>
               </Box>
             </Stack>

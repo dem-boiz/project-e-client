@@ -46,13 +46,13 @@ const navigationItems: NavigationItem[] = [
     label: 'My Events',
     icon: <DashboardIcon />,
     route: '/my-events',
-    enabled: false, // Disabled for now, future feature
+    enabled: true, // Disabled for now, future feature
   },
   {
     label: 'Settings',
     icon: <SettingsIcon />,
     route: '/settings',
-    enabled: false, // Disabled for now, future feature
+    enabled: true, // Disabled for now, future feature
   },
 ];
 
@@ -98,7 +98,7 @@ const NavigationDrawer: React.FC = () => {
         </Typography>
         <IconButton
           onClick={() => setIsOpen(false)}
-          sx={{ color: 'text.primary' }}
+          sx={{ color: 'text.primary'}}
         >
           <CloseIcon />
         </IconButton>
@@ -189,11 +189,10 @@ const NavigationDrawer: React.FC = () => {
           top: 16,
           left: 16,
           zIndex: 1200,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          backgroundColor: 'transparent',
           color: 'text.primary',
-          backdropFilter: 'blur(10px)',
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
           },
         }}
       >
