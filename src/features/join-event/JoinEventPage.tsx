@@ -8,6 +8,7 @@ import {
   Container,
   Paper,
   Stack,
+  Divider,
 } from '@mui/material';
 
 
@@ -32,15 +33,15 @@ const JoinEventPage: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 2,
+          padding: { xs: 1, sm: 1, md: 2, lg: 2 },
           overflow: 'hidden',
         }}
       >
-        <Container maxWidth="sm">
+        <Container maxWidth="sm" sx={{ padding: { xs: 1, sm: 1, md: 2, lg: 2 } }}>
           <Paper
             elevation={3}
             sx={{
-              padding: { xs: 3, sm: 4, md: 5 },
+              padding: { xs: 2, sm: 3, md: 4 },
               backgroundColor: 'background.paper',
               borderRadius: 2,
             }}
@@ -100,17 +101,17 @@ const JoinEventPage: React.FC = () => {
               </Box>
 
               {/* Divider Text */}
-              <Typography
-                variant="body1"
-                sx={{
-                  color: 'text.secondary',
-                  fontWeight: 300,
-                  fontSize: '1.1rem',
+              <Divider 
+                sx={{ 
+                  width: '100%',
+                  "&::before, &::after": {
+                    borderColor: "#333333",
+                    borderWidth: '1px',
+                  },  
                 }}
               >
-                or
-              </Typography>
-
+                Or
+              </Divider>
               {/* Create Event Button */}
               <Button
                 color="primary"

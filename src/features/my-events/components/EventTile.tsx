@@ -27,6 +27,7 @@ const EventTile: React.FC<EventTileProps> = ({ event, onClick }) => {
 
   return (
     <Card
+      elevation={2}
       onClick={onClick}
       sx={{
         height: '375px',

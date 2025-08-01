@@ -26,10 +26,8 @@ import {
   Star as HostIcon,
   Event as EventIcon,
   People as PeopleIcon,
-  QrCode as QrCodeIcon,
   Edit as EditIcon,
   Save as SaveIcon,
-  Message as MessageIcon,
 } from '@mui/icons-material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -37,7 +35,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Event } from '../../../types/event';
 import dayjs, { Dayjs } from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import EventPassQR from './EventPassQR';
 
 dayjs.extend(relativeTime);
 
@@ -69,7 +66,6 @@ interface EventTileExpandedProps {
 }
 
 const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onClose }) => {
-  const [qrOpen, setQrOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   
@@ -132,7 +128,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
   };
 
   const handleCloseSnackbar = (
-    event?: React.SyntheticEvent | globalThis.Event,
+    _event?: React.SyntheticEvent | globalThis.Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === 'clickaway') {
