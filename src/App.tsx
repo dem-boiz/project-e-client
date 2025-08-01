@@ -35,8 +35,8 @@ const darkTheme = createTheme({
 
 function App() {
   // Set the basename for GitHub Pages deployment
-  const basename = import.meta.env.PROD ? '/project-e-client' : '';
-  
+  const basename = import.meta.env.VITE_BASE_NAME ?? '/';
+
   return (
     <ThemeProvider theme={darkTheme}>
       <BrowserRouter basename={basename}>

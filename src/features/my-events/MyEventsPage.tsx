@@ -6,9 +6,10 @@ import {
   Stack,
 } from '@mui/material';
 import EventTile from './components/EventTile';
-import EventTileExpanded from './components/EventTileExpanded';
 import { mockEvents } from '../../types/event';
 import type { Event } from '../../types/event';
+import EventEditView from './components/EventEditView';
+import EventGuestView from './components/EventGuestView';
 
 const MyEventsPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -127,11 +128,20 @@ const MyEventsPage: React.FC = () => {
       </Container>
 
       {/* Expanded Event Modal */}
-      <EventTileExpanded
-        event={selectedEvent}
-        open={expandedOpen}
-        onClose={handleCloseExpanded}
-      />
+
+      {selectedEvent?.role === 'host' ? (
+        <EventEditView
+          event={selectedEvent}
+          open={expandedOpen}
+          onClose={handleCloseExpanded}
+        />
+      ) : (
+        <EventGuestView
+          event={selectedEvent}
+          open={expandedOpen}
+          onClose={handleCloseExpanded}
+        />
+      )}
     </Box>
   );
 };

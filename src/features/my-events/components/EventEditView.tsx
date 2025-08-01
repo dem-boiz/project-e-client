@@ -16,6 +16,10 @@ import {
   Alert,
   FormControlLabel,
   Checkbox,
+  Snackbar,
+  type SnackbarCloseReason,
+  type SlideProps,
+  Slide,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -36,6 +40,10 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import EventPassQR from './EventPassQR';
 
 dayjs.extend(relativeTime);
+
+function SlideTransition(props: SlideProps) {
+  return <Slide {...props} direction="left" />;
+}
 
 // Zod schema matching CreateEventPage structure
 const editEventSchema = z.object({
@@ -123,8 +131,36 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
     }, 3000);
   };
 
+  const handleCloseSnackbar = (
+    event?: React.SyntheticEvent | globalThis.Event,
+    reason?: SnackbarCloseReason,
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSaveSuccess(false);
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Snackbar
+        open={saveSuccess}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        slots={{ transition: SlideTransition }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          variant="filled"
+          sx={{ width: '100%', bgcolor: 'primary.main', color: 'text.primary', fontFamily: 'typography.fontFamily', fontWeight: 500 }}
+        >
+          Event Saved!
+        </Alert>
+      </Snackbar>
+
       <Dialog
         open={open}
         onClose={onClose}
@@ -232,15 +268,6 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
               )}
             </Stack>
           </Box>
-
-          {/* Success Message */}
-          {saveSuccess && (
-            <Box sx={{ padding: 3, paddingBottom: 0 }}>
-              <Alert severity="success">
-                Event details saved successfully!
-              </Alert>
-            </Box>
-          )}
 
           {/* Form Content */}
           <Box sx={{ padding: 3 }}>
@@ -386,71 +413,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
                   )}
                 />
 
-                {/* Action Bar */}
-                <Box
-                  sx={{
-                    marginTop: 4,
-                    padding: 3,
-                    backgroundColor: 'rgba(92, 131, 116, 0.05)',
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: 'text.primary',
-                      marginBottom: 2,
-                      textAlign: 'center',
-                    }}
-                  >
-                    Event Actions
-                  </Typography>
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    {/* View Event Pass Button */}
-                    {event.eventPass && (
-                      <Button
-                        variant="contained"
-                        startIcon={<QrCodeIcon />}
-                        onClick={() => setQrOpen(true)}
-                        sx={{
-                          textTransform: 'none',
-                          backgroundColor: 'primary.main',
-                          '&:hover': {
-                            backgroundColor: 'primary.dark',
-                          },
-                        }}
-                      >
-                        View Event Pass
-                      </Button>
-                    )}
 
-                    {/* Message Host Button (only for guests) */}
-                    {!isHost && (
-                      <Button
-                        variant="outlined"
-                        startIcon={<MessageIcon />}
-                        sx={{
-                          textTransform: 'none',
-                          borderColor: 'primary.main',
-                          color: 'primary.main',
-                          '&:hover': {
-                            borderColor: 'primary.dark',
-                            color: 'primary.dark',
-                          },
-                        }}
-                      >
-                        Message Host
-                      </Button>
-                    )}
-                  </Stack>
-                </Box>
               </Stack>
             </Box>
           </Box>
@@ -487,14 +450,6 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
             </Button>
           )}
         </DialogActions>
-
-        {/* Event Pass QR Code Modal */}
-        <EventPassQR
-          open={qrOpen}
-          onClose={() => setQrOpen(false)}
-          eventName={event.name}
-          eventPassData={event.eventPass}
-        />
       </Dialog>
     </LocalizationProvider>
   );

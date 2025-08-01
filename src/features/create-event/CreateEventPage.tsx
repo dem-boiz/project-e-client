@@ -61,7 +61,8 @@ const CreateEventForm: React.FC = () => {
       ...data,
       capacity: isPrivate ? data.capacity : undefined,
     };
-    console.log(eventData);
+    console.log('Creating event:', eventData); // TODO: Replace with actual API call
+    navigate('/my-events'); // Navigate to My Events page after creation
     // Call your backend here
   };
 
@@ -196,6 +197,8 @@ const CreateEventForm: React.FC = () => {
                       },
                       '& .MuiAccordionDetails-root': {
                         backgroundColor: 'transparent',
+                        paddingX: 0,
+
                       },
                       '&.MuiPaper-root': {
                         boxShadow: 'none',

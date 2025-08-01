@@ -5,6 +5,5 @@ export interface Event {
     location: string;
     description: string;
     capacity: number;
-    nootes: string;
     isPrivate: boolean;
 }
