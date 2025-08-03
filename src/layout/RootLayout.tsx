@@ -1,6 +1,8 @@
 import { Outlet } from "react-router";
 import NavigationDrawer from "./components/NavigationDrawer";
 import { Box } from "@mui/material";
+import { ToastContainer, toast } from 'react-toastify';
+
 
 export default function RootLayout() {
   return (
@@ -15,6 +17,9 @@ export default function RootLayout() {
       <main>
         <Outlet />  {/* This is where nested routes will render */}
       </main>
+      <ToastContainer
+        theme="dark"
+      />
     </Box>
   );
 }

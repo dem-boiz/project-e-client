@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
   Box,
   TextField,
@@ -10,15 +13,39 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
+import { joinEvent } from '../../service/api/api.service';
+import { toast } from 'react-toastify';
+// Zod schema for form validation
+const joinEventSchema = z.object({
+  accessCode: z.string().min(1, "Access code is required"),
+});
 
-
+type JoinEventFormData = z.infer<typeof joinEventSchema>;
 
 const JoinEventPage: React.FC = () => {
-  const [accessCode, setAccessCode] = useState('');
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { register, handleSubmit, formState: { errors } } = useForm<JoinEventFormData>({
+    resolver: zodResolver(joinEventSchema),
+    defaultValues: {
+      accessCode: '',
+    },
+  });
 
-  const handleJoinEvent = () => {
-    // TODO: Implement join event logic
+  const onSubmit = async (data: JoinEventFormData) => {
+    setIsLoading(true);
+    try {
+      console.log('Joining event with code:', data.accessCode);
+      await joinEvent(data.accessCode);
+      navigate('/my-events');
+      
+    } catch (error) {
+      console.error('Failed to join event:', error);
+      toast.error('Failed to join event. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCreateEvent = () => {
@@ -64,11 +91,14 @@ const JoinEventPage: React.FC = () => {
 
               {/* Code Input Row */}
               <Box
+                component="form"
+                onSubmit={handleSubmit(onSubmit)}
                 sx={{
                   display: 'flex',
                   gap: 2,
                   width: '100%',
                   flexDirection: { xs: 'column', sm: 'row' },
+                  height: 80,
                   alignItems: 'stretch',
                 }}
               >
@@ -76,8 +106,9 @@ const JoinEventPage: React.FC = () => {
                   fullWidth
                   variant="outlined"
                   placeholder="Enter your one-time access code"
-                  value={accessCode}
-                  onChange={(e) => setAccessCode(e.target.value)}
+                  {...register('accessCode')}
+                  error={!!errors.accessCode}
+                  helperText={errors.accessCode?.message}
                   sx={{
                     flex: 0.7,
                     '& .MuiOutlinedInput-root': {
@@ -86,17 +117,19 @@ const JoinEventPage: React.FC = () => {
                   }}
                 />
                 <Button
+                  type="submit"
                   variant="contained"
                   color="primary"
-                  onClick={handleJoinEvent}
+                  loading={isLoading}
                   sx={{
+                    height: '56px',
                     flex: 0.3,
                     minHeight: '56px',
                     fontSize: '1rem',
                     textTransform: 'none',
                   }}
                 >
-                  Join
+                  {isLoading ? 'Joining...' : 'Join'}
                 </Button>
               </Box>
 

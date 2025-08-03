@@ -22,6 +22,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dayjs, { Dayjs } from 'dayjs';
 import { useNavigate } from 'react-router';
+import { createEvent } from '../../service/api/api.service';
+import { toast } from 'react-toastify';
+
 
 const schema = z.object({
   name: z.string().min(1, "Event name is required"),
@@ -41,6 +44,7 @@ type FormData = z.infer<typeof schema>;
 
 const CreateEventForm: React.FC = () => {
   const navigate = useNavigate();
+  const [ isLoading, setIsLoading ] = React.useState(false);
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -55,14 +59,24 @@ const CreateEventForm: React.FC = () => {
 
   const isPrivate = watch('isPrivate');
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     // Convert capacity to undefined if event is public
     const eventData = {
       ...data,
       capacity: isPrivate ? data.capacity : undefined,
     };
+
     console.log('Creating event:', eventData); // TODO: Replace with actual API call
-    navigate('/my-events'); // Navigate to My Events page after creation
+    setIsLoading(true);
+    try {
+          await createEvent(eventData); // TODO: Replace with actual API call
+          navigate('/my-events'); // Navigate to My Events page after creation
+    } catch (error) {
+      console.log('Caught API error:', error);
+      toast.error('Failed to create event. Please try again later.');
+      // Handle error appropriately, e.g., show a notification
+    }
+    setIsLoading(false);
     // Call your backend here
   };
 
@@ -311,6 +325,7 @@ const CreateEventForm: React.FC = () => {
                     type="submit"
                     variant="contained"
                     color="primary"
+                    loading={isLoading}
                     sx={{
                       width: '100%',
                       padding: '12px 24px',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import * as z from "zod";
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,13 +7,8 @@ import {
   Box,
   Stack,
   TextField,
-  Alert,
   FormControlLabel,
   Checkbox,
-  Snackbar,
-  type SnackbarCloseReason,
-  type SlideProps,
-  Slide,
   Button,
 } from '@mui/material';
 import {
@@ -28,9 +23,7 @@ import DialogTitle from './DialogTitle';
 
 dayjs.extend(relativeTime);
 
-function SlideTransition(props: SlideProps) {
-  return <Slide {...props} direction="left" />;
-}
+
 
 // Zod schema matching CreateEventPage structure
 const editEventSchema = z.object({
@@ -55,7 +48,6 @@ interface EventEditViewProps {
 }
 
 const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
-  const [saveSuccess, setSaveSuccess] = useState(false);
   
   const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<EditFormData>({
     resolver: zodResolver(editEventSchema),
@@ -81,7 +73,6 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
         capacity: event?.capacity || 100,
         isPrivate: event?.isPrivate,
       });
-      setSaveSuccess(false);
   }, [event, reset]);
 
   if (!event) return null;
@@ -90,45 +81,16 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
 
   const onSave = (data: EditFormData) => {
     console.log('Saving event data:', data);
+
     
-    // Simulate successful save
-    setSaveSuccess(true);
-    
-    // Hide success message after 3 seconds
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 3000);
+
+
+
   };
 
-  const handleCloseSnackbar = (
-    _event?: React.SyntheticEvent | globalThis.Event,
-    reason?: SnackbarCloseReason,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setSaveSuccess(false);
-  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Snackbar
-        open={saveSuccess}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        slots={{ transition: SlideTransition }}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          variant="filled"
-          sx={{ width: '100%', bgcolor: 'primary.main', color: 'text.primary', fontFamily: 'typography.fontFamily', fontWeight: 500 }}
-        >
-          Event Saved!
-        </Alert>
-      </Snackbar>
       
           <Box
             sx={{
