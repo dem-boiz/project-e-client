@@ -8,8 +8,7 @@ import {
 import EventTile from './components/EventTile';
 import { mockEvents } from '../../types/event';
 import type { Event } from '../../types/event';
-import EventEditView from './components/EventEditView';
-import EventGuestView from './components/EventGuestView';
+import EventTileExpanded from './components/EventTileExpanded';
 
 const MyEventsPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -24,6 +23,15 @@ const MyEventsPage: React.FC = () => {
     setExpandedOpen(false);
     setSelectedEvent(null);
   };
+
+
+
+  // TODO: Refactor my events page to !!! IMPROVE MOBILE EXPERIENCE !!!...
+  // remove use of dialogs.. they take up too much space on mobile
+  // instead, use a transition screen on the my events-page with the iniial screen being the 
+  // list of event tiles... On event tile click, transition to the detailed view of the event.. From here,
+  // the user can transition to the edit menu, or, guest list, etc..
+
 
   return (
     <Box
@@ -129,19 +137,12 @@ const MyEventsPage: React.FC = () => {
 
       {/* Expanded Event Modal */}
 
-      {selectedEvent?.role === 'host' ? (
-        <EventEditView
-          event={selectedEvent}
-          open={expandedOpen}
-          onClose={handleCloseExpanded}
-        />
-      ) : (
-        <EventGuestView
-          event={selectedEvent}
-          open={expandedOpen}
-          onClose={handleCloseExpanded}
-        />
-      )}
+
+      <EventTileExpanded
+        event={selectedEvent}
+        open={expandedOpen}
+        onClose={handleCloseExpanded}
+      />
     </Box>
   );
 };

@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogActions,
   Button,
   Typography,
   Box,
   Chip,
   Stack,
-  IconButton,
 } from '@mui/material';
 import {
-  Close as CloseIcon,
-  Star as HostIcon,
   LocationOn as LocationIcon,
   Schedule as TimeIcon,
   Event as EventIcon,
@@ -23,40 +17,23 @@ import {
 import type { Event } from '../../../types/event';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import EventPassQR from './EventPassQR';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import DialogTitle from './DialogTitle';
 
 dayjs.extend(relativeTime);
 
-interface EventTileExpandedProps {
+interface EventGuestViewProps {
   event: Event | null;
-  open: boolean;
-  onClose: () => void;
 }
 
-const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onClose }) => {
-  const [qrOpen, setQrOpen] = useState(false);
+const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
   
   if (!event) return null;
 
   const isHost = event.role === 'host';
 
   return (
-      <Dialog
-        open={open}
-        onClose={onClose}
-        maxWidth="md"
-        fullWidth
-        sx={{
-          '& .MuiDialog-paper': {
-            backgroundColor: 'background.paper',
-            borderRadius: 2,
-            maxHeight: '90vh',
-          },
-        }}
-      >
-        <DialogContent sx={{ padding: 0 }}>
-          {/* Header */}
+    <Box>
           <Box
             sx={{
               padding: 3,
@@ -65,30 +42,8 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
               position: 'relative',
             }}
           >
-            <IconButton
-              onClick={onClose}
-              sx={{
-                position: 'absolute',
-                right: 16,
-                top: 16,
-                color: 'text.secondary',
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-
             <Box sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: 2, paddingRight: 6 }}>
-              <Typography
-                variant="h4"
-                sx={{
-                  color: 'text.primary',
-                  fontWeight: 500,
-                  lineHeight: 1.3,
-                  flex: 1,
-                }}
-              >
-                {event.name}
-              </Typography>
+              <DialogTitle title={event.name} />
             </Box>
           </Box>
 
@@ -147,7 +102,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
               </Box>
 
               {/* Event Chips */}
-              <Stack direction="row" spacing={2} flexWrap="wrap" sx={{ marginTop: 2 }}>
+              <Stack direction="row" gap={2} flexWrap="wrap" sx={{ marginTop: 2 }}>
                 <Chip
                   label={event.isPrivate ? 'Private Event' : 'Public Event'}
                   icon={<EventIcon />}
@@ -242,7 +197,6 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
                     <Button
                       variant="contained"
                       startIcon={<QrCodeIcon />}
-                      onClick={() => setQrOpen(true)}
                       sx={{
                         textTransform: 'none',
                         backgroundColor: 'primary.main',
@@ -275,38 +229,8 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
               </Box>
             </Stack>
           </Box>
-
-
-        </DialogContent>
-
-        <DialogActions sx={{ padding: 3, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Button
-            onClick={onClose}
-            variant="outlined"
-            sx={{
-              textTransform: 'none',
-              borderColor: 'text.secondary',
-              color: 'text.secondary',
-              '&:hover': {
-                borderColor: 'primary.main',
-                color: 'primary.main',
-              },
-            }}
-          >
-            Close
-          </Button>
-
-        </DialogActions>
-
-        {/* Event Pass QR Code Modal */}
-        <EventPassQR
-          open={qrOpen}
-          onClose={() => setQrOpen(false)}
-          eventName={event.name}
-          eventPassData={event.eventPass}
-        />
-      </Dialog>
+    </Box>
   );
 };
 
-export default EventTileExpanded;
+export default EventGuestView;

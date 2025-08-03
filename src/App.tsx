@@ -17,6 +17,11 @@ const darkTheme = createTheme({
       light: '#93B1A6',
       dark: '#183D3D',
     },
+    error: {
+      main: '#F44336', // Red 
+      light: '#E57373',
+      dark: '#C62828',
+    },
     background: {
       default: '#121212',
       paper: '#0a0a0a',

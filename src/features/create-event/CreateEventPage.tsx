@@ -71,19 +71,28 @@ const CreateEventForm: React.FC = () => {
       <Box
         sx={{
           height: '100vh',
+          scrollbarGutter: 'stable', // Fixes shifting from scrollbar appearence... only works on modern browsers.
           backgroundColor: 'background.default',
+          position: 'relative',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'center',
-          padding: 2,
+          padding: { xs: 1, sm: 1, md: 2, lg: 2 },
           overflow: 'auto',
         }}
       >
-        <Container maxWidth="sm">
+        <Container 
+          maxWidth="sm" 
+          sx={{ 
+            padding: { xs: 1, sm: 1, md: 2, lg: 2 },
+            marginTop: { xs: 10, sm: 12, md: 20, lg: 20 },
+            height: 'fit-content',
+            marginBottom: '100px'
+          }}
+          >
           <Paper
             elevation={3}
             sx={{
-              padding: { xs: 3, sm: 4, md: 5 },
+              padding: { xs: 2, sm: 3, md: 4 },
               backgroundColor: 'background.paper',
               borderRadius: 2,
             }}
@@ -206,7 +215,7 @@ const CreateEventForm: React.FC = () => {
                     }}
                   >
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon  sx={{ color: 'text.primary', fontSize: '1.5rem' }} />}
+                      expandIcon={<ExpandMoreIcon  sx={{ color: 'text.secondary', fontSize: '1.5rem' }} />}
                       sx={{
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -222,7 +231,7 @@ const CreateEventForm: React.FC = () => {
                         },
                       }}
                     >
-                      <Typography sx={{ color: 'text.primary', fontSize: '1rem' }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '1rem' }}>
                           More Options
                       </Typography>
                     </AccordionSummary>
