@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import NavigationDrawer from "./components/NavigationDrawer";
 import { Box } from "@mui/material";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 
 export default function RootLayout() {

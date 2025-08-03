@@ -98,7 +98,7 @@ const JoinEventPage: React.FC = () => {
                   gap: 2,
                   width: '100%',
                   flexDirection: { xs: 'column', sm: 'row' },
-                  height: 80,
+                  height: { sm: 80 },
                   alignItems: 'stretch',
                 }}
               >
