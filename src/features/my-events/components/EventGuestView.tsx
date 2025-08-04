@@ -205,7 +205,7 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
                         },
                       }}
                     >
-                      View Event Pass
+                      Event Pass
                     </Button>
                   )}
 
