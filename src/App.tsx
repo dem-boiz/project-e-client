@@ -8,6 +8,27 @@ import { Navigate } from 'react-router';
 import CreateEventPage from './features/create-event/CreateEventPage';
 import MyEventsPage from './features/my-events/MyEventsPage';
 
+/**
+ * JIRA: MOB-123
+ * Title: Implement scroll position restoration after keyboard dismissal
+ * 
+ * Description:
+ * Implement functionality to track Y-scroll position when the mobile keyboard 
+ * pushes up UI elements, then restore that position when the keyboard is dismissed.
+ * This will create a more seamless user experience especially on mobile devices.
+ * 
+ * Acceptance Criteria:
+ * - Track scroll position before keyboard appears
+ * - Restore scroll position after keyboard is dismissed
+ * - Works across all form elements in the application
+ * - Tested on iOS and Android devices
+ * 
+ * Priority: Medium
+ * Story points: 3
+ */
+// TODO: For a more seamless experience, track y scroll when keyboard pushes up elements.
+// After the keyboard is dismiessed, scroll back to the previous position.
+
 // Dark theme configuration
 const darkTheme = createTheme({
   palette: {

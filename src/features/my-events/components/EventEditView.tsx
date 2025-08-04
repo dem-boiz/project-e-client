@@ -73,7 +73,10 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
         capacity: event?.capacity || 100,
         isPrivate: event?.isPrivate,
       });
+      scrollTo(0, 0);
   }, [event, reset]);
+
+
 
   if (!event) return null;
 

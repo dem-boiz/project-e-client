@@ -20,13 +20,11 @@ html {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
   
 }
 
 #root {
   height: 100vh;
-  overflow: hidden;
 }
 
 
@@ -36,7 +34,6 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  overflow: hidden;
 }
 
 

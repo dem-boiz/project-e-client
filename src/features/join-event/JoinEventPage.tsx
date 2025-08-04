@@ -61,7 +61,7 @@ const JoinEventPage: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           padding: { xs: 1, sm: 1, md: 2, lg: 2 },
-          overflow: 'hidden',
+          overflow: 'auto',
         }}
       >
         <Container maxWidth="sm" sx={{ padding: { xs: 1, sm: 1, md: 2, lg: 2 } }}>

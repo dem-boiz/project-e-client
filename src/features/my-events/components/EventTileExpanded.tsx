@@ -28,6 +28,12 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
     }
   }, [open]);
 
+  useEffect(() => {
+    if (dialogContentRef.current) {
+      dialogContentRef.current.scrollTo(0, 0);
+    }
+  }, [editViewOpen]);
+
   if (!event) return null;
 
   return (
@@ -38,21 +44,23 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
       sx={{
         '& .MuiPaper-root.MuiDialog-paper': {
           overflowX: 'hidden',
-          height: { xs: '85vh', md: '90vh' },
+          height: { xs: '100vh', sm: '100vh', md: '90vh' },
           width: '100%',
           maxWidth: { xs: 850, sm: 850, md: 850, lg: 850 },
           display: 'flex',
           flexDirection: 'column',
-          margin: '30px 10px'
+          margin: '0px 0px 0px 0px',
+          marginX: { xs: 0, sm: 5 },
+          borderRadius: { xs: 0, sm: 2 },
 
         },
         '& .MuiDialog-paper': {
           borderRadius: 2,
           height: '90vh',
           maxHeight: '90vh',
-        },
+        }
       }}
-    >
+      >
       <DialogContent sx={{ padding: 0, position: 'relative', overflowX: 'hidden' }} ref={dialogContentRef}>
         <Slide
           appear={false}
