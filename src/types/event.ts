@@ -11,7 +11,6 @@ export interface Event {
   location?: string;
   date: string;
   capacity?: number;
-  isPrivate: boolean;
   
   // New fields for dashboard
   id: string;
@@ -31,7 +30,6 @@ export const mockEvents: Event[] = [
     location: 'Conference Room A, Downtown Office',
     date: '2025-08-15T14:00:00.000Z',
     capacity: 25,
-    isPrivate: true,
     role: 'host',
     status: 'upcoming',
     attendeeCount: 12,
@@ -44,7 +42,6 @@ export const mockEvents: Event[] = [
     description: 'Casual networking event over coffee and pastries.',
     location: 'Starbucks Central Plaza Two',
     date: '2025-08-10T09:30:00.000Z',
-    isPrivate: false,
     role: 'guest',
     status: 'upcoming',
     attendeeCount: 8,
@@ -58,7 +55,6 @@ export const mockEvents: Event[] = [
     location: 'Virtual - Zoom Link Provided',
     date: '2025-08-20T13:00:00.000Z',
     capacity: 15,
-    isPrivate: true,
     role: 'host',
     status: 'upcoming',
     attendeeCount: 7,
@@ -71,7 +67,6 @@ export const mockEvents: Event[] = [
     description: 'Discussion of this month\'s book selection with snacks and drinks provided.',
     location: 'Community Library - Meeting Room B',
     date: '2025-08-05T18:00:00.000Z',
-    isPrivate: false,
     role: 'guest',
     status: 'upcoming',
     attendeeCount: 23,
@@ -85,7 +80,6 @@ export const mockEvents: Event[] = [
     location: 'Executive Conference Room',
     date: '2025-08-25T10:00:00.000Z',
     capacity: 12,
-    isPrivate: true,
     role: 'host',
     status: 'upcoming',
     attendeeCount: 9,
@@ -98,7 +92,6 @@ export const mockEvents: Event[] = [
     description: 'Group hiking adventure to nearby mountain trails with lunch included.',
     location: 'Mountain Trail Park - Main Entrance',
     date: '2025-08-12T08:00:00.000Z',
-    isPrivate: false,
     role: 'guest',
     status: 'upcoming',
     attendeeCount: 16,

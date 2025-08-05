@@ -5,5 +5,4 @@ export interface Event {
     location: string;
     description: string;
     capacity: number;
-    isPrivate: boolean;
 }

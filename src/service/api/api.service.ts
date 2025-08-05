@@ -33,7 +33,6 @@ interface CreateEventRequest {
   location?: string;
   date: string;
   capacity?: number;
-  isPrivate: boolean;
 }
 
 // Update Event request type

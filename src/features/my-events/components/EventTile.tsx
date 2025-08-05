@@ -128,16 +128,6 @@ const EventTile: React.FC<EventTileProps> = ({ event, onClick }) => {
             </Stack>
           )}
           
-          <Chip
-            label={event.isPrivate ? 'Private' : 'Public'}
-            size="small"
-            sx={{
-              backgroundColor: event.isPrivate ? 'rgba(255, 193, 7, 0.2)' : 'rgba(76, 175, 80, 0.2)',
-              color: event.isPrivate ? '#FFC107' : '#4CAF50',
-              fontSize: '0.75rem',
-              height: '24px',
-            }}
-          />
         </Box>
       </CardContent>
     </Card>

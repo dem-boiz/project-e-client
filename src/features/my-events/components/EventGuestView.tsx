@@ -103,14 +103,7 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
 
               {/* Event Chips */}
               <Stack direction="row" gap={2} flexWrap="wrap" sx={{ marginTop: 2 }}>
-                <Chip
-                  label={event.isPrivate ? 'Private Event' : 'Public Event'}
-                  icon={<EventIcon />}
-                  sx={{
-                    backgroundColor: event.isPrivate ? 'rgba(255, 193, 7, 0.2)' : 'rgba(76, 175, 80, 0.2)',
-                    color: event.isPrivate ? '#FFC107' : '#4CAF50',
-                  }}
-                />
+
                 <Chip
                   label={event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                   sx={{

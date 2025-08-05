@@ -43,7 +43,6 @@ const editEventSchema = z.object({
       return date > new Date();
     }, "Event date must be in the future"),
   capacity: z.number().min(1, "Capacity must be at least 1").max(10000, "Capacity cannot exceed 10,000").optional(),
-  isPrivate: z.boolean(),
 });
 
 export type EditFormData = z.infer<typeof editEventSchema>;
@@ -65,11 +64,9 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
       location: '',
       date: '',
       capacity: 100,
-      isPrivate: false,
     },
   });
 
-  const isPrivate = watch('isPrivate');
 
   const handleCancelEvent = () => {
     setShowWarning(false);
@@ -84,7 +81,6 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
         location: event?.location || '',
         date: event?.date,
         capacity: event?.capacity || 100,
-        isPrivate: event?.isPrivate,
       });
       scrollTo(0, 0);
   }, [event, reset]);
@@ -222,33 +218,6 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
                   }}
                 />
 
-                {/* Private Event Checkbox */}
-                <Controller
-                  name="isPrivate"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          {...field}
-                          checked={field.value}
-                          sx={{
-                            color: 'text.secondary',
-                            '&.Mui-checked': {
-                              color: 'primary.main',
-                            },
-                          }}
-                        />
-                      }
-                      label={
-                        <Typography sx={{ color: 'text.primary', fontSize: '1rem' }}>
-                          Private Event
-                        </Typography>
-                      }
-                      sx={{ alignSelf: 'flex-start', marginLeft: 0 }}
-                    />
-                  )}
-                />
 
                 {/* Max Attendees (only for private events) */}
                 <Controller
@@ -261,15 +230,10 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
                       type="number"
                       variant="outlined"
                       placeholder="100"
-                      disabled={!isPrivate}
                       {...field}
                       onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                       error={!!errors.capacity}
-                      helperText={
-                        !isPrivate 
-                          ? "Only available for private events" 
-                          : errors.capacity?.message || "Min: 1, Max: 10,000"
-                      }
+                      helperText={errors.capacity?.message || "Min: 1, Max: 10,000"}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           backgroundColor: 'rgba(255, 255, 255, 0.05)',

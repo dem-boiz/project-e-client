@@ -9,8 +9,6 @@ import {
   Typography,
   Paper,
   Stack,
-  FormControlLabel,
-  Checkbox,
   Container,
   Accordion,
   AccordionSummary,
@@ -37,7 +35,6 @@ const schema = z.object({
       return date > new Date();
     }, "Event date must be in the future"),
   capacity: z.number().min(1, "Capacity must be at least 1").max(10000, "Capacity cannot exceed 10,000").optional(),
-  isPrivate: z.boolean(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -45,7 +42,7 @@ type FormData = z.infer<typeof schema>;
 const CreateEventForm: React.FC = () => {
   const navigate = useNavigate();
   const [ isLoading, setIsLoading ] = React.useState(false);
-  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: '',
@@ -53,17 +50,15 @@ const CreateEventForm: React.FC = () => {
       location: '',
       date: '',
       capacity: 100,
-      isPrivate: false,
     },
   });
 
-  const isPrivate = watch('isPrivate');
 
   const onSubmit = async (data: FormData) => {
     // Convert capacity to undefined if event is public
     const eventData = {
       ...data,
-      capacity: isPrivate ? data.capacity : undefined,
+      capacity: data.capacity,
     };
 
     console.log('Creating event:', eventData); // TODO: Replace with actual API call
@@ -179,33 +174,6 @@ const CreateEventForm: React.FC = () => {
                     )}
                   />
 
-                  {/* Private Event Checkbox */}
-                  <Controller
-                    name="isPrivate"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            {...field}
-                            checked={field.value}
-                            sx={{
-                              color: 'text.secondary',
-                              '&.Mui-checked': {
-                                color: 'primary.main',
-                              },
-                            }}
-                          />
-                        }
-                        label={
-                          <Typography sx={{ color: 'text.primary', fontSize: '1rem' }}>
-                            Private Event
-                          </Typography>
-                        }
-                        sx={{ alignSelf: 'flex-start', marginLeft: 0 }}
-                      />
-                    )}
-                  />
 
                   {/* Advanced Options Accordion */}
                   <Accordion
@@ -296,15 +264,10 @@ const CreateEventForm: React.FC = () => {
                               type="number"
                               variant="outlined"
                               placeholder="100"
-                              disabled={!isPrivate}
                               {...field}
                               onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                               error={!!errors.capacity}
-                              helperText={
-                                !isPrivate 
-                                  ? "Only available for private events" 
-                                  : errors.capacity?.message || "Min: 1, Max: 10,000"
-                              }
+                              helperText={errors.capacity?.message || "Min: 1, Max: 10,000"}
                               sx={{
                                 '& .MuiOutlinedInput-root': {
                                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
