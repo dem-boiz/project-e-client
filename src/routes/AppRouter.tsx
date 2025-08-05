@@ -7,7 +7,7 @@ import MyEventsPage from '../features/my-events/MyEventsPage';
 import config from '../utils/config';
 
 const AppRouter: React.FC = () => {
-    const basename = config.VITE_BASE_NAME;
+    const basename = config.BASE_NAME;
     return (
       <BrowserRouter basename={basename}>
         <Routes>

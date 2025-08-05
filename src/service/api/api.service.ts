@@ -1,7 +1,7 @@
 import type { Event } from '../../types/event';
+import config from '../../utils/config';
 
 // Base API configuration
-const API_BASE_URL = 'https://api.project-e.dev'; // Dummy API base URL
 const API_TIMEOUT = 10000; // 10 seconds
 
 // User/Attendee type for API responses
@@ -49,7 +49,7 @@ async function apiRequest<T>(
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${config.API_URL}${endpoint}`, {
       ...options,
       signal: controller.signal,
       headers: {
@@ -95,9 +95,11 @@ export const EventApiService = {
    */
   async getAllEvents(): Promise<Event[]> {
     try {
-      const response = await apiRequest<Event[]>('/api/events', {
+      console.log('getting all events ');
+      const response = await apiRequest<Event[]>('/events', {
         method: 'GET',
       });
+      console.log('Got all events')
       return response.data;
     } catch (error) {
       console.error('Failed to fetch events:', error);
@@ -110,7 +112,7 @@ export const EventApiService = {
    */
   async getEventById(eventId: string): Promise<Event> {
     try {
-      const response = await apiRequest<Event>(`/api/events/${eventId}`, {
+      const response = await apiRequest<Event>(`/events/${eventId}`, {
         method: 'GET',
       });
       return response.data;
@@ -125,7 +127,7 @@ export const EventApiService = {
    */
   async createEvent(eventData: CreateEventRequest): Promise<Event> {
     try {
-      const response = await apiRequest<Event>('/api/events', {
+      const response = await apiRequest<Event>('/events', {
         method: 'POST',
         body: JSON.stringify(eventData),
       });
@@ -141,7 +143,7 @@ export const EventApiService = {
    */
  async updateEvent(id: string, data: UpdateEventRequest): Promise<Event> {
     try {
-      const response = await apiRequest<Event>(`/api/events/${id}`, {
+      const response = await apiRequest<Event>(`/events/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -6,13 +6,16 @@ import {
   Stack,
 } from '@mui/material';
 import EventTile from './components/EventTile';
-import { mockEvents } from '../../types/event';
 import type { Event } from '../../types/event';
 import EventTileExpanded from './components/EventTileExpanded';
+import { getAllEvents } from '../../service/api/api.service';
+
 
 const MyEventsPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [expandedOpen, setExpandedOpen] = useState(false);
+  const [ events, setEvents ] = useState<Event[]>([]); // Assuming mockEvents is an array of Event objects
+
 
   const handleTileClick = (event: Event) => {
     setSelectedEvent(event);
@@ -25,6 +28,14 @@ const MyEventsPage: React.FC = () => {
   };
 
 
+  const updateEvents = async () => {
+    const events = await getAllEvents();
+    setEvents(events);
+  }
+
+  useEffect(() => {
+    updateEvents();
+  }, [])
 
   // TODO: Refactor my events page to !!! IMPROVE MOBILE EXPERIENCE !!!...
   // remove use of dialogs.. they take up too much space on mobile
@@ -92,7 +103,7 @@ const MyEventsPage: React.FC = () => {
               gap: 3,
             }}
           >
-            {mockEvents.map((event) => (
+            {events.map((event) => (
               <EventTile
                 key={event.id}
                 event={event}
@@ -102,7 +113,7 @@ const MyEventsPage: React.FC = () => {
           </Box>
 
           {/* Empty State */}
-          {mockEvents.length === 0 && (
+          {events.length === 0 && (
             <Box
               sx={{
                 textAlign: 'center',

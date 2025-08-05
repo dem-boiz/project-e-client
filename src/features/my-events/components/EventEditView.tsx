@@ -3,12 +3,9 @@ import * as z from "zod";
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  Typography,
   Box,
   Stack,
   TextField,
-  FormControlLabel,
-  Checkbox,
   Button,
   Dialog,
   DialogTitle as MuiDialogTitle,
@@ -56,7 +53,7 @@ interface EventEditViewProps {
 
 const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEvent }) => {
   const [showWarning, setShowWarning] = React.useState(false);
-  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<EditFormData>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<EditFormData>({
     resolver: zodResolver(editEventSchema),
     defaultValues: {
       name: '',
