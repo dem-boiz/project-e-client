@@ -10,6 +10,11 @@ import {
   FormControlLabel,
   Checkbox,
   Button,
+  Dialog,
+  DialogTitle as MuiDialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
 } from '@mui/icons-material';
@@ -45,10 +50,12 @@ type EditFormData = z.infer<typeof editEventSchema>;
 interface EventEditViewProps {
   event: Event | null;
   onClose: () => void;
+  onSave: (data: EditFormData) => void;
+  onCancelEvent?: () => void;
 }
 
-const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
-  
+const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEvent }) => {
+  const [showWarning, setShowWarning] = React.useState(false);
   const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<EditFormData>({
     resolver: zodResolver(editEventSchema),
     defaultValues: {
@@ -62,6 +69,11 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
   });
 
   const isPrivate = watch('isPrivate');
+
+  const handleCancelEvent = () => {
+    setShowWarning(false);
+    onCancelEvent?.();
+  };
   
   // Reset form when event changes or modal opens
   useEffect(() => {
@@ -80,16 +92,6 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
 
   if (!event) return null;
 
-
-
-  const onSave = (data: EditFormData) => {
-    console.log('Saving event data:', data);
-
-    
-
-
-
-  };
 
 
   return (
@@ -112,6 +114,7 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
           {/* Form Content */}
           <Box sx={{ padding: 3 }}>
             <Box
+              id="event-edit-form"
               component="form"
               onSubmit={handleSubmit(onSave)}
               sx={{ width: '100%' }}
@@ -273,11 +276,74 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event }) => {
                     marginTop: 10
                   }} 
                   color="error" 
-                  onClick={() => console.log('Cancel Event Clicked')} 
+                  onClick={() => setShowWarning(true)} 
                 >
                   Cancel Event
               </Button>
           </Box>
+
+          {/* Cancel Event Warning Dialog */}
+          <Dialog
+            open={showWarning}
+            onClose={() => setShowWarning(false)}
+            maxWidth="sm"
+            fullWidth
+            sx={{
+              '& .MuiDialog-paper': {
+                backgroundColor: 'background.paper',
+                borderRadius: 2,
+              },
+            }}
+          >
+            <MuiDialogTitle sx={{ 
+              color: 'text.primary',
+              fontWeight: 500,
+              padding: 3,
+              paddingBottom: 1,
+            }}>
+              Cancel Event
+            </MuiDialogTitle>
+            <DialogContent sx={{ padding: 3, paddingTop: 1 }}>
+              <DialogContentText sx={{ 
+                color: 'text.secondary',
+                fontSize: '1rem',
+                lineHeight: 1.5,
+              }}>
+                Are you sure you want to cancel this event? This action cannot be undone and all attendees will be notified of the cancellation.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions sx={{ 
+              padding: 3, 
+              paddingTop: 1,
+              gap: 2,
+            }}>
+              <Button
+                onClick={() => setShowWarning(false)}
+                variant="outlined"
+                sx={{
+                  textTransform: 'none',
+                  borderColor: 'text.secondary',
+                  color: 'text.secondary',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
+                  },
+                }}
+              >
+                Keep Event
+              </Button>
+              <Button
+                onClick={handleCancelEvent}
+                variant="contained"
+                color="error"
+                sx={{
+                  textTransform: 'none',
+                }}
+              >
+                Cancel Event
+              </Button>
+            </DialogActions>
+          </Dialog>
 
     </LocalizationProvider>
   );

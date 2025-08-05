@@ -10,7 +10,8 @@ import {
 import type { Event } from '../../../types/event';
 import EventGuestView from './EventGuestView';
 import EventEditView from './EventEditView';
-
+import { updateEvent } from '../../../service/api/api.service';
+import { toast } from 'react-toastify';
 
 interface EventTileExpandedProps {
   event: Event | null;
@@ -21,6 +22,33 @@ interface EventTileExpandedProps {
 const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onClose }) => {
   const dialogContentRef = React.useRef<HTMLElement>(null);
   const [ editViewOpen, setEditViewOpen ] = React.useState(false);
+
+
+  const onCancelEvent = async () => {
+    if (event) {
+      try {
+        // TODO: Implement actual cancel event API call
+        // await cancelEvent(event.id);
+        console.log('Cancelling event:', event.id);
+        toast.success('Event cancelled successfully');
+        onClose(); // Close the dialog after cancelling
+      } catch (error) {
+        console.error('Error cancelling event:', error);
+        toast.error('Failed to cancel event. Please try again later.');
+      }
+    }
+  };
+
+  const onEditSave = async () => {
+    if (event) {
+      try {
+        await updateEvent(event.id, event);
+      } catch (error) {
+        console.error('Error updating event:', error);
+        toast.error('Failed to update event. Please try again later.');
+      }
+    }
+  }
 
   useEffect(() => {
     if (open) {
@@ -99,6 +127,8 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
             position: 'absolute',
           }}>
             <EventEditView
+              onSave={onEditSave}
+              onCancelEvent={onCancelEvent}
               event={event} 
               onClose={() => setEditViewOpen(false)} 
             />
@@ -118,7 +148,8 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
 
           {editViewOpen && (
             <Button
-              onClick ={() => console.log('Save changes')}
+              type="submit"
+              form="event-edit-form"
               variant="contained"
               color="primary"
               sx={{ textTransform: 'none' }}
