@@ -25,6 +25,7 @@ import type { Event } from '../../../types/event';
 import dayjs, { Dayjs } from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import DialogTitle from './DialogTitle';
+import EditIcon from '@mui/icons-material/Edit';
 
 dayjs.extend(relativeTime);
 
@@ -45,7 +46,7 @@ const editEventSchema = z.object({
   isPrivate: z.boolean(),
 });
 
-type EditFormData = z.infer<typeof editEventSchema>;
+export type EditFormData = z.infer<typeof editEventSchema>;
 
 interface EventEditViewProps {
   event: Event | null;
@@ -106,7 +107,21 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
             }}
           >
 
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: 2, paddingRight: 6 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              marginBottom: 2, 
+              paddingRight: 6,
+            }}>
+              <EditIcon 
+                fontSize='medium' 
+                color="action" 
+                sx={{
+                  marginRight: 1,
+                  marginTop: 0.25,
+                  color: 'text.primary',
+                }} 
+              />
               <DialogTitle title={'Edit Event'} />
             </Box>
           </Box>

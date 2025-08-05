@@ -140,16 +140,15 @@ export const EventApiService = {
   /**
    * Update an existing event
    */
-  async updateEvent(eventData: UpdateEventRequest): Promise<Event> {
+ async updateEvent(id: string, data: UpdateEventRequest): Promise<Event> {
     try {
-      const { id, ...updateData } = eventData;
       const response = await apiRequest<Event>(`/api/events/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(updateData),
+        body: JSON.stringify(data),
       });
       return response.data;
     } catch (error) {
-      console.error(`Failed to update event ${eventData.id}:`, error);
+      console.error(`Failed to update event ${id}:`, error);
       throw new Error('Failed to update event. Please try again.');
     }
   },

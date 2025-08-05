@@ -1,31 +1,8 @@
 
 import './App.css'
-import JoinEventPage from './features/join-event/JoinEventPage';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { BrowserRouter, Routes, Route } from "react-router";
-import RootLayout from './layout/RootLayout';
-import { Navigate } from 'react-router';
-import CreateEventPage from './features/create-event/CreateEventPage';
-import MyEventsPage from './features/my-events/MyEventsPage';
+import AppRouter from './routes/AppRouter';
 
-/**
- * JIRA: MOB-123
- * Title: Implement scroll position restoration after keyboard dismissal
- * 
- * Description:
- * Implement functionality to track Y-scroll position when the mobile keyboard 
- * pushes up UI elements, then restore that position when the keyboard is dismissed.
- * This will create a more seamless user experience especially on mobile devices.
- * 
- * Acceptance Criteria:
- * - Track scroll position before keyboard appears
- * - Restore scroll position after keyboard is dismissed
- * - Works across all form elements in the application
- * - Tested on iOS and Android devices
- * 
- * Priority: Medium
- * Story points: 3
- */
 // TODO: For a more seamless experience, track y scroll when keyboard pushes up elements.
 // After the keyboard is dismiessed, scroll back to the previous position.
 
@@ -61,20 +38,10 @@ const darkTheme = createTheme({
 
 function App() {
   // Set the basename for GitHub Pages deployment
-  const basename = import.meta.env.VITE_BASE_NAME ?? '/';
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <BrowserRouter basename={basename}>
-        <Routes>
-          <Route path="/" element={<RootLayout />}>
-            <Route index element={<Navigate to="/join-event" replace />} /> {/* Redirect root to join event page, for good UX */}
-            <Route path="join-event" element={<JoinEventPage />} />
-            <Route path="create-event" element={<CreateEventPage />} />
-            <Route path="my-events" element={<MyEventsPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <AppRouter />
     </ThemeProvider>
   );
 }

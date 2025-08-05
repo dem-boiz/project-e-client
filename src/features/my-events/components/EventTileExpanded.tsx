@@ -9,9 +9,10 @@ import {
 } from '@mui/material';
 import type { Event } from '../../../types/event';
 import EventGuestView from './EventGuestView';
-import EventEditView from './EventEditView';
-import { updateEvent } from '../../../service/api/api.service';
+import EventEditView, { type EditFormData } from './EventEditView';
+import { updateEvent, deleteEvent, type UpdateEventRequest } from '../../../service/api/api.service';
 import { toast } from 'react-toastify';
+
 
 interface EventTileExpandedProps {
   event: Event | null;
@@ -30,6 +31,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         // TODO: Implement actual cancel event API call
         // await cancelEvent(event.id);
         console.log('Cancelling event:', event.id);
+        await deleteEvent(event.id);
         toast.success('Event cancelled successfully');
         onClose(); // Close the dialog after cancelling
       } catch (error) {
@@ -39,10 +41,10 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
     }
   };
 
-  const onEditSave = async () => {
+  const onEditSave = async (data: EditFormData) => {
     if (event) {
       try {
-        await updateEvent(event.id, event);
+        await updateEvent(event.id, data as unknown as UpdateEventRequest);
       } catch (error) {
         console.error('Error updating event:', error);
         toast.error('Failed to update event. Please try again later.');
