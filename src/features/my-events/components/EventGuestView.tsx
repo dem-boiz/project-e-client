@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import DialogTitle from './DialogTitle';
+import config from '../../../utils/config';
 
 dayjs.extend(relativeTime);
 
@@ -30,8 +31,8 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
   
   if (!event) return null;
 
-  const isHost = event.role === 'host';
-
+  const isHost = event.host_id === config.GLOBAL_HOST_ID; // Replace with actual host ID logic
+  const status = new Date(event.date_time) < new Date() ? 'past' : 'upcoming'; // Update status based on date
   return (
     <Box>
           <Box
@@ -105,7 +106,7 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
               <Stack direction="row" gap={2} flexWrap="wrap" sx={{ marginTop: 2 }}>
 
                 <Chip
-                  label={event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                  label={status.charAt(0).toUpperCase() + status.slice(1)}
                   sx={{
                     backgroundColor: 'rgba(92, 131, 116, 0.2)',
                     color: 'primary.main',
@@ -151,10 +152,10 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
                     When?
                   </Typography>
                   <Typography variant="body1" sx={{ color: 'text.secondary', fontSize: '1rem' }}>
-                    {dayjs(event.date).format('MMMM DD, YYYY')} at {dayjs(event.date).format('h:mm A')}
+                    {dayjs(event.date_time).format('MMMM DD, YYYY')} at {dayjs(event.date_time).format('h:mm A')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary', marginTop: 0.5 }}>
-                    {dayjs(event.date).fromNow()}
+                    {dayjs(event.date_time).fromNow()}
                   </Typography>
                 </Box>
                 <Box sx={{ flex: 1 }}>

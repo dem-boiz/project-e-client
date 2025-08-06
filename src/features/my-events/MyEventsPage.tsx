@@ -27,9 +27,17 @@ const MyEventsPage: React.FC = () => {
     setSelectedEvent(null);
   };
 
+  const handleEventChanged = (change: 'DELETE' | 'UPDATE', event: Event) => {
+    if (change === 'DELETE') {
+      setEvents((prevEvents) => prevEvents.filter((e) => e.id !== event.id));
+    } else if (change === 'UPDATE') {
+      setEvents((prevEvents) => prevEvents.map((e) => (e.id === event.id ? event : e)));
+    }
+  }
 
   const updateEvents = async () => {
     const events = await getAllEvents();
+    console.log('Fetched events:', events);
     setEvents(events);
   }
 
@@ -153,6 +161,7 @@ const MyEventsPage: React.FC = () => {
         event={selectedEvent}
         open={expandedOpen}
         onClose={handleCloseExpanded}
+        onEventChanged={handleEventChanged}
       />
     </Box>
   );

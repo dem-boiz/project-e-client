@@ -13,7 +13,6 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import { joinEvent } from '../../service/api/api.service';
 import { toast } from 'react-toastify';
 // Zod schema for form validation
 const joinEventSchema = z.object({
@@ -37,7 +36,7 @@ const JoinEventPage: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Joining event with code:', data.accessCode);
-      await joinEvent(data.accessCode);
+      throw new Error('joinEvent API not integrated');
       navigate('/my-events');
       
     } catch (error) {

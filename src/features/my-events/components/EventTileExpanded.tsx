@@ -12,18 +12,20 @@ import EventGuestView from './EventGuestView';
 import EventEditView, { type EditFormData } from './EventEditView';
 import { updateEvent, deleteEvent, type UpdateEventRequest } from '../../../service/api/api.service';
 import { toast } from 'react-toastify';
-
+import config from '../../../utils/config';
 
 interface EventTileExpandedProps {
   event: Event | null;
   open: boolean;
   onClose: () => void;
+  onEventChanged?: (change: 'DELETE' | 'UPDATE', event: Event) => void;
 }
 
-const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onClose }) => {
+const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onClose, onEventChanged }) => {
   const dialogContentRef = React.useRef<HTMLElement>(null);
   const [ editViewOpen, setEditViewOpen ] = React.useState(false);
-
+  const [ isSaving, setIsSaving ] = React.useState(false);
+  const [ isCancelling, setIsCancelling ] = React.useState(false);
 
   const onCancelEvent = async () => {
     if (event) {
@@ -31,12 +33,18 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         // TODO: Implement actual cancel event API call
         // await cancelEvent(event.id);
         console.log('Cancelling event:', event.id);
+        setIsCancelling(true);
         await deleteEvent(event.id);
         toast.success('Event cancelled successfully');
+        if (onEventChanged) {
+          onEventChanged('DELETE', event);
+        }
         onClose(); // Close the dialog after cancelling
       } catch (error) {
         console.error('Error cancelling event:', error);
         toast.error('Failed to cancel event. Please try again later.');
+      } finally {
+        setIsCancelling(false); 
       }
     }
   };
@@ -44,10 +52,22 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
   const onEditSave = async (data: EditFormData) => {
     if (event) {
       try {
+        setIsSaving(true);
         await updateEvent(event.id, data as unknown as UpdateEventRequest);
+        toast.success('Event updated successfully');
+        if (onEventChanged) {
+          event.date_time = data.datetime; // Update the event date_time
+          event.name = data.name;
+          event.description = data.description;
+          event.location = data.location;
+          onEventChanged('UPDATE', event);
+        }
+        onClose(); // Close the dialog after saving
       } catch (error) {
         console.error('Error updating event:', error);
         toast.error('Failed to update event. Please try again later.');
+      } finally {
+        setIsSaving(false);
       }
     }
   }
@@ -150,6 +170,8 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
 
           {editViewOpen && (
             <Button
+              disabled={isCancelling}
+              loading={isSaving}
               type="submit"
               form="event-edit-form"
               variant="contained"
@@ -160,8 +182,9 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
             </Button>
           )}
 
-          {event.role === 'host' && (
+          {event.host_id === config.GLOBAL_HOST_ID && (
             <Button
+              disabled={isCancelling || isSaving}
               onClick={() => setEditViewOpen(() => !editViewOpen)}
               variant="contained"
               color="primary"

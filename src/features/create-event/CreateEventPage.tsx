@@ -22,13 +22,14 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useNavigate } from 'react-router';
 import { createEvent } from '../../service/api/api.service';
 import { toast } from 'react-toastify';
+import config from '../../utils/config';
 
 
 const schema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().optional(),
   location: z.string().optional(),
-  date: z.string()
+  datetime: z.string()
     .min(1, "Date is required")
     .refine((dateString) => {
       const date = new Date(dateString);
@@ -48,7 +49,7 @@ const CreateEventForm: React.FC = () => {
       name: '',
       description: '',
       location: '',
-      date: '',
+      datetime: '',
       capacity: 100,
     },
   });
@@ -58,13 +59,15 @@ const CreateEventForm: React.FC = () => {
     // Convert capacity to undefined if event is public
     const eventData = {
       ...data,
-      capacity: data.capacity,
+      host_id: config.GLOBAL_HOST_ID
+      //capacity: data.capacity,
     };
 
     console.log('Creating event:', eventData); // TODO: Replace with actual API call
     setIsLoading(true);
     try {
           await createEvent(eventData); // TODO: Replace with actual API call
+          toast.success('Event created successfully');
           navigate('/my-events'); // Navigate to My Events page after creation
     } catch (error) {
       console.log('Caught API error:', error);
@@ -148,7 +151,7 @@ const CreateEventForm: React.FC = () => {
 
                   {/* Event Date */}
                   <Controller
-                    name="date"
+                    name="datetime"
                     control={control}
                     render={({ field }) => (
                       <DateTimePicker
@@ -161,8 +164,8 @@ const CreateEventForm: React.FC = () => {
                         slotProps={{
                           textField: {
                             fullWidth: true,
-                            error: !!errors.date,
-                            helperText: errors.date?.message,
+                            error: !!errors.datetime,
+                            helperText: errors.datetime?.message,
                             sx: {
                               '& .MuiOutlinedInput-root': {
                                 backgroundColor: 'rgba(255, 255, 255, 0.05)',

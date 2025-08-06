@@ -33,7 +33,7 @@ const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().optional(),
   location: z.string().optional(),
-  date: z.string()
+  datetime: z.string()
     .min(1, "Date is required")
     .refine((dateString) => {
       const date = new Date(dateString);
@@ -59,7 +59,7 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
       name: '',
       description: '',
       location: '',
-      date: '',
+      datetime: '',
       capacity: 100,
     },
   });
@@ -76,7 +76,7 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
         name: event?.name,
         description: event?.description || '',
         location: event?.location || '',
-        date: event?.date,
+        datetime: event?.date_time,
         capacity: event?.capacity || 100,
       });
       scrollTo(0, 0);
@@ -150,7 +150,7 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
                 <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
                   <Box sx={{ flex: 1 }}>
                     <Controller
-                      name="date"
+                      name="datetime"
                       control={control}
                       render={({ field }) => (
                         <DateTimePicker
@@ -163,8 +163,8 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
                           slotProps={{
                             textField: {
                               fullWidth: true,
-                              error: !!errors.date,
-                              helperText: errors.date?.message,
+                              error: !!errors.datetime,
+                              helperText: errors.datetime?.message,
                               sx: {
                                 '& .MuiOutlinedInput-root': {
                                   backgroundColor: 'rgba(255, 255, 255, 0.05)',

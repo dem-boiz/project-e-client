@@ -5,34 +5,15 @@ import config from '../../utils/config';
 const API_TIMEOUT = 10000; // 10 seconds
 
 // User/Attendee type for API responses
-interface EventAttendee {
-  id: string;
-  name: string;
-  email: string;
-  joinedAt: string;
-  role: 'host' | 'guest';
-}
-
-// API Response types
-interface ApiResponse<T> {
-  data: T;
-  message: string;
-  success: boolean;
-}
-
-interface ApiError {
-  message: string;
-  code: string;
-  details?: Record<string, unknown>;
-}
 
 // Create Event request type
 interface CreateEventRequest {
   name: string;
   description?: string;
   location?: string;
-  date: string;
-  capacity?: number;
+  datetime: string;
+  host_id: string
+  //capacity?: number;
 }
 
 // Update Event request type
@@ -40,11 +21,11 @@ interface UpdateEventRequest extends Partial<CreateEventRequest> {
   id: string;
 }
 
-// Generic API request function with error handling
-async function apiRequest<T>(
+// Generic API request function with error handling 
+async function apiRequest(
   endpoint: string,
   options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
@@ -54,7 +35,6 @@ async function apiRequest<T>(
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getAuthToken()}`,
         ...options.headers,
       },
     });
@@ -66,6 +46,10 @@ async function apiRequest<T>(
       throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
+
+    if (response.status === 204) {
+      return new Response(null, { status: 204 }); // No content response
+    }
     const data = await response.json();
     return data;
   } catch (error) {
@@ -82,12 +66,6 @@ async function apiRequest<T>(
   }
 }
 
-// Get auth token (dummy implementation)
-function getAuthToken(): string {
-  // TODO: Implement actual token retrieval from storage/context
-  return 'dummy-auth-token-123';
-}
-
 // Event API Service Functions
 export const EventApiService = {
   /**
@@ -96,11 +74,11 @@ export const EventApiService = {
   async getAllEvents(): Promise<Event[]> {
     try {
       console.log('getting all events ');
-      const response = await apiRequest<Event[]>('/events', {
+      const response = await apiRequest('/events', {
         method: 'GET',
       });
-      console.log('Got all events')
-      return response.data;
+      console.log('Got all events:', response);
+      return response as unknown as Event[];
     } catch (error) {
       console.error('Failed to fetch events:', error);
       throw new Error('Failed to load events. Please try again.');
@@ -112,10 +90,10 @@ export const EventApiService = {
    */
   async getEventById(eventId: string): Promise<Event> {
     try {
-      const response = await apiRequest<Event>(`/events/${eventId}`, {
+      const response = await apiRequest(`/events/${eventId}`, {
         method: 'GET',
       });
-      return response.data;
+      return response as unknown as Event;
     } catch (error) {
       console.error(`Failed to fetch event ${eventId}:`, error);
       throw new Error('Failed to load event details. Please try again.');
@@ -127,11 +105,11 @@ export const EventApiService = {
    */
   async createEvent(eventData: CreateEventRequest): Promise<Event> {
     try {
-      const response = await apiRequest<Event>('/events', {
+      const response = await apiRequest('/events', {
         method: 'POST',
         body: JSON.stringify(eventData),
       });
-      return response.data;
+      return response as unknown as Event;
     } catch (error) {
       console.error('Failed to create event:', error);
       throw new Error('Failed to create event. Please check your data and try again.');
@@ -143,11 +121,11 @@ export const EventApiService = {
    */
  async updateEvent(id: string, data: UpdateEventRequest): Promise<Event> {
     try {
-      const response = await apiRequest<Event>(`/events/${id}`, {
-        method: 'PUT',
+      const response = await apiRequest(`/events/${id}`, {
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
-      return response.data;
+      return response as unknown as Event;
     } catch (error) {
       console.error(`Failed to update event ${id}:`, error);
       throw new Error('Failed to update event. Please try again.');
@@ -159,7 +137,7 @@ export const EventApiService = {
    */
   async deleteEvent(eventId: string): Promise<void> {
     try {
-      await apiRequest<void>(`/api/events/${eventId}`, {
+      await apiRequest(`/events/${eventId}`, {
         method: 'DELETE',
       });
     } catch (error) {
@@ -168,80 +146,7 @@ export const EventApiService = {
     }
   },
 
-  /**
-   * Join an event using access code
-   */
-  async joinEvent(accessCode: string): Promise<Event> {
-    try {
-      const response = await apiRequest<Event>('/api/events/join', {
-        method: 'POST',
-        body: JSON.stringify({ accessCode }),
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Failed to join event:', error);
-      throw new Error('Invalid access code or event not found. Please check and try again.');
-    }
-  },
 
-  /**
-   * Leave an event
-   */
-  async leaveEvent(eventId: string): Promise<void> {
-    try {
-      await apiRequest<void>(`/api/events/${eventId}/leave`, {
-        method: 'POST',
-      });
-    } catch (error) {
-      console.error(`Failed to leave event ${eventId}:`, error);
-      throw new Error('Failed to leave event. Please try again.');
-    }
-  },
-
-  /**
-   * Get events by status
-   */
-  async getEventsByStatus(status: 'upcoming' | 'ongoing' | 'past'): Promise<Event[]> {
-    try {
-      const response = await apiRequest<Event[]>(`/api/events?status=${status}`, {
-        method: 'GET',
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Failed to fetch ${status} events:`, error);
-      throw new Error(`Failed to load ${status} events. Please try again.`);
-    }
-  },
-
-  /**
-   * Generate event access code (for hosts)
-   */
-  async generateAccessCode(eventId: string): Promise<string> {
-    try {
-      const response = await apiRequest<{ accessCode: string }>(`/api/events/${eventId}/access-code`, {
-        method: 'POST',
-      });
-      return response.data.accessCode;
-    } catch (error) {
-      console.error(`Failed to generate access code for event ${eventId}:`, error);
-      throw new Error('Failed to generate access code. Please try again.');
-    }
-  },
-
-  /**
-   * Get event attendees (for hosts)
-   */
-  async getEventAttendees(eventId: string): Promise<EventAttendee[]> {
-    try {
-      const response = await apiRequest<EventAttendee[]>(`/api/events/${eventId}/attendees`, {
-        method: 'GET',
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Failed to fetch attendees for event ${eventId}:`, error);
-      throw new Error('Failed to load event attendees. Please try again.');
-    }
-  },
 };
 
 // Export individual functions for convenience
@@ -251,18 +156,10 @@ export const {
   createEvent,
   updateEvent,
   deleteEvent,
-  joinEvent,
-  leaveEvent,
-  getEventsByStatus,
-  generateAccessCode,
-  getEventAttendees,
 } = EventApiService;
 
 // Export types for use in components
 export type {
   CreateEventRequest,
   UpdateEventRequest,
-  ApiResponse,
-  ApiError,
-  EventAttendee,
 };

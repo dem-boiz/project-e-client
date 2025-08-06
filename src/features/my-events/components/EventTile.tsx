@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import type { Event } from '../../../types/event';
 import dayjs from 'dayjs';
+import config from '../../../utils/config';
 
 interface EventTileProps {
   event: Event;
@@ -21,8 +22,9 @@ interface EventTileProps {
 }
 
 const EventTile: React.FC<EventTileProps> = ({ event, onClick }) => {
-  const eventDate = dayjs(event.date);
-  const isHost = event.role === 'host';
+  const eventDate = dayjs(event.date_time);
+  console.log('event below:')
+  const isHost = event.host_id === config.GLOBAL_HOST_ID; // Replace with actual host ID logic
 
   return (
     <Card
