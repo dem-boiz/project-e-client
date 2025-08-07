@@ -2,6 +2,7 @@
 import './App.css'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AppRouter from './routes/AppRouter';
+import { AuthProvider } from './context/AuthProvider';
 
 // TODO: For a more seamless experience, track y scroll when keyboard pushes up elements.
 // After the keyboard is dismiessed, scroll back to the previous position.
@@ -40,9 +41,11 @@ function App() {
   // Set the basename for GitHub Pages deployment
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <AppRouter />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={darkTheme}>
+        <AppRouter />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
