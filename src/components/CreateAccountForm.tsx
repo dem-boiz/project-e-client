@@ -11,9 +11,14 @@ import {
   Paper,
   Stack,
   Container,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../hooks/useAuth';
+import { createAccount } from '../service/api/api.service';
+
 
 // Zod schema for form validation
 const createAccountSchema = z.object({
@@ -40,6 +45,8 @@ const CreateAccountForm: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const { register, handleSubmit, formState: { errors } } = useForm<CreateAccountFormData>({
     resolver: zodResolver(createAccountSchema),
@@ -55,15 +62,10 @@ const CreateAccountForm: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Creating account:', { username: data.username, email: data.email });
-      // TODO: Implement actual API call
-      // const response = await createAccount({ username: data.username, email: data.email, password: data.password });
-      
-      // Mock successful account creation
-      const mockUser = { id: 'user_123', name: data.username };
-      const mockToken = 'mock_jwt_token_123';
-      
-      login(mockUser, mockToken);
+      const response = await createAccount({ username: data.username, email: data.email, password: data.password });
       toast.success('Account created successfully!');
+      const { user, token } = await response.json();
+      login(user, token);
       navigate('/create-event'); // Navigate to create event page after successful account creation
     } catch (error) {
       console.error('Failed to create account:', error);
@@ -168,12 +170,25 @@ const CreateAccountForm: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   variant="outlined"
                   placeholder="Enter your password"
                   {...register("password")}
                   error={!!errors.password}
                   helperText={errors.password?.message}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -185,12 +200,25 @@ const CreateAccountForm: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Confirm Password"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   variant="outlined"
                   placeholder="Confirm your password"
                   {...register("confirmPassword")}
                   error={!!errors.confirmPassword}
                   helperText={errors.confirmPassword?.message}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle confirm password visibility"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       backgroundColor: 'rgba(255, 255, 255, 0.05)',
