@@ -22,7 +22,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useNavigate } from 'react-router';
 import { createEvent } from '../../../service/api/api.service';
 import { toast } from 'react-toastify';
-import config from '../../../utils/config';
+import { useAuth } from '../../../hooks/useAuth';
 
 
 const schema = z.object({
@@ -42,6 +42,7 @@ type FormData = z.infer<typeof schema>;
 
 const CreateEventForm: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [ isLoading, setIsLoading ] = React.useState(false);
   const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -57,9 +58,13 @@ const CreateEventForm: React.FC = () => {
 
   const onSubmit = async (data: FormData) => {
     // Convert capacity to undefined if event is public
+    if (!user?.id) {
+      console.error('Must be signed in to create an event');
+      return;
+    }
     const eventData = {
       ...data,
-      host_id: config.GLOBAL_HOST_ID
+      host_id: user?.id
       //capacity: data.capacity,
     };
 

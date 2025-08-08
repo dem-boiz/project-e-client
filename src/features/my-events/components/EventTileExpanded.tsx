@@ -12,7 +12,7 @@ import EventGuestView from './EventGuestView';
 import EventEditView, { type EditFormData } from './EventEditView';
 import { updateEvent, deleteEvent, type UpdateEventRequest } from '../../../service/api/api.service';
 import { toast } from 'react-toastify';
-import config from '../../../utils/config';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface EventTileExpandedProps {
   event: Event | null;
@@ -26,6 +26,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
   const [ editViewOpen, setEditViewOpen ] = React.useState(false);
   const [ isSaving, setIsSaving ] = React.useState(false);
   const [ isCancelling, setIsCancelling ] = React.useState(false);
+  const { user } = useAuth();
 
   const onCancelEvent = async () => {
     if (event) {
@@ -182,7 +183,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
             </Button>
           )}
 
-          {event.host_id === config.GLOBAL_HOST_ID && (
+          {event.host_id === user?.id && (
             <Button
               disabled={isCancelling || isSaving}
               onClick={() => setEditViewOpen(() => !editViewOpen)}

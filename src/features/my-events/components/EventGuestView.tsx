@@ -19,7 +19,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import DialogTitle from './DialogTitle';
-import config from '../../../utils/config';
+import { useAuth } from '../../../hooks/useAuth';
 
 dayjs.extend(relativeTime);
 
@@ -28,10 +28,11 @@ interface EventGuestViewProps {
 }
 
 const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
+  const { user } = useAuth();
   
   if (!event) return null;
-
-  const isHost = event.host_id === config.GLOBAL_HOST_ID; // Replace with actual host ID logic
+  
+  const isHost = event.host_id === user?.id;
   const status = new Date(event.date_time) < new Date() ? 'past' : 'upcoming'; // Update status based on date
   return (
     <Box>
