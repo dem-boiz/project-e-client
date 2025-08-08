@@ -5,6 +5,9 @@ import { AuthContext, type AuthContextType } from './authContext';
 interface User {
   id: string;
   name: string;
+  email: string;
+  token_type: string;
+  access_token: string;
 }
 
 interface AuthProviderProps {
@@ -17,6 +20,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state from localStorage on mount
   useEffect(() => {
+
     const savedUser = localStorage.getItem('user');
     const savedToken = localStorage.getItem('authToken');
 
@@ -34,22 +38,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const login = (userData: User, authToken: string) => {
+  const login = (userData: User) => {
     setUser(userData);
-    setToken(authToken);
-    
+    setToken(userData.access_token);
+
     // Store in localStorage
     localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('authToken', authToken);
+    localStorage.setItem('authToken', userData.access_token);
   };
 
   const logout = () => {
+    console.log('Logging out user:', user?.name);
     setUser(null);
     setToken(null);
     
     // Remove from localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('authToken');
+    console.log('User logged out successfully');
+    console.log('localStorage after logout: user:', localStorage.getItem('user'));
+    console.log('localStorage after logout: authToken:', localStorage.getItem('authToken'));
   };
 
   const isAuthenticated = (): boolean => {

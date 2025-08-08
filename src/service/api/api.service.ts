@@ -16,9 +16,36 @@ interface CreateEventRequest {
   //capacity?: number;
 }
 
+interface CreateAccountRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+interface CreateAccountResponse {
+  company_name: string;
+  created_at: string;
+  email: string;
+  host_number: number;
+  id: string;
+}
+
+
 // Update Event request type
 interface UpdateEventRequest extends Partial<CreateEventRequest> {
   id: string;
+}
+
+interface RequestLoginResponse {
+  access_token: string;
+  token_type: string;
+  email: string;
+  user_id: string;
+  name: string;
+}
+
+interface RequestLoginData {
+  email: string;
+  password: string;
 }
 
 // Generic API request function with error handling 
@@ -65,6 +92,8 @@ async function apiRequest(
     throw new Error('An unexpected error occurred');
   }
 }
+
+
 
 // Event API Service Functions
 export const EventApiService = {
@@ -149,6 +178,39 @@ export const EventApiService = {
 
 };
 
+
+
+export const UserApiService = {
+  async createAccount(data: CreateAccountRequest): Promise<CreateAccountResponse> {
+    try {
+      console.log('Creating account:', data);
+      const response = await apiRequest('/hosts/', {
+        method: 'POST',
+        body: JSON.stringify({ company_name: data.username, email: data.email, password: data.password, created_at: new Date().toISOString() }),
+      });
+      console.log('Account created successfully:', response);
+      return response as unknown as CreateAccountResponse;
+    } catch (error) {
+      console.error('Failed to create account:', error);
+      throw new Error('Failed to create account. Please try again.');
+    }
+  },
+
+  async requestLogin(data: RequestLoginData): Promise<RequestLoginResponse> {
+    try {
+      const response = await apiRequest('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }) as unknown as RequestLoginResponse;
+      return response as unknown as RequestLoginResponse;
+    } catch (error) {
+      console.error('Failed to log in:', error);
+      throw new Error('Failed to log in. Please check your credentials.');
+    }
+  }
+
+}
+
 // Export individual functions for convenience
 export const {
   getAllEvents,
@@ -158,8 +220,15 @@ export const {
   deleteEvent,
 } = EventApiService;
 
+export const {
+  createAccount,
+  requestLogin
+} = UserApiService;
+
 // Export types for use in components
 export type {
   CreateEventRequest,
   UpdateEventRequest,
+  CreateAccountResponse,
+  CreateAccountRequest
 };

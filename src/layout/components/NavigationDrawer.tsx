@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Drawer,
@@ -9,7 +9,6 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Divider,
   useTheme,
 } from '@mui/material';
 import {
@@ -21,11 +20,21 @@ import {
   Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router';
-
+import { useAuth } from '../../hooks/useAuth';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { toast } from 'react-toastify';
 interface NavigationItem {
   label: string;
   icon: React.ReactNode;
   route: string;
+  enabled?: boolean;
+}
+
+interface FooterItem {
+  label: string;
+  icon: React.ReactNode;
+  route?: string;
   enabled?: boolean;
 }
 
@@ -56,15 +65,45 @@ const navigationItems: NavigationItem[] = [
   },
 ];
 
+
 const NavigationDrawer: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
+  const auth = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(auth.isAuthenticated());
+
+  const footerItems: FooterItem[] = React.useMemo(() => [
+    
+    {
+        label: isAuthenticated ? 'Sign Out' : 'Sign In/Create Account',
+        icon: isAuthenticated ? <LogoutIcon /> : <LoginIcon />,
+      route: isAuthenticated ? '/sign-out' : '/sign-in',
+      enabled: true,
+    },
+  ], [isAuthenticated]);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Handle drawer open
+      setIsAuthenticated(auth.isAuthenticated());
+    } else {
+      // Handle drawer close
+    }
+  }, [auth, isOpen]);
 
   const handleNavigate = (route: string) => {
     navigate(route);
     setIsOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    setIsOpen(false);
+    auth.logout();
+    setIsAuthenticated(false);
+    toast.success('Successfully signed out.');
+    handleNavigate('/sign-in');
   };
 
   const drawerContent = (
@@ -74,6 +113,8 @@ const NavigationDrawer: React.FC = () => {
         height: '100%',
         backgroundColor: 'background.paper',
         color: 'text.primary',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       {/* Header */}
@@ -156,26 +197,84 @@ const NavigationDrawer: React.FC = () => {
         })}
       </List>
 
-      {/* Footer/Version Info */}
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 16,
-          left: 24,
-          right: 24,
-        }}
-      >
-        <Divider sx={{ marginBottom: 2 }} />
+      {/* Footer Items */}
+      <List sx={{ 
+        padding: '16px 0',
+        marginTop: 'auto',
+        }}>
+
         <Typography
           variant="caption"
           sx={{
+            fontSize: '0.80rem',
+            padding: '8px 16px',
             color: 'text.secondary',
-            fontSize: '0.75rem',
           }}
         >
-          Event Management System
+          {isAuthenticated ? `Signed in as ${auth.user?.name}` : ''}
         </Typography>
-      </Box>
+
+        {footerItems.map((item) => {
+          const isActive = location.pathname === item.route;
+          const isDisabled = item.enabled === false;
+
+          return (
+            <ListItem key={item.route} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  console.log('Footer item clicked:', item.label);
+                  if (item.enabled) {
+                      console.log('Navigating to:', item.route);
+                      if (isAuthenticated && item.route === '/sign-out') {
+                          handleSignOut();
+                          return;
+                      }
+                      if (item.route) {
+                          handleNavigate(item.route);
+                      }
+                  }
+                }}
+                disabled={isDisabled}
+                sx={{
+                  margin: '4px 16px',
+                  borderRadius: '8px',
+                  backgroundColor: isActive ? 'primary.main' : 'transparent',
+                  color: isActive ? 'primary.contrastText' : 'text.primary',
+                  opacity: isDisabled ? 0.5 : 1,
+                  '&:hover': {
+                    backgroundColor: isActive 
+                      ? 'primary.dark' 
+                      : isDisabled 
+                        ? 'transparent'
+                        : 'rgba(255, 255, 255, 0.08)',
+                  },
+                  '&.Mui-disabled': {
+                    color: 'text.disabled',
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color: 'inherit',
+                    minWidth: '40px',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  sx={{
+                    '& .MuiTypography-root': {
+                      fontSize: '0.95rem',
+                      fontWeight: isActive ? 500 : 400,
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
     </Box>
   );
 
