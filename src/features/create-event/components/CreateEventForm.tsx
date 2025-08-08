@@ -140,6 +140,7 @@ const CreateEventForm: React.FC = () => {
                 <Stack spacing={3}>
                   {/* Event Name */}
                   <TextField
+                    required
                     fullWidth
                     label="Event Name"
                     variant="outlined"
@@ -168,6 +169,7 @@ const CreateEventForm: React.FC = () => {
                         disablePast
                         slotProps={{
                           textField: {
+                            required: true,
                             fullWidth: true,
                             error: !!errors.datetime,
                             helperText: errors.datetime?.message,
@@ -229,6 +231,7 @@ const CreateEventForm: React.FC = () => {
                       <Stack spacing={3}>
                         {/* Description */}
                         <TextField
+                          required
                           fullWidth
                           label="Description"
                           variant="outlined"
@@ -247,6 +250,7 @@ const CreateEventForm: React.FC = () => {
 
                         {/* Location */}
                         <TextField
+                          required
                           fullWidth
                           label="Location"
                           variant="outlined"
@@ -267,6 +271,7 @@ const CreateEventForm: React.FC = () => {
                           control={control}
                           render={({ field }) => (
                             <TextField
+                            
                               fullWidth
                               label="Max Attendees"
                               type="number"
