@@ -38,13 +38,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const login = (userData: User) => {
+  const login = (userData: User, rememberMe: boolean = true) => {
     setUser(userData);
     setToken(userData.access_token);
 
-    // Store in localStorage
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('authToken', userData.access_token);
+    // Only store in localStorage if rememberMe is true
+    if (rememberMe) {
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('authToken', userData.access_token);
+    }
   };
 
   const logout = () => {

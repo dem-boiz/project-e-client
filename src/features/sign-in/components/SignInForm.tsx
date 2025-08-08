@@ -13,6 +13,8 @@ import {
   Container,
   IconButton,
   InputAdornment,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
@@ -26,6 +28,7 @@ const signInSchema = z.object({
     .email("Please enter a valid email address"),
   password: z.string()
     .min(6, "Password must be at least 6 characters"),
+  rememberMe: z.boolean().optional(),
 });
 
 type SignInFormData = z.infer<typeof signInSchema>;
@@ -45,6 +48,7 @@ const SignInForm: React.FC<SignInFormProps> = () => {
     defaultValues: {
       email: '',
       password: '',
+      rememberMe: true, // Default to remember me checked
     },
   });
 
@@ -60,7 +64,7 @@ const SignInForm: React.FC<SignInFormProps> = () => {
         token_type: response.token_type,
         email: response.email,
         access_token: response.access_token
-      });
+      }, data.rememberMe);
 
       toast.success(`Successfully signed in. Welcome back ${response.name}!`);
       // Navigate back or to home page
@@ -160,6 +164,22 @@ const SignInForm: React.FC<SignInFormProps> = () => {
                     '& .MuiOutlinedInput-root': {
                         borderRadius: 1,
                     },
+                    }}
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            {...register('rememberMe')}
+                            color="primary"
+                        />
+                    }
+                    label="Remember me"
+                    sx={{
+                        mt: 1,
+                        '& .MuiFormControlLabel-label': {
+                            fontSize: '0.9rem',
+                        },
                     }}
                 />
 
