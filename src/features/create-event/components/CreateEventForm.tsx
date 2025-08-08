@@ -27,7 +27,7 @@ import { useAuth } from '../../../hooks/useAuth';
 
 const schema = z.object({
   name: z.string().min(1, "Event name is required"),
-  description: z.string().optional(),
+  description: z.string().min(10, "Description must be at least 10 characters").max(500, "Description cannot exceed 500 characters"),
   location: z.string().optional(),
   datetime: z.string()
     .min(1, "Date is required")
