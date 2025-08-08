@@ -11,7 +11,10 @@ import {
   Paper,
   Stack,
   Container,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../hooks/useAuth';
 import { requestLogin } from '../../../service/api/api.service';
@@ -35,6 +38,7 @@ const SignInForm: React.FC<SignInFormProps> = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -135,10 +139,23 @@ const SignInForm: React.FC<SignInFormProps> = () => {
                 <TextField
                     {...register('password')}
                     label="Password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     fullWidth
                     error={!!errors.password}
                     helperText={errors.password?.message}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    edge="end"
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
                     sx={{
                     '& .MuiOutlinedInput-root': {
                         borderRadius: 1,
