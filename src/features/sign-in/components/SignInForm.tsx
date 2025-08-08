@@ -60,8 +60,7 @@ const SignInForm: React.FC<SignInFormProps> = () => {
 
       toast.success(`Successfully signed in. Welcome back ${response.name}!`);
       // Navigate back or to home page
-      navigate(-1);
-      
+      navigate('/my-events');
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error('Failed to sign in. Please check your credentials.');
