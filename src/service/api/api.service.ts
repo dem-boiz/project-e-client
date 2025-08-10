@@ -48,6 +48,10 @@ interface RequestLoginData {
   password: string;
 }
 
+// TODO: Refactor to use axios and have proper API error handling and propagation so that
+// we can display the proper error message. Currently, the server being down during a
+// sign in attempt results in the user being incorrectly told to check their credentials.
+
 // Generic API request function with error handling 
 async function apiRequest(
   endpoint: string,
@@ -70,6 +74,7 @@ async function apiRequest(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.log('Error data:', errorData);
       throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -109,8 +114,10 @@ export const EventApiService = {
       console.log('Got all events:', response);
       return response as unknown as Event[];
     } catch (error) {
-      console.error('Failed to fetch events:', error);
-      throw new Error('Failed to load events. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to load events. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
     }
   },
 
@@ -124,54 +131,71 @@ export const EventApiService = {
       });
       return response as unknown as Event;
     } catch (error) {
-      console.error(`Failed to fetch event ${eventId}:`, error);
-      throw new Error('Failed to load event details. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to fetch event. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
     }
   },
 
   /**
    * Create a new event
    */
-  async createEvent(eventData: CreateEventRequest): Promise<Event> {
+  async createEvent(eventData: CreateEventRequest, accessToken?: string): Promise<Event> {
     try {
       const response = await apiRequest('/events', {
         method: 'POST',
         body: JSON.stringify(eventData),
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
       return response as unknown as Event;
     } catch (error) {
-      console.error('Failed to create event:', error);
-      throw new Error('Failed to create event. Please check your data and try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to create event. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
     }
   },
 
   /**
    * Update an existing event
    */
- async updateEvent(id: string, data: UpdateEventRequest): Promise<Event> {
+ async updateEvent(id: string, data: UpdateEventRequest, accessToken?: string): Promise<Event> {
     try {
       const response = await apiRequest(`/events/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
       return response as unknown as Event;
     } catch (error) {
-      console.error(`Failed to update event ${id}:`, error);
-      throw new Error('Failed to update event. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to update event. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
     }
   },
 
   /**
    * Delete an event
    */
-  async deleteEvent(eventId: string): Promise<void> {
+  async deleteEvent(eventId: string, accessToken?: string): Promise<void> {
     try {
       await apiRequest(`/events/${eventId}`, {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
     } catch (error) {
-      console.error(`Failed to delete event ${eventId}:`, error);
-      throw new Error('Failed to delete event. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to delete event. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
     }
   },
 
@@ -190,9 +214,11 @@ export const UserApiService = {
       });
       console.log('Account created successfully:', response);
       return response as unknown as CreateAccountResponse;
-    } catch (error) {
-      console.error('Failed to create account:', error);
-      throw new Error('Failed to create account. Please try again.');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to create account. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
     }
   },
 
@@ -204,8 +230,10 @@ export const UserApiService = {
       }) as unknown as RequestLoginResponse;
       return response as unknown as RequestLoginResponse;
     } catch (error) {
-      console.error('Failed to log in:', error);
-      throw new Error('Failed to log in. Please check your credentials.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to log in. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
     }
   }
 

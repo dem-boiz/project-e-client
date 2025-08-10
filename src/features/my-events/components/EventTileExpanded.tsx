@@ -14,6 +14,9 @@ import { updateEvent, deleteEvent, type UpdateEventRequest } from '../../../serv
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../hooks/useAuth';
 
+// TODO: Update any edit forms to store current values and disable if no changes are detected.
+
+
 interface EventTileExpandedProps {
   event: Event | null;
   open: boolean;
@@ -35,15 +38,16 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         // await cancelEvent(event.id);
         console.log('Cancelling event:', event.id);
         setIsCancelling(true);
-        await deleteEvent(event.id);
+        await deleteEvent(event.id, user?.access_token);
         toast.success('Event cancelled successfully');
         if (onEventChanged) {
           onEventChanged('DELETE', event);
         }
         onClose(); // Close the dialog after cancelling
       } catch (error) {
-        console.error('Error cancelling event:', error);
-        toast.error('Failed to cancel event. Please try again later.');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setIsCancelling(false); 
       }
@@ -54,7 +58,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
     if (event) {
       try {
         setIsSaving(true);
-        await updateEvent(event.id, data as unknown as UpdateEventRequest);
+        await updateEvent(event.id, data as unknown as UpdateEventRequest, user?.access_token);
         toast.success('Event updated successfully');
         if (onEventChanged) {
           event.date_time = data.datetime; // Update the event date_time
@@ -65,8 +69,9 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         }
         onClose(); // Close the dialog after saving
       } catch (error) {
-        console.error('Error updating event:', error);
-        toast.error('Failed to update event. Please try again later.');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setIsSaving(false);
       }

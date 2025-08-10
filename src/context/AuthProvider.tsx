@@ -44,6 +44,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Only store in localStorage if rememberMe is true
     if (rememberMe) {
+      // TODO: refactor this to store 'refresh' tokens, longer-lived access tokens. 
+      // the access_token expires too soon. 
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('authToken', userData.access_token);
     }
