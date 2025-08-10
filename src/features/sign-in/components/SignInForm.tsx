@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
@@ -43,12 +43,12 @@ const SignInForm: React.FC<SignInFormProps> = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: true, // Default to remember me checked
+      rememberMe: false, // Default to remember me checked
     },
   });
 
@@ -147,11 +147,12 @@ const SignInForm: React.FC<SignInFormProps> = () => {
                     fullWidth
                     error={!!errors.password}
                     helperText={errors.password?.message}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
                                     onClick={() => setShowPassword(!showPassword)}
                                     edge="end"
                                 >
@@ -159,6 +160,7 @@ const SignInForm: React.FC<SignInFormProps> = () => {
                                 </IconButton>
                             </InputAdornment>
                         ),
+                        }
                     }}
                     sx={{
                     '& .MuiOutlinedInput-root': {
@@ -167,21 +169,30 @@ const SignInForm: React.FC<SignInFormProps> = () => {
                     }}
                 />
 
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            {...register('rememberMe')}
-                            color="primary"
+
+                <Controller
+                    name="rememberMe"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={value}
+                                    onChange={onChange}
+                                    color="primary"
+                                />
+                            }
+                            label="Remember me"
+                            sx={{
+                                mt: 1,
+                                '& .MuiFormControlLabel-label': {
+                                    fontSize: '0.9rem',
+                                },
+                            }}
                         />
-                    }
-                    label="Remember me"
-                    sx={{
-                        mt: 1,
-                        '& .MuiFormControlLabel-label': {
-                            fontSize: '0.9rem',
-                        },
-                    }}
+                    )}
                 />
+
 
                 <Button
                     type="submit"
