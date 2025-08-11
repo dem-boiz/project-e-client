@@ -1,15 +1,14 @@
 import config from '../../utils/config';
+import { jwtDecode } from 'jwt-decode';
 
 interface RefreshResponse {
   access_token: string;
-  refresh_token: string;
   token_type: string;
 }
 
 export class TokenManager {
   private static instance: TokenManager;
   private currentAccessToken: string | null = null;
-  private currentRefreshToken: string | null = null;
   private tokenExpiresAt: number | null = null;
 
   private constructor() {}
@@ -21,26 +20,18 @@ export class TokenManager {
     return TokenManager.instance;
   }
 
-  public setTokens(accessToken: string, refreshToken: string, expiresIn?: number): void {
+  public setToken(accessToken: string, exp?: number): void {
     this.currentAccessToken = accessToken;
-    this.currentRefreshToken = refreshToken;
-    
-    if (expiresIn) {
-      this.tokenExpiresAt = Date.now() + (expiresIn * 1000);
-    }
+    this.tokenExpiresAt = exp ? exp * 1000 : null;
   }
 
   public getAccessToken(): string | null {
     return this.currentAccessToken;
   }
 
-  public getRefreshToken(): string | null {
-    return this.currentRefreshToken;
-  }
 
-  public clearTokens(): void {
+  public clearToken(): void {
     this.currentAccessToken = null;
-    this.currentRefreshToken = null;
     this.tokenExpiresAt = null;
   }
 
@@ -49,6 +40,7 @@ export class TokenManager {
     const fiveMinutes = 5 * 60 * 1000;
     return (this.tokenExpiresAt - Date.now()) < fiveMinutes;
   }
+
 
   public async refreshAccessToken(): Promise<RefreshResponse | null> {
     try {
@@ -67,14 +59,19 @@ export class TokenManager {
       }
 
       const data: RefreshResponse = await response.json();
-      
+      const decodedAccessToken = jwtDecode(data.access_token);
+
+
+      // Note: if we want to refresh access token without needing the user to interact with the app,
+      // but simply be on it, we can instead set a timeout here to refresh a few minutes before the token
+      // expires, instead of checking before every api call.
+
       // Update both access and refresh tokens in memory
-      this.setTokens(data.access_token, data.refresh_token);
-      
+      this.setToken(data.access_token, decodedAccessToken.exp);
       return data;
     } catch (error) {
       console.error('Token refresh failed:', error);
-      this.clearTokens();
+      this.clearToken();
       return null;
     }
   }
