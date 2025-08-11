@@ -1,56 +1,11 @@
 import type { Event } from '../../types/event';
+import type { CreateEventRequest, UpdateEventRequest, CreateAccountRequest, CreateAccountResponse, RequestLoginData, RequestLoginResponse } from '../../types/network.types';
 import config from '../../utils/config';
+import { TokenManager } from '../auth/TokenManager';
 
 // Base API configuration
-const API_TIMEOUT = 10000; // 10 seconds
 
-// User/Attendee type for API responses
-
-// Create Event request type
-interface CreateEventRequest {
-  name: string;
-  description?: string;
-  location?: string;
-  datetime: string;
-  host_id: string
-  //capacity?: number;
-}
-
-interface CreateAccountRequest {
-  username: string;
-  email: string;
-  password: string;
-}
-interface CreateAccountResponse {
-  company_name: string;
-  created_at: string;
-  email: string;
-  host_number: number;
-  id: string;
-}
-
-
-// Update Event request type
-interface UpdateEventRequest extends Partial<CreateEventRequest> {
-  id: string;
-}
-
-interface RequestLoginResponse {
-  access_token: string;
-  token_type: string;
-  email: string;
-  user_id: string;
-  name: string;
-}
-
-interface RequestLoginData {
-  email: string;
-  password: string;
-}
-
-// TODO: Refactor to use axios and have proper API error handling and propagation so that
-// we can display the proper error message. Currently, the server being down during a
-// sign in attempt results in the user being incorrectly told to check their credentials.
+const tokenManager = TokenManager.getInstance();
 
 // Generic API request function with error handling 
 async function apiRequest(
@@ -58,26 +13,69 @@ async function apiRequest(
   options: RequestInit = {}
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+  const timeoutId = setTimeout(() => controller.abort(), config.API_TIMEOUT);
+
+  // Check if we need to refresh token before making the request
+  if (tokenManager.shouldRefreshToken() && endpoint !== '/auth/refresh') {
+    const refreshResult = await tokenManager.refreshAccessToken();
+    if (!refreshResult) {
+      // Refresh failed, let the auth context handle logout
+      throw new Error('Session expired. Please sign in again.');
+    }
+  }
 
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+      ...tokenManager.getAuthorizationHeader(),
+    };
+
     const response = await fetch(`${config.API_URL}${endpoint}`, {
       ...options,
       signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      credentials: 'include', // Include cookies for refresh token
+      headers,
     });
 
     clearTimeout(timeoutId);
+
+    // Handle 401 - try refresh once
+    if (response.status === 401 && endpoint !== '/auth/refresh') {
+      const refreshResult = await tokenManager.refreshAccessToken();
+      if (refreshResult) {
+        // Retry the original request with new token
+        const retryHeaders = {
+          ...headers,
+          ...tokenManager.getAuthorizationHeader(),
+        };
+        
+        const retryResponse = await fetch(`${config.API_URL}${endpoint}`, {
+          ...options,
+          credentials: 'include',
+          headers: retryHeaders,
+        });
+        
+        if (!retryResponse.ok) {
+          const errorData = await retryResponse.json().catch(() => ({}));
+          throw new Error(errorData.message || `HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
+        }
+        
+        if (retryResponse.status === 204) {
+          return new Response(null, { status: 204 });
+        }
+        return await retryResponse.json();
+      } else {
+        // Refresh failed
+        throw new Error('Session expired. Please sign in again.');
+      }
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.log('Error data:', errorData);
       throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
-
 
     if (response.status === 204) {
       return new Response(null, { status: 204 }); // No content response
@@ -97,8 +95,6 @@ async function apiRequest(
     throw new Error('An unexpected error occurred');
   }
 }
-
-
 
 // Event API Service Functions
 export const EventApiService = {
