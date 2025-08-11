@@ -4,7 +4,7 @@ import { AuthContext, type AuthContextType } from './authContext';
 import { TokenManager } from '../service/auth/TokenManager';
 import { toast } from 'react-toastify';
 import type { User } from '../types/network.types';
-import { useNavigate } from 'react-router';
+import { jwtDecode } from 'jwt-decode';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -22,20 +22,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initializeAuth = async () => {
       // Check if we have a refresh token cookie (browser will send it automatically)
       try {
-        const refreshResult = await tokenManager.refreshAccessToken();
+        console.log('🔄 Attempting initial token refresh...');
+        const refreshResult = await tokenManager.refreshAccessToken(true);
         if (refreshResult) {
           // Successfully refreshed, set tokens in memory
           setAccessToken(refreshResult.access_token);
           
-          // You might want to also set user data here if your backend provides it
-          // For now, we'll assume the user data needs to be fetched separately
-          console.log('Token refreshed successfully on app load');
+          console.log('✅ Token refreshed successfully on app load');
+          
+          // Extract user data from the API
+          const userData = await tokenManager.getUserFromToken();
+          if (userData) {
+            setUser({
+              id: userData.id,
+              name: userData.name,
+              email: userData.email,
+              token_type: 'Bearer',
+              access_token: refreshResult.access_token,
+            });
+            console.log('👤 User data restored from API:', userData);
+          } else {
+            // Fallback if we can't fetch user data
+            console.log('⚠️ Could not fetch user data, using fallback');
+            setUser({
+              id: 'temp-id',
+              name: 'User',
+              email: 'user@example.com',
+              token_type: 'Bearer',
+              access_token: refreshResult.access_token,
+            });
+          }
+          
         } else {
           // No valid refresh token, user needs to sign in
-          console.log('No valid refresh token found');
+          console.log('❌ No valid refresh token found');
         }
       } catch (error) {
-        console.error('Failed to refresh token on app load:', error);
+        console.error('💥 Failed to refresh token on app load:', error);
         // Clear any stale data
         tokenManager.clearToken();
         setAccessToken(null);
@@ -51,6 +74,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = (userData: User) => {
     setUser(userData);
     setAccessToken(userData.access_token);
+    
+    // Also set token in TokenManager with expiry
+    try {
+      const decodedToken = jwtDecode(userData.access_token) as { exp?: number };
+      tokenManager.setToken(userData.access_token, decodedToken?.exp);
+    } catch {
+      tokenManager.setToken(userData.access_token);
+    }
   };
 
   const logout = () => {
