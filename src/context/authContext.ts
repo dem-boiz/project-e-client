@@ -6,11 +6,13 @@ interface User {
   email: string;
   token_type: string;
   access_token: string;
+  refresh_token: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   login: (userData: User, rememberMe?: boolean) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
