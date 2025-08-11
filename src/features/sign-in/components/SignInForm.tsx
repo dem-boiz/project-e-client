@@ -64,7 +64,6 @@ const SignInForm: React.FC<SignInFormProps> = () => {
         token_type: response.token_type,
         email: response.email,
         access_token: response.access_token,
-        refresh_token: response.refresh_token,
       }, data.rememberMe);
 
       toast.success(`Successfully signed in. Welcome back ${response.name}!`);
