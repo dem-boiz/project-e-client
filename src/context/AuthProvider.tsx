@@ -14,8 +14,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  const navigate = useNavigate();
-
   // Get token manager instance
   const tokenManager = TokenManager.getInstance();
 
@@ -44,12 +42,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(null);
         // Show error message
         toast.error('An error occurred while refreshing the session token. Try signing back in.');
-        //navigate('/sign-in'); // Redirect to sign-in page
       }
     };
 
     initializeAuth();
-  }, [navigate, tokenManager]);
+  }, [tokenManager]);
 
   const login = (userData: User) => {
     setUser(userData);
