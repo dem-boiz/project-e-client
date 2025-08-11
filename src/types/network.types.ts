@@ -6,3 +6,52 @@ export interface Event {
     description: string;
     capacity: number;
 }
+
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    token_type: string;
+    access_token: string;
+    refresh_token: string;
+}
+
+export interface CreateEventRequest {
+  name: string;
+  description?: string;
+  location?: string;
+  datetime: string;
+  host_id: string
+}
+export interface CreateAccountRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface CreateAccountResponse {
+  company_name: string;
+  created_at: string;
+  email: string;
+  host_number: number;
+  id: string;
+}
+
+// Update Event request type
+export interface UpdateEventRequest extends Partial<CreateEventRequest> {
+  id: string;
+}
+
+export interface RequestLoginResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  email: string;
+  user_id: string;
+  name: string;
+}
+
+export interface RequestLoginData {
+  email: string;
+  password: string;
+}
