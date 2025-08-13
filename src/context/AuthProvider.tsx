@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { AuthContext, type AuthContextType } from './authContext';
-import { TokenManager } from '../service/auth/TokenManager';
+import { AuthManager } from '../service/auth/AuthManager';
 import { toast } from 'react-toastify';
 import type { User } from '../types/network.types';
 import { jwtDecode } from 'jwt-decode';
@@ -15,7 +15,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Get token manager instance
-  const tokenManager = TokenManager.getInstance();
+  const authManager = AuthManager.getInstance();
 
   // Initialize auth state 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Check if we have a refresh token cookie (browser will send it automatically)
       try {
         console.log('🔄 Attempting initial token refresh...');
-        const refreshResult = await tokenManager.refreshAccessToken(true);
+        const refreshResult = await authManager.refreshAccessToken(true);
         if (refreshResult) {
           // Successfully refreshed, set tokens in memory
           setAccessToken(refreshResult.access_token);
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('✅ Token refreshed successfully on app load');
           
           // Extract user data from the API
-          const userData = await tokenManager.getUserFromToken();
+          const userData = await authManager.getUserFromToken();
           if (userData) {
             setUser({
               id: userData.id,
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('💥 Failed to refresh token on app load:', error);
         // Clear any stale data
-        tokenManager.clearToken();
+        authManager.clearToken();
         setAccessToken(null);
         setUser(null);
         // Show error message
@@ -69,18 +69,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
-  }, [tokenManager]);
+  }, [authManager]);
 
   const login = (userData: User) => {
     setUser(userData);
     setAccessToken(userData.access_token);
     
-    // Also set token in TokenManager with expiry
+    // Also set token in AuthManager with expiry
     try {
       const decodedToken = jwtDecode(userData.access_token) as { exp?: number };
-      tokenManager.setToken(userData.access_token, decodedToken?.exp);
+      authManager.setToken(userData.access_token, decodedToken?.exp);
     } catch {
-      tokenManager.setToken(userData.access_token);
+      authManager.setToken(userData.access_token);
     }
   };
 
@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('Logging out user:', user?.name);
     setUser(null);
     setAccessToken(null);
-    tokenManager.clearToken();
+    authManager.clearToken();
 
     // Clear any localStorage remnants (from old implementation)
     localStorage.removeItem('authToken');

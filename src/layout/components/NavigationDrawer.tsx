@@ -24,6 +24,8 @@ import { useAuth } from '../../hooks/useAuth';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { toast } from 'react-toastify';
+import { requestLogout } from '../../service/api/api.service';
+
 interface NavigationItem {
   label: string;
   icon: React.ReactNode;
@@ -99,11 +101,18 @@ const NavigationDrawer: React.FC = () => {
   };
 
   const handleSignOut = async () => {
-    setIsOpen(false);
-    auth.logout();
-    setIsAuthenticated(false);
-    toast.success('Successfully signed out.');
-    handleNavigate('/sign-in');
+    try {
+        await requestLogout();
+        setIsOpen(false);
+        auth.logout();
+        setIsAuthenticated(false);
+        toast.success('Successfully signed out.');
+        handleNavigate('/sign-in');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to sign out.');
+      console.error(error);
+    }
+
   };
 
   const drawerContent = (

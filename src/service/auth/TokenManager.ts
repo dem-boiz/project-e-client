@@ -6,18 +6,19 @@ interface RefreshResponse {
   token_type: string;
 }
 
-export class TokenManager {
-  private static instance: TokenManager;
+export class AuthManager {
+  private static instance: AuthManager;
   private currentAccessToken: string | null = null;
   private tokenExpiresAt: number | null = null;
+  private currentCsrfToken: string | null = null;
 
   private constructor() {}
 
-  public static getInstance(): TokenManager {
-    if (!TokenManager.instance) {
-      TokenManager.instance = new TokenManager();
+  public static getInstance(): AuthManager {
+    if (!AuthManager.instance) {
+      AuthManager.instance = new AuthManager();
     }
-    return TokenManager.instance;
+    return AuthManager.instance;
   }
 
   public setToken(accessToken: string, exp?: number): void {
@@ -144,6 +145,13 @@ export class TokenManager {
     }
     return {};
   }
+
+  public setCsrfToken(csrfToken: string): void {
+    this.currentCsrfToken = csrfToken;
+  }
+
+  
+
 }
 
-export default TokenManager;
+export default AuthManager;

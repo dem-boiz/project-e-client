@@ -1,11 +1,11 @@
 import type { Event } from '../../types/event';
 import type { CreateEventRequest, UpdateEventRequest, CreateAccountRequest, CreateAccountResponse, RequestLoginData, RequestLoginResponse } from '../../types/network.types';
 import config from '../../utils/config';
-import { TokenManager } from '../auth/TokenManager';
+import { AuthManager } from '../auth/AuthManager';
 
 // Base API configuration
 
-const tokenManager = TokenManager.getInstance();
+const authManager = AuthManager.getInstance();
 
 // Generic API request function with error handling 
 async function apiRequest(
@@ -16,8 +16,8 @@ async function apiRequest(
   const timeoutId = setTimeout(() => controller.abort(), config.API_TIMEOUT);
 
   // Check if we need to refresh token before making the request
-  if (tokenManager.shouldRefreshToken() && endpoint !== '/auth/refresh') {
-    const refreshResult = await tokenManager.refreshAccessToken();
+  if (authManager.shouldRefreshToken() && endpoint !== '/auth/refresh') {
+    const refreshResult = await authManager.refreshAccessToken();
     if (!refreshResult) {
       // Refresh failed, let the auth context handle logout
       throw new Error('Session expired. Please sign in again.');
@@ -28,7 +28,7 @@ async function apiRequest(
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
-      ...tokenManager.getAuthorizationHeader(),
+      ...authManager.getAuthorizationHeader(),
     };
 
     const response = await fetch(`${config.API_URL}${endpoint}`, {
@@ -42,12 +42,12 @@ async function apiRequest(
 
     // Handle 401 - try refresh once
     if (response.status === 401 && endpoint !== '/auth/refresh') {
-      const refreshResult = await tokenManager.refreshAccessToken();
+      const refreshResult = await authManager.refreshAccessToken();
       if (refreshResult) {
         // Retry the original request with new token
         const retryHeaders = {
           ...headers,
-          ...tokenManager.getAuthorizationHeader(),
+          ...authManager.getAuthorizationHeader(),
         };
         
         const retryResponse = await fetch(`${config.API_URL}${endpoint}`, {
@@ -231,7 +231,22 @@ export const UserApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
+  },
+
+  async requestLogout(): Promise<void> {
+    try {
+      await apiRequest('/auth/logout', {
+        method: 'POST',
+      });
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to log out. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
   }
+
 
 }
 
@@ -246,7 +261,8 @@ export const {
 
 export const {
   createAccount,
-  requestLogin
+  requestLogin,
+  requestLogout
 } = UserApiService;
 
 // Export types for use in components
