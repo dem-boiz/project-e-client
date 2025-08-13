@@ -1,8 +1,7 @@
 import type { Event } from '../../types/event';
 import type { CreateEventRequest, UpdateEventRequest, CreateAccountRequest, CreateAccountResponse, RequestLoginData, RequestLoginResponse } from '../../types/network.types';
 import config from '../../utils/config';
-import { AuthManager } from '../auth/AuthManager';
-
+import AuthManager from '../auth/TokenManager';
 // Base API configuration
 
 const authManager = AuthManager.getInstance();

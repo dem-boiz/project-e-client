@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { AuthContext, type AuthContextType } from './authContext';
-import { AuthManager } from '../service/auth/AuthManager';
+import AuthManager from '../service/auth/TokenManager';
 import { toast } from 'react-toastify';
 import type { User } from '../types/network.types';
 import { jwtDecode } from 'jwt-decode';

@@ -10,7 +10,6 @@ export class AuthManager {
   private static instance: AuthManager;
   private currentAccessToken: string | null = null;
   private tokenExpiresAt: number | null = null;
-  private currentCsrfToken: string | null = null;
 
   private constructor() {}
 
@@ -146,11 +145,7 @@ export class AuthManager {
     return {};
   }
 
-  public setCsrfToken(csrfToken: string): void {
-    this.currentCsrfToken = csrfToken;
-  }
-
-  
+ 
 
 }
 
