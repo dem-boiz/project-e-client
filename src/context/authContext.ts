@@ -6,11 +6,11 @@ interface User {
   email: string;
   token_type: string;
   access_token: string;
+  csrf_token: string; // CSRF token for security
 }
 
 export interface AuthContextType {
   user: User | null;
-  accessToken: string | null;
   login: (userData: User, rememberMe?: boolean) => void;
   logout: () => void;
   isAuthenticated: () => boolean;

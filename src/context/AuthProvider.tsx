@@ -5,14 +5,13 @@ import AuthManager from '../service/auth/TokenManager';
 import { toast } from 'react-toastify';
 import type { User } from '../types/network.types';
 import { jwtDecode } from 'jwt-decode';
-
+import { getCookie } from '../utils/utils';
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Get token manager instance
   const authManager = AuthManager.getInstance();
@@ -23,13 +22,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Check if we have a refresh token cookie (browser will send it automatically)
       try {
         console.log('🔄 Attempting initial token refresh...');
+
+
+        // We check the cookie for initial csrf, if it doesnt exists, we'll have to log back in.
+        // It should exists for as long as the refresh_token httpOnly cookie exists, if one does.
+        const initialCsrf = getCookie('csrf_token');
+        authManager.setCsrf(initialCsrf || '');
         const refreshResult = await authManager.refreshAccessToken(true);
         if (refreshResult) {
-          // Successfully refreshed, set tokens in memory
-          setAccessToken(refreshResult.access_token);
-          
           console.log('✅ Token refreshed successfully on app load');
-          
+          authManager.setCsrf(refreshResult.csrf_token || '');
           // Extract user data from the API
           const userData = await authManager.getUserFromToken();
           if (userData) {
@@ -39,9 +41,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: userData.email,
               token_type: 'Bearer',
               access_token: refreshResult.access_token,
+              csrf_token: refreshResult.csrf_token || '', // Set CSRF token if available
             });
             console.log('👤 User data restored from API:', userData);
           } else {
+
+            // TODO: Update to raise a fatal error.
+
             // Fallback if we can't fetch user data
             console.log('⚠️ Could not fetch user data, using fallback');
             setUser({
@@ -50,6 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: 'user@example.com',
               token_type: 'Bearer',
               access_token: refreshResult.access_token,
+              csrf_token: refreshResult.csrf_token || ''
             });
           }
           
@@ -61,7 +68,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('💥 Failed to refresh token on app load:', error);
         // Clear any stale data
         authManager.clearToken();
-        setAccessToken(null);
         setUser(null);
         // Show error message
         toast.error('An error occurred while refreshing the session token. Try signing back in.');
@@ -73,8 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (userData: User) => {
     setUser(userData);
-    setAccessToken(userData.access_token);
-    
+    AuthManager.getInstance().setCsrf(userData.csrf_token || '');
     // Also set token in AuthManager with expiry
     try {
       const decodedToken = jwtDecode(userData.access_token) as { exp?: number };
@@ -86,8 +91,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     console.log('Logging out user:', user?.name);
+    AuthManager.getInstance().setCsrf('');
     setUser(null);
-    setAccessToken(null);
     authManager.clearToken();
 
     // Clear any localStorage remnants (from old implementation)
@@ -100,13 +105,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('User logged out successfully');
   };
 
+
+
   const isAuthenticated = (): boolean => {
-    return !!(user && accessToken);
+    return !!(
+      user?.access_token
+      && user?.id
+      && user?.email
+      && user?.name
+    );
   };
 
   const value: AuthContextType = {
     user,
-    accessToken,
     login,
     logout,
     isAuthenticated,

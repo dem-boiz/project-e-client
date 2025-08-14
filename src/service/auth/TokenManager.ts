@@ -4,11 +4,13 @@ import { jwtDecode } from 'jwt-decode';
 interface RefreshResponse {
   access_token: string;
   token_type: string;
+  csrf_token?: string; // Optional CSRF token
 }
 
 export class AuthManager {
   private static instance: AuthManager;
   private currentAccessToken: string | null = null;
+  private csrfToken: string = '';
   private tokenExpiresAt: number | null = null;
 
   private constructor() {}
@@ -23,6 +25,17 @@ export class AuthManager {
   public setToken(accessToken: string, exp?: number): void {
     this.currentAccessToken = accessToken;
     this.tokenExpiresAt = exp ? exp * 1000 : null;
+  }
+
+  public setCsrf(csrfToken: string): void {
+    // Store CSRF token if needed
+    // This example does not store it, but you can implement as required
+    this.csrfToken = csrfToken;
+  }
+
+
+  public getCsrfToken(): string {
+    return this.csrfToken;
   }
 
   public getAccessToken(): string | null {
@@ -104,6 +117,7 @@ export class AuthManager {
         credentials: 'include', // Include HttpOnly refresh token cookie
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': this.csrfToken
         },
       });
 

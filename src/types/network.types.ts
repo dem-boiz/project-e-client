@@ -13,6 +13,7 @@ export interface User {
     email: string;
     token_type: string;
     access_token: string;
+    csrf_token: string;
 }
 
 export interface CreateEventRequest {
@@ -43,6 +44,7 @@ export interface UpdateEventRequest extends Partial<CreateEventRequest> {
 
 export interface RequestLoginResponse {
   access_token: string;
+  csrf_token: string;
   token_type: string;
   email: string;
   user_id: string;
