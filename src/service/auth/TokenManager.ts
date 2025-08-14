@@ -112,6 +112,8 @@ export class AuthManager {
       console.log(`🌐 Current origin:`, window.location.origin);
 
       // How is the refresh token being set and sent?
+
+      console.log('sending csrfToken:', this.csrfToken);
       const response = await fetch(`${config.API_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include', // Include HttpOnly refresh token cookie
