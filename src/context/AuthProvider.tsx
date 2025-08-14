@@ -27,6 +27,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // We check the cookie for initial csrf, if it doesnt exists, we'll have to log back in.
         // It should exists for as long as the refresh_token httpOnly cookie exists, if one does.
         const initialCsrf = getCookie('csrf_token');
+        console.log('initial csrf_token:', initialCsrf);
         authManager.setCsrf(initialCsrf || '');
         const refreshResult = await authManager.refreshAccessToken(true);
         if (refreshResult) {
