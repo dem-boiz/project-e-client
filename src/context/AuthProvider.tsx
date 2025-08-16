@@ -11,31 +11,6 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Helper function to get cookie value with debugging
-const getCookieValue = (name: string): string | undefined => {
-  try {
-    // Method 1: Using js-cookie
-    const jsCookieValue = Cookies.get(name);
-    console.log(`🍪 js-cookie result for ${name}:`, jsCookieValue);
-    
-    // Method 2: Manual parsing
-    const cookies = document.cookie.split(';');
-    for (const cookie of cookies) {
-      const [cookieName, cookieValue] = cookie.trim().split('=');
-      if (cookieName === name) {
-        console.log(`🍪 Manual parsing result for ${name}:`, cookieValue);
-        return cookieValue;
-      }
-    }
-    
-    console.log(`🍪 Cookie ${name} not found`);
-    return undefined;
-  } catch (error) {
-    console.error(`💥 Error reading cookie ${name}:`, error);
-    return undefined;
-  }
-};
-
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
@@ -49,21 +24,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         console.log('🔄 Attempting initial token refresh...');
 
-        // Debug cookie information
-        console.log('🍪 All document.cookie:', document.cookie);
-        console.log('🌐 Current location:', window.location.href);
-        console.log('🌐 Current origin:', window.location.origin);
-        console.log('🌐 Current pathname:', window.location.pathname);
-
-        // Small delay to ensure cookies are fully loaded
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        console.log('🍪 After delay - All document.cookie:', document.cookie);
 
         // We check the cookie for initial csrf, if it doesnt exists, we'll have to log back in.
         // It should exists for as long as the refresh_token httpOnly cookie exists, if one does.
-        const initialCsrf = getCookieValue('csrf_token');
-        console.log('🔑 Final CSRF token result:', initialCsrf);
+        const initialCsrf = Cookies.get('csrf_token');
+        console.log('initial csrf_token:', initialCsrf);
         authManager.setCsrf(initialCsrf || '');
         const refreshResult = await authManager.refreshAccessToken(true);
         if (refreshResult) {

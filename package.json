@@ -10,7 +10,8 @@
     "type-check": "tsc --noEmit",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "start": "serve -s dist -l $PORT"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
