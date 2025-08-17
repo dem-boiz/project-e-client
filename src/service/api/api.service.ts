@@ -30,7 +30,7 @@ async function apiRequest(
       ...authManager.getAuthorizationHeader(),
     };
 
-    const response = await fetch(`${config.API_URL}${endpoint}`, {
+    const response = await fetch(`/api${endpoint}`, {
       ...options,
       signal: controller.signal,
       credentials: 'include', // Include cookies for refresh token
@@ -49,7 +49,7 @@ async function apiRequest(
           ...authManager.getAuthorizationHeader(),
         };
         
-        const retryResponse = await fetch(`${config.API_URL}${endpoint}`, {
+        const retryResponse = await fetch(`/${endpoint}`, {
           ...options,
           credentials: 'include',
           headers: retryHeaders,
