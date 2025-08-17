@@ -107,7 +107,6 @@ export class AuthManager {
 
   public async refreshAccessToken(isInit: boolean = false): Promise<RefreshResponse | null> {
     try {
-      console.log(`🔄 Making refresh request to: ${config.API_URL}/auth/refresh`);
       console.log(`🍪 Current document.cookie:`, document.cookie);
       console.log(`🌐 Current origin:`, window.location.origin);
 
