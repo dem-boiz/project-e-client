@@ -5,10 +5,20 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   const BASE = env.VITE_BASE_NAME || '/';
-
-
+  const API_URL = env.VITE_API_URL || 'http://0.0.0.0:8000';
+  console.log('Using api:', API_URL)
+  
   return {
     plugins: [react()],
     base: BASE,
+    server: {
+      proxy: {
+        '/api': {
+          target: API_URL,
+          changeOrigin: true, // Most servers expect host to match their domain, so we handle that here
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        }
+      }
+    }
   }
-})
+});
