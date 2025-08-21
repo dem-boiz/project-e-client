@@ -10,7 +10,12 @@ import {
 import type { Event } from '../../../types/event';
 import EventGuestView from './EventGuestView';
 import EventEditView, { type EditFormData } from './EventEditView';
-import { updateEvent, deleteEvent, type UpdateEventRequest } from '../../../service/api/api.service';
+import { 
+  updateEvent, 
+  deleteEvent, 
+  inviteGuest,
+  type UpdateEventRequest
+} from '../../../service/api/api.service';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../hooks/useAuth';
 
@@ -77,6 +82,23 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
       }
     }
   }
+
+  const onInviteGuest = async () => {
+    if (event) {
+      try {
+        // TODO: Implement actual invite guest API call
+        // await inviteGuest(event.id);
+        console.log('Inviting guest to event:', event.id);
+        const inviteCode = await inviteGuest(event.id, user?.access_token, "testGuest@example.com", "test invite");
+        toast.success(`Guest invited successfully. Invite code: ${inviteCode}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(errorMessage);
+        toast.error(errorMessage);
+      }
+    }
+  }
+
 
   useEffect(() => {
     if (open) {
@@ -189,15 +211,26 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
           )}
 
           {event.host_id === user?.id && (
-            <Button
-              disabled={isCancelling || isSaving}
-              onClick={() => setEditViewOpen(() => !editViewOpen)}
-              variant="contained"
-              color="primary"
-              sx={{ textTransform: 'none' }}
-            >
-              {editViewOpen ? 'Cancel' : 'Edit Event'}
-            </Button>
+            <>
+              <Button
+                onClick={() => onInviteGuest()}
+                variant="contained"
+                color="primary"
+                sx={{ textTransform: 'none' }}
+              >
+                Invite Guest
+              </Button>
+
+              <Button
+                disabled={isCancelling || isSaving}
+                onClick={() => setEditViewOpen(() => !editViewOpen)}
+                variant="contained"
+                color="primary"
+                sx={{ textTransform: 'none' }}
+              >
+                {editViewOpen ? 'Cancel' : 'Edit Event'}
+              </Button>
+            </>
           )}
           <Button
             onClick={onClose}

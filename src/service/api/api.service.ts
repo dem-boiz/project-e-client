@@ -194,6 +194,25 @@ export const EventApiService = {
     }
   },
 
+  async inviteGuest(eventId: string, accessToken?: string,  guestEmail?: string,  label?: string): Promise<string> {
+    try {
+      const response = await apiRequest(`/events/${eventId}/invite`, {
+        method: 'POST',
+        body: JSON.stringify({ email: guestEmail, label }),
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log('Invite response:::')
+      console.log(response);
+      return response as unknown as string
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to invite guest. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
 
 };
 
@@ -247,6 +266,9 @@ export const UserApiService = {
   }
 
 
+
+
+
 }
 
 // Export individual functions for convenience
@@ -256,6 +278,7 @@ export const {
   createEvent,
   updateEvent,
   deleteEvent,
+  inviteGuest
 } = EventApiService;
 
 export const {
