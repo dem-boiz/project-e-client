@@ -31,6 +31,7 @@ export class AuthManager {
     // Store CSRF token if needed
     // This example does not store it, but you can implement as required
     this.csrfToken = csrfToken;
+    console.log('CSRF token set in AuthManager:', this.csrfToken);
   }
 
 

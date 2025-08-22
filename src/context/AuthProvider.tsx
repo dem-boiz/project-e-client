@@ -81,6 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (userData: User) => {
     setUser(userData);
+    console.log('Before call to AuthManager.setCsrf(), User data', userData);
     AuthManager.getInstance().setCsrf(userData.csrf_token || '');
     // Also set token in AuthManager with expiry
     try {
