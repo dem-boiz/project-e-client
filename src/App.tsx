@@ -2,7 +2,7 @@
 import './App.css'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AppRouter from './routes/AppRouter';
-import { AuthProvider } from './context/AuthProvider';
+import { AuthProvider } from './service/auth/AuthProvider';
 
 // TODO: For a more seamless experience, track y scroll when keyboard pushes up elements.
 // After the keyboard is dismiessed, scroll back to the previous position.
