@@ -164,9 +164,11 @@ export class AuthService {
 
       // Update tokens
       this.setToken(data.access_token, decodedAccessToken.exp);
+      console.log('Checking if CSRF token is present...');
       if (data.csrf_token) {
+        console.log(`Setting CSRF token:`, data.csrf_token);
         this.setCsrfToken(data.csrf_token);
-      }
+      } else console.log('No CSRF token in refresh response');
 
       // Notify React layer of successful refresh
       if (this.callbacks.onTokenRefreshed) {
@@ -195,7 +197,13 @@ export class AuthService {
       }) as unknown as RequestLoginResponse;
 
       const decodedAccessToken = jwtDecode(response.access_token);
+      // Update tokens
       this.setToken(response.access_token, decodedAccessToken.exp);
+      console.log('Checking if CSRF token is present...');
+      if (response.csrf_token) {
+        console.log(`Setting CSRF token:`, response.csrf_token);
+        this.setCsrfToken(response.csrf_token);
+      } else console.log('No CSRF token in login response');
 
       if (this.callbacks.onLogin) {
         this.callbacks.onLogin({
@@ -293,7 +301,9 @@ export class AuthService {
         'Content-Type': 'application/json',
         ...(options.headers as Record<string, string>),
       };
-  
+
+      console.log(`Final request headers for endpoint '${endpoint}'`, headers);
+
       const response = await fetch(`/api/auth${endpoint}`, {
         ...options,
         signal: controller.signal,
