@@ -43,7 +43,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         // await cancelEvent(event.id);
         console.log('Cancelling event:', event.id);
         setIsCancelling(true);
-        await deleteEvent(event.id, user?.access_token);
+        await deleteEvent(event.id);
         toast.success('Event cancelled successfully');
         if (onEventChanged) {
           onEventChanged('DELETE', event);
@@ -63,7 +63,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
     if (event) {
       try {
         setIsSaving(true);
-        await updateEvent(event.id, data as unknown as UpdateEventRequest, user?.access_token);
+        await updateEvent(event.id, data as unknown as UpdateEventRequest);
         toast.success('Event updated successfully');
         if (onEventChanged) {
           event.date_time = data.datetime; // Update the event date_time
@@ -89,7 +89,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         // TODO: Implement actual invite guest API call
         // await inviteGuest(event.id);
         console.log('Inviting guest to event:', event.id);
-        const inviteCode = await inviteGuest(event.id, user?.access_token, "testGuest@example.com", "test invite");
+        const inviteCode = await inviteGuest(event.id,"testGuest@example.com", "test invite");
         toast.success(`Guest invited successfully. Invite code: ${inviteCode}`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';

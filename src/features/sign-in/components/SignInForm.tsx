@@ -18,8 +18,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../../hooks/useAuth';
-import { requestLogin } from '../../../service/api/api.service';
+import { getAuthService } from '../../../service/auth';
 
 // Zod schema for form validation
 const signInSchema = z.object({
@@ -39,7 +38,6 @@ interface SignInFormProps {
 
 const SignInForm: React.FC<SignInFormProps> = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
@@ -56,17 +54,8 @@ const SignInForm: React.FC<SignInFormProps> = () => {
     setIsLoading(true);
     
     try {
-      const response = await requestLogin(data);
+      const response = await getAuthService().login(data);
       console.log('sign in response:', response);
-      login({
-        name: response.name,
-        id: response.user_id,
-        token_type: response.token_type,
-        email: response.email,
-        access_token: response.access_token,
-        csrf_token: response.csrf_token,
-      }, data.rememberMe);
-
       toast.success(`Successfully signed in. Welcome back ${response.name}!`);
       // Navigate back or to home page
       navigate('/my-events');

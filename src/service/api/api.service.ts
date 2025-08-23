@@ -1,10 +1,17 @@
 import type { Event } from '../../types/event';
-import type { CreateEventRequest, UpdateEventRequest, CreateAccountRequest, CreateAccountResponse, RequestLoginData, RequestLoginResponse } from '../../types/network.types';
+import type { CreateEventRequest, UpdateEventRequest } from '../../types/network.types';
 import config from '../../utils/config';
-import AuthManager from '../auth/TokenManager';
-// Base API configuration
+import { getAuthService } from '../auth/index';
 
-const authManager = AuthManager.getInstance();
+// Lazy load auth service to avoid initialization order issues
+function getAuth() {
+  try {
+    return getAuthService();
+  } catch {
+    // If AuthService not initialized yet, throw a more helpful error
+    throw new Error('Authentication not initialized. Please ensure the app is properly loaded.');
+  }
+}
 
 // Generic API request function with error handling 
 async function apiRequest(
@@ -14,20 +21,19 @@ async function apiRequest(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), config.API_TIMEOUT);
 
-  // Check if we need to refresh token before making the request
-  if (authManager.shouldRefreshToken() && endpoint !== '/auth/refresh') {
-    const refreshResult = await authManager.refreshAccessToken();
-    if (!refreshResult) {
-      // Refresh failed, let the auth context handle logout
-      throw new Error('Session expired. Please sign in again.');
-    }
+  // Ensure we have a valid token before making the request
+  const authService = getAuth();
+  const hasValidToken = await authService.ensureValidToken();
+  if (!hasValidToken && endpoint !== '/auth/refresh' && endpoint !== '/auth/login' && endpoint !== '/auth/register') {
+    throw new Error('Session expired. Please sign in again.');
   }
 
   try {
+    const authService = getAuth();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
-      ...authManager.getAuthorizationHeader(),
+      ...authService.getAuthHeaders(),
     };
 
     const response = await fetch(`/api${endpoint}`, {
@@ -41,12 +47,13 @@ async function apiRequest(
 
     // Handle 401 - try refresh once
     if (response.status === 401 && endpoint !== '/auth/refresh') {
-      const refreshResult = await authManager.refreshAccessToken();
-      if (refreshResult) {
+      const authService = getAuth();
+      const hasValidToken = await authService.ensureValidToken();
+      if (hasValidToken) {
         // Retry the original request with new token
         const retryHeaders = {
           ...headers,
-          ...authManager.getAuthorizationHeader(),
+          ...authService.getAuthHeaders(),
         };
         
         const retryResponse = await fetch(`/${endpoint}`, {
@@ -136,8 +143,9 @@ export const EventApiService = {
   /**
    * Create a new event
    */
-  async createEvent(eventData: CreateEventRequest, accessToken?: string): Promise<Event> {
+  async createEvent(eventData: CreateEventRequest): Promise<Event> {
     try {
+      const accessToken = getAuth().getAccessToken();
       const response = await apiRequest('/events', {
         method: 'POST',
         body: JSON.stringify(eventData),
@@ -157,8 +165,9 @@ export const EventApiService = {
   /**
    * Update an existing event
    */
- async updateEvent(id: string, data: UpdateEventRequest, accessToken?: string): Promise<Event> {
+ async updateEvent(id: string, data: UpdateEventRequest): Promise<Event> {
     try {
+      const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/events/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
@@ -178,8 +187,9 @@ export const EventApiService = {
   /**
    * Delete an event
    */
-  async deleteEvent(eventId: string, accessToken?: string): Promise<void> {
+  async deleteEvent(eventId: string): Promise<void> {
     try {
+      const accessToken = getAuth().getAccessToken();
       await apiRequest(`/events/${eventId}`, {
         method: 'DELETE',
         headers: {
@@ -194,8 +204,9 @@ export const EventApiService = {
     }
   },
 
-  async inviteGuest(eventId: string, accessToken?: string,  guestEmail?: string,  label?: string): Promise<string> {
+  async inviteGuest(eventId: string, guestEmail?: string,  label?: string): Promise<string> {
     try {
+      const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/events/${eventId}/invite`, {
         method: 'POST',
         body: JSON.stringify({ email: guestEmail, label }),
@@ -218,58 +229,6 @@ export const EventApiService = {
 
 
 
-export const UserApiService = {
-  async createAccount(data: CreateAccountRequest): Promise<CreateAccountResponse> {
-    try {
-      console.log('Creating account:', data);
-      const response = await apiRequest('/hosts/', {
-        method: 'POST',
-        body: JSON.stringify({ company_name: data.username, email: data.email, password: data.password, created_at: new Date().toISOString() }),
-      });
-      console.log('Account created successfully:', response);
-      return response as unknown as CreateAccountResponse;
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const newErrorMessage = `Failed to create account. ${errorMessage}`;
-      console.log(newErrorMessage);
-      throw new Error(newErrorMessage);
-    }
-  },
-
-  async requestLogin(data: RequestLoginData): Promise<RequestLoginResponse> {
-    try {
-      const response = await apiRequest('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }) as unknown as RequestLoginResponse;
-      return response as unknown as RequestLoginResponse;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const newErrorMessage = `Failed to log in. ${errorMessage}`;
-      console.log(newErrorMessage);
-      throw new Error(newErrorMessage);
-    }
-  },
-
-  async requestLogout(): Promise<void> {
-    try {
-      await apiRequest('/auth/logout', {
-        method: 'POST',
-      });
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const newErrorMessage = `Failed to log out. ${errorMessage}`;
-      console.log(newErrorMessage);
-      throw new Error(newErrorMessage);
-    }
-  }
-
-
-
-
-
-}
 
 // Export individual functions for convenience
 export const {
@@ -281,16 +240,9 @@ export const {
   inviteGuest
 } = EventApiService;
 
-export const {
-  createAccount,
-  requestLogin,
-  requestLogout
-} = UserApiService;
 
 // Export types for use in components
 export type {
   CreateEventRequest,
   UpdateEventRequest,
-  CreateAccountResponse,
-  CreateAccountRequest
 };

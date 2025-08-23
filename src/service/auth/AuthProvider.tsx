@@ -4,7 +4,6 @@ import { AuthContext, type AuthContextType } from '../../context/authContext';
 import { createAuthService, type UserData, type AuthServiceCallbacks } from './index';
 import { toast } from 'react-toastify';
 import type { User } from '../../types/network.types';
-import { jwtDecode } from 'jwt-decode';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -19,14 +18,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       onTokenRefreshed: (userData: UserData) => {
         console.log('🔄 Token refreshed, updating user data:', userData);
         // Update user state when token is refreshed
-        const headers = authService.getAuthHeaders();
         setUser(prevUser => ({
           ...prevUser!,
           id: userData.id,
           name: userData.name,
           email: userData.email,
-          csrf_token: headers['X-CSRF-Token'] || prevUser?.csrf_token || ''
+          isAuthenticated: true,
         }));
+      },
+      onLogin: (user: User) => {
+        setUser(user);
       },
       onLogout: () => {
         setUser(null);
@@ -56,16 +57,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Get user data from the API
           const userData = await authService.getUserFromToken();
           if (userData) {
-            // Update user state with current token and headers
-            const headers = authService.getAuthHeaders();
-            const currentToken = authService.getAccessToken();
             setUser({
               id: userData.id,
               name: userData.name,
               email: userData.email,
-              token_type: 'Bearer',
-              access_token: currentToken || '',
-              csrf_token: headers['X-CSRF-Token'] || ''
+              isAuthenticated: true
             });
             console.log('👤 User data restored:', userData);
           }
@@ -81,42 +77,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, [authService]);
 
-  const login = (userData: User) => {
-    setUser(userData);
-    console.log('Logging in user via AuthProvider:', userData);
-    
-    // Set the token and CSRF in AuthService
-    try {
-      const decodedToken = jwtDecode(userData.access_token) as { exp?: number };
-      authService.setToken(userData.access_token, decodedToken?.exp);
-    } catch (error) {
-      console.warn('Could not decode token for expiry:', error);
-      authService.setToken(userData.access_token);
-    }
-    
-    if (userData.csrf_token) {
-      authService.setCsrfToken(userData.csrf_token);
-    }
-  };
-
-  const logout = () => {
-    console.log('Logging out user:', user?.name);
-    
-    // Use AuthService logout which will trigger the callback
-    authService.logout();
-    
-    // Clear any localStorage remnants (from old implementation)
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    
-    console.log('User logged out successfully');
-  };
 
 
 
   const isAuthenticated = (): boolean => {
     return !!(
-      user?.access_token
+      user?.isAuthenticated
       && user?.id
       && user?.email
       && user?.name
@@ -125,8 +91,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user,
-    login,
-    logout,
     isAuthenticated,
   };
 

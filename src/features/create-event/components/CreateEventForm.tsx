@@ -71,7 +71,7 @@ const CreateEventForm: React.FC = () => {
     console.log('Creating event:', eventData); // TODO: Replace with actual API call
     setIsLoading(true);
     try {
-          await createEvent(eventData, user?.access_token); // TODO: Replace with actual API call
+          await createEvent(eventData); // TODO: Replace with actual API call
           toast.success('Event created successfully');
           navigate('/my-events'); // Navigate to My Events page after creation
     } catch (error) {

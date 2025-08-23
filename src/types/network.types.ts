@@ -11,11 +11,8 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    token_type: string;
-    access_token: string;
-    csrf_token: string;
+    isAuthenticated: boolean;
 }
-
 export interface CreateEventRequest {
   name: string;
   description?: string;

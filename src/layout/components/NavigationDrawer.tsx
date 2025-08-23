@@ -24,7 +24,7 @@ import { useAuth } from '../../hooks/useAuth';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { toast } from 'react-toastify';
-import { requestLogout } from '../../service/api/api.service';
+import { getAuthService } from '../../service/auth';
 
 interface NavigationItem {
   label: string;
@@ -77,7 +77,6 @@ const NavigationDrawer: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(auth.isAuthenticated());
 
   const footerItems: FooterItem[] = React.useMemo(() => [
-    
     {
         label: isAuthenticated ? 'Sign Out' : 'Sign In/Create Account',
         icon: isAuthenticated ? <LogoutIcon /> : <LoginIcon />,
@@ -102,9 +101,8 @@ const NavigationDrawer: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-        await requestLogout();
+        await getAuthService().logout();
         setIsOpen(false);
-        auth.logout();
         setIsAuthenticated(false);
         toast.success('Successfully signed out.');
         handleNavigate('/sign-in');
