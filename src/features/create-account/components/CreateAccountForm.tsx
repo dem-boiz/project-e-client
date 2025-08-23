@@ -16,8 +16,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import { createAccount } from '../../../service/api/api.service';
-
+import { getAuthService } from '../../../service/auth';
 
 // Zod schema for form validation
 const createAccountSchema = z.object({
@@ -59,8 +58,9 @@ const CreateAccountForm: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Creating account:', { username: data.username, email: data.email });
-      await createAccount({ 
-          username: data.username, email: data.email, password: data.password 
+
+      await getAuthService().createAccount({
+        username: data.username, email: data.email, password: data.password
       });
       toast.success('Account created successfully!');
       navigate('/create-event'); // Navigate to create event page after successful account creation

@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import type { RequestLoginData, RequestLoginResponse, User } from '../../types/network.types';
+import type { CreateAccountRequest, CreateAccountResponse, RequestLoginData, RequestLoginResponse, User } from '../../types/network.types';
 import config from '../../utils/config';
 
 export interface UserData {
@@ -234,6 +234,23 @@ export class AuthService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const newErrorMessage = `Failed to log out. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  }
+
+  async createAccount(data: CreateAccountRequest): Promise<CreateAccountResponse> {
+    try {
+      console.log('Creating account:', data);
+      const response = await this.apiRequest('/hosts', {
+        method: 'POST',
+        body: JSON.stringify({ company_name: data.username, email: data.email, password: data.password, created_at: new Date().toISOString() }),
+      });
+      console.log('Account created successfully:', response);
+      return response as unknown as CreateAccountResponse;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to create account. ${errorMessage}`;
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
