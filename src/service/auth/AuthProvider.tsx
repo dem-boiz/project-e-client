@@ -48,11 +48,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initializeAuth = async () => {
       try {
         console.log('🔄 Attempting initial authentication check...');
-        
-        // Try to get a valid token (will handle refresh automatically)
-        const tokenIsValid = await authService.ensureValidToken();
-        
-        if (tokenIsValid) {
+        // TODO: Fix initial refresh request... This below is not
+        // working as expected. ensure
+        // .. Can we replace the below call with refreshToken call?
+        // Or do we need a seperate useEffect with an empty dependency array?
+        const token = await authService.refreshAccessToken(true);
+
+        if (token) {
           console.log('✅ Authentication restored successfully');
           // Get user data from the API
           const userData = await authService.getUserFromToken();

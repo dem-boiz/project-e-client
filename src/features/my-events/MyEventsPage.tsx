@@ -36,10 +36,14 @@ const MyEventsPage: React.FC = () => {
   }
 
   const updateEvents = async () => {
-    const events = await getAllEvents();
-    console.log('Fetched events:', events);
-    setEvents(events);
-  }
+    try {
+      const events = await getAllEvents();
+      console.log('Fetched events:', events);
+      setEvents(events);
+    } catch (error) {
+      console.error('Failed to fetch events:', error);
+    }
+  };
 
   useEffect(() => {
     updateEvents();
