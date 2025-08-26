@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('User logged out via AuthService');
       },
       onAuthError: (error: string) => {
-        console.error('AuthService error:', error);
+        console.error('AuthService error, setting user to null:', error);
         toast.error(error);
         setUser(null);
       }
@@ -86,6 +86,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
   const isAuthenticated = (): boolean => {
+
+    console.log('authProvider.isAuthenticated called...');
+    console.log(`user?.isAuthenticated: ${user?.isAuthenticated}`);
+    console.log(`user?.id: ${user?.id}`);
+    console.log(`user?.email: ${user?.email}`);
+    console.log(`user?.name: ${user?.name}`);
+
     return !!(
       user?.isAuthenticated
       && user?.id

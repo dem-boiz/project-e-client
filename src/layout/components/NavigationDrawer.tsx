@@ -86,12 +86,17 @@ const NavigationDrawer: React.FC = () => {
   ], [isAuthenticated]);
 
   useEffect(() => {
+
+    console.log('navigation drawer useeffect triggered....');
+    console.log('auth.isAuthenticated()?', auth.isAuthenticated());
     if (isOpen) {
       // Handle drawer open
       setIsAuthenticated(auth.isAuthenticated());
     } else {
       // Handle drawer close
     }
+
+
   }, [auth, isOpen]);
 
   const handleNavigate = (route: string) => {
