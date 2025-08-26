@@ -4,6 +4,7 @@ import { AuthContext, type AuthContextType } from '../../context/authContext';
 import { createAuthService, type UserData, type AuthServiceCallbacks } from './index';
 import { toast } from 'react-toastify';
 import type { User } from '../../types/network.types';
+import Cookies from 'js-cookie';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -51,7 +52,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // TODO: Fix initial refresh request... This below is not
         // working as expected. ensure
         // .. Can we replace the below call with refreshToken call?
-        // Or do we need a seperate useEffect with an empty dependency array?
+        // Or do we need a separate useEffect with an empty dependency array?
+        const initialCsrf = Cookies.get('csrf_token');
+        if (initialCsrf) authService.setCsrfToken(initialCsrf);
         const token = await authService.refreshAccessToken(true);
 
         if (token) {
