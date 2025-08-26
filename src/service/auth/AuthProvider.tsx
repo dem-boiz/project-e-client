@@ -86,13 +86,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
   const isAuthenticated = (): boolean => {
-
-    console.log('authProvider.isAuthenticated called...');
-    console.log(`user?.isAuthenticated: ${user?.isAuthenticated}`);
-    console.log(`user?.id: ${user?.id}`);
-    console.log(`user?.email: ${user?.email}`);
-    console.log(`user?.name: ${user?.name}`);
-
     return !!(
       user?.isAuthenticated
       && user?.id

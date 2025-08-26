@@ -191,7 +191,7 @@ export class AuthService {
   async login(data: RequestLoginData): Promise<RequestLoginResponse> {
     try {
       console.log('Attempting login...')
-      const response = await this.apiRequest('/login', {
+      const response = await this.apiRequest('/auth/login', {
         method: 'POST',
         body: JSON.stringify(data),
       }) as unknown as RequestLoginResponse;
@@ -227,7 +227,7 @@ export class AuthService {
   async logout(): Promise<void> {
     try {
       console.log('Attempting logout...');
-      await this.apiRequest('/logout', {
+      await this.apiRequest('/auth/logout', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -304,7 +304,7 @@ export class AuthService {
 
       console.log(`Final request headers for endpoint '${endpoint}'`, headers);
 
-      const response = await fetch(`/api/auth${endpoint}`, {
+      const response = await fetch(`/api${endpoint}`, {
         ...options,
         signal: controller.signal,
         headers,
