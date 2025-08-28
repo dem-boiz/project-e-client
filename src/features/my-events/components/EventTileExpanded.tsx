@@ -1,26 +1,23 @@
 import React, { useEffect } from 'react';
 import {
-  Box,
-  Button,
   Dialog,
-  DialogActions,
-  DialogContent,
-  Slide,
 } from '@mui/material';
 import type { Event } from '../../../types/event';
-import EventGuestView from './EventGuestView';
 import EventEditView, { type EditFormData } from './EventEditView';
 import { 
   updateEvent, 
   deleteEvent, 
-  inviteGuest,
   type UpdateEventRequest
 } from '../../../service/api/api.service';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../../hooks/useAuth';
+
+import SlidingView from './SlidingView';
+import EventGuestsView from './EventGuestsView';
+import EventDefaultView from './EventDefaultView';
 
 // TODO: Update any edit forms to store current values and disable if no changes are detected.
 
+type TransitioningComponent = 'EditView' | 'GuestView'
 
 interface EventTileExpandedProps {
   event: Event | null;
@@ -30,11 +27,10 @@ interface EventTileExpandedProps {
 }
 
 const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onClose, onEventChanged }) => {
-  const dialogContentRef = React.useRef<HTMLElement>(null);
+  const dialogRef = React.useRef<HTMLDivElement>(null);
   const [ editViewOpen, setEditViewOpen ] = React.useState(false);
-  const [ isSaving, setIsSaving ] = React.useState(false);
-  const [ isCancelling, setIsCancelling ] = React.useState(false);
-  const { user } = useAuth();
+  const [ guestViewOpen, setGuestViewOpen ] = React.useState(false);
+  const [ transitioningComponent, setTransitioningComponent ] = React.useState<TransitioningComponent | null>(null);
 
   const onCancelEvent = async () => {
     if (event) {
@@ -42,7 +38,6 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         // TODO: Implement actual cancel event API call
         // await cancelEvent(event.id);
         console.log('Cancelling event:', event.id);
-        setIsCancelling(true);
         await deleteEvent(event.id);
         toast.success('Event cancelled successfully');
         if (onEventChanged) {
@@ -54,7 +49,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         console.error(errorMessage);
         toast.error(errorMessage);
       } finally {
-        setIsCancelling(false); 
+        console.log('finaly!')
       }
     }
   };
@@ -62,7 +57,6 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
   const onEditSave = async (data: EditFormData) => {
     if (event) {
       try {
-        setIsSaving(true);
         await updateEvent(event.id, data as unknown as UpdateEventRequest);
         toast.success('Event updated successfully');
         if (onEventChanged) {
@@ -78,179 +72,125 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         console.error(errorMessage);
         toast.error(errorMessage);
       } finally {
-        setIsSaving(false);
+        console.log('finally!')
       }
     }
   }
 
-  const onInviteGuest = async () => {
-    if (event) {
-      try {
-        // TODO: Implement actual invite guest API call
-        // await inviteGuest(event.id);
-        console.log('Inviting guest to event:', event.id);
-        const inviteCode = await inviteGuest(event.id,"testGuest@example.com", "test invite");
-        toast.success(`Guest invited successfully. Invite code: ${inviteCode}`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error(errorMessage);
-        toast.error(errorMessage);
-      }
-    }
-  }
+
 
 
   useEffect(() => {
     if (open) {
       setEditViewOpen(false);
+      setGuestViewOpen(false);
     }
   }, [open]);
 
   useEffect(() => {
-    if (dialogContentRef.current) {
-      dialogContentRef.current.scrollTo(0, 0);
+    if (!(editViewOpen || guestViewOpen)) {
+      setTransitioningComponent(null);
     }
-  }, [editViewOpen]);
+
+  }, [editViewOpen, guestViewOpen]);
+
+
+  useEffect(() => {
+    if (transitioningComponent === 'GuestView'){
+      setGuestViewOpen((prevState) => !prevState);
+
+    } else if (transitioningComponent === 'EditView') {
+      setEditViewOpen((prevState) => !prevState);
+    } else {
+      console.warn('Unknown transitioning component:', transitioningComponent);
+    }
+
+  }, [transitioningComponent]);
 
   if (!event) return null;
 
   return (
     <Dialog
+      id='top-level=dialog'
+      ref={dialogRef}
       open={open}
       maxWidth={false}
       onClose={onClose}
+    
       sx={{
         '& .MuiPaper-root.MuiDialog-paper': {
-          overflowX: 'hidden',
-          height: { xs: '100vh', sm: '100vh', md: '90vh' },
-          width: '100%',
-          maxWidth: { xs: 850, sm: 850, md: 850, lg: 850 },
-          display: 'flex',
-          flexDirection: 'column',
-          margin: '0px 0px 0px 0px',
-          marginX: { xs: 0, sm: 5 },
-          borderRadius: { xs: 0, sm: 2 },
-
+            overflow: 'hidden',
+            height: { xs: '100vh', sm: '100vh', md: '90vh' },
+            width: '100%',
+            maxWidth: { xs: 850, sm: 850, md: 850, lg: 850 },
+            display: 'flex',
+            flexDirection: 'column',
+            margin: '0px 0px 0px 0px',
+            marginX: { xs: 0, sm: 5 },
+            borderRadius: { xs: 0, sm: 2 },
+            backgroundColor: '#121212',
+            backgroundImage: 'none'
         },
         '& .MuiDialog-paper': {
           borderRadius: 2,
           height: '90vh',
           maxHeight: '90vh',
-        }
+        },
+        backgroundColor: 'background.default',
       }}
       >
-      <DialogContent sx={{ padding: 0, position: 'relative', overflowX: 'hidden' }} ref={dialogContentRef}>
-        <Slide
-          appear={false}
-          in={!editViewOpen}
-          direction="right"
-          container={dialogContentRef.current || undefined}
-          mountOnEnter
-          unmountOnExit
-        >
+    
 
-        <Box sx={{ 
-          width: '100%', 
-          borderRadius: 2, 
-          overflow: 'hidden', 
-          position: 'absolute',
-          }}>
-          <EventGuestView  event={event} />
-
-        </Box>
-
-        </Slide>
-
-        <Slide
-          appear={false}
-          in={editViewOpen}
-          direction="left"
-          container={dialogContentRef.current || undefined}
-          mountOnEnter
-          unmountOnExit
-          
-        >
-          <Box sx={{ 
-            width: '100%', 
-            borderRadius: 2, 
-            overflow: 'hidden', 
-            position: 'absolute',
-          }}>
-            <EventEditView
-              onSave={onEditSave}
-              onCancelEvent={onCancelEvent}
-              event={event} 
-              onClose={() => setEditViewOpen(false)} 
-            />
-          </Box>
-
-        </Slide>
-
-      </DialogContent>
-
-        <DialogActions 
-          sx={{ 
-            padding: 3, 
-            borderTop: '1px solid', 
-            borderColor: 'divider',
+      {/**
+       * Below are the different sliding views that this component supports.
+       */}
+      <SlidingView
+        type="default"
+        slideProps={{
+          appear: false,
+          in: !(editViewOpen || guestViewOpen),
+          direction: 'right',
+          unmountOnExit: true,
+          mountOnEnter: true,
         }}
-        > 
 
-          {editViewOpen && (
-            <Button
-              disabled={isCancelling}
-              loading={isSaving}
-              type="submit"
-              form="event-edit-form"
-              variant="contained"
-              color="primary"
-              sx={{ textTransform: 'none' }}
-            >
-              Save
-            </Button>
-          )}
-
-          {event.host_id === user?.id && (
-            <>
-              <Button
-                onClick={() => onInviteGuest()}
-                variant="contained"
-                color="primary"
-                sx={{ textTransform: 'none' }}
-              >
-                Invite Guest
-              </Button>
-
-              <Button
-                disabled={isCancelling || isSaving}
-                onClick={() => setEditViewOpen(() => !editViewOpen)}
-                variant="contained"
-                color="primary"
-                sx={{ textTransform: 'none' }}
-              >
-                {editViewOpen ? 'Cancel' : 'Edit Event'}
-              </Button>
-            </>
-          )}
-          <Button
-            onClick={onClose}
-            variant="outlined"
-            sx={{
-              textTransform: 'none',
-              borderColor: 'text.secondary',
-              color: 'text.secondary',
-              '&:hover': {
-                borderColor: 'primary.main',
-                color: 'primary.main',
-              },
-            }}
-          >
-            Close
-          </Button>
-
-
-
-      </DialogActions>
+      >
+        <EventDefaultView
+          event={event}
+          onEditClick={() => setTransitioningComponent('EditView')}
+          onGuestsClick={() => setTransitioningComponent('GuestView')}
+        />
+      </SlidingView>
+      <SlidingView
+        slideProps={{
+          appear: false,
+          in: editViewOpen,
+          direction: 'left',
+          unmountOnExit: true,
+          mountOnEnter: true,
+        }}
+        onBackClick={() => setEditViewOpen(false)}
+      >
+          <EventEditView
+            onSave={onEditSave}
+            onCancelEvent={onCancelEvent}
+            event={event} 
+            onClose={() => setEditViewOpen(false)} 
+          />
+      </SlidingView>
+      <SlidingView
+        slideProps={{
+          appear: false,
+          in: guestViewOpen,
+          direction: 'left',
+          unmountOnExit: true,
+          mountOnEnter: true,
+        }}
+        onBackClick={() => setGuestViewOpen(false)}
+      >
+          <EventGuestsView/>
+      </SlidingView>
+      
     </Dialog>
         
   );

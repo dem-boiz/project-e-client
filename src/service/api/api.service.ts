@@ -16,7 +16,9 @@ function getAuth() {
 // Generic API request function with error handling 
 async function apiRequest(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  useAuth = true
+
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), config.API_TIMEOUT);
@@ -24,12 +26,17 @@ async function apiRequest(
   // Ensure we have a valid token before making the request
   const authService = getAuth();
   const hasValidToken = await authService.ensureValidToken();
-  if (!hasValidToken && endpoint !== '/auth/refresh' && endpoint !== '/auth/login' && endpoint !== '/auth/register') {
+  if (
+    useAuth &&
+    !hasValidToken &&
+    endpoint !== '/auth/refresh' &&
+    endpoint !== '/auth/login' &&
+    endpoint !== '/auth/register'
+  ) {
     throw new Error('Session expired. Please sign in again.');
   }
 
   try {
-    const authService = getAuth();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
@@ -39,8 +46,8 @@ async function apiRequest(
     const response = await fetch(`/api${endpoint}`, {
       ...options,
       signal: controller.signal,
-      credentials: 'include', // Include cookies for refresh token
-      headers,
+      credentials: useAuth ? 'include' : 'omit', // Include cookies for refresh token
+      headers: useAuth ? headers : (options.headers as Record<string, string> | undefined),
     });
 
     clearTimeout(timeoutId);
@@ -112,7 +119,7 @@ export const EventApiService = {
       console.log('getting all events ');
       const response = await apiRequest('/events', {
         method: 'GET',
-      });
+      }, false);
       console.log('Got all events:', response);
       return response as unknown as Event[];
     } catch (error) {

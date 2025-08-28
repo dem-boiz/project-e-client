@@ -90,15 +90,15 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      
-          <Box
-            sx={{
-              padding: 3,
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              position: 'relative',
-            }}
-          >
+
+      <Box
+        sx={{
+          padding: 3,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          position: 'relative',
+        }}
+      >
 
             <Box sx={{ 
               display: 'flex', 
@@ -117,209 +117,209 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
               />
               <DialogTitle title={'Edit Event'} />
             </Box>
-          </Box>
+      </Box>
 
-          {/* Form Content */}
-          <Box sx={{ padding: 3 }}>
-            <Box
-              id="event-edit-form"
-              component="form"
-              onSubmit={handleSubmit(onSave)}
-              sx={{ width: '100%' }}
-            >
-              <Stack spacing={4}>
-                {/* Event Name */}
+      {/* Form Content */}
+      <Box sx={{ padding: 3 }}>
+        <Box
+          id="event-edit-form"
+          component="form"
+          onSubmit={handleSubmit(onSave)}
+          sx={{ width: '100%' }}
+        >
+          <Stack spacing={4}>
+            {/* Event Name */}
 
-                <TextField
-                  fullWidth
-                  label="Event Name"
-                  variant="outlined"
-                  placeholder="Enter event name"
-                  {...register("name")}
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: 'rgba(255,255, 255, 0.05)',
-                    },
-                  }}
-                />
-
-
-                {/* Top Row: Date & Time + Location */}
-                <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
-                  <Box sx={{ flex: 1 }}>
-                    <Controller
-                      name="datetime"
-                      control={control}
-                      render={({ field }) => (
-                        <DateTimePicker
-                          label="Event Date & Time"
-                          value={field.value ? dayjs(field.value) : null}
-                          onChange={(newValue: Dayjs | null) => {
-                            field.onChange(newValue ? newValue.toISOString() : '');
-                          }}
-                          disablePast
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                              error: !!errors.datetime,
-                              helperText: errors.datetime?.message,
-                              sx: {
-                                '& .MuiOutlinedInput-root': {
-                                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      )}
-                    />
-                  </Box>
-                  <Box sx={{ flex: 1 }}>
-                    <TextField
-                      fullWidth
-                      label="Location"
-                      variant="outlined"
-                      placeholder="Enter event location"
-                      {...register("location")}
-                      error={!!errors.location}
-                      helperText={errors.location?.message}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        },
-                        '& .MuiInputBase-input.MuiOutlinedInput-input.Mui-disabled': {
-                          color: 'red',
-                        }
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                {/* Description */}
-                <TextField
-                  fullWidth
-                  label="Description"
-                  variant="outlined"
-                  placeholder="Enter event description"
-                  multiline
-                  rows={3}
-                  {...register("description")}
-                  error={!!errors.description}
-                  helperText={errors.description?.message}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    },
-                  }}
-                />
+            <TextField
+              fullWidth
+              label="Event Name"
+              variant="outlined"
+              placeholder="Enter event name"
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(255,255, 255, 0.05)',
+                },
+              }}
+            />
 
 
-                {/* Max Attendees (only for private events) */}
+            {/* Top Row: Date & Time + Location */}
+            <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
+              <Box sx={{ flex: 1 }}>
                 <Controller
-                  name="capacity"
+                  name="datetime"
                   control={control}
                   render={({ field }) => (
-                    <TextField
-                      fullWidth
-                      label="Max Attendees"
-                      type="number"
-                      variant="outlined"
-                      placeholder="100"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                      error={!!errors.capacity}
-                      helperText={errors.capacity?.message || "Min: 1, Max: 10,000"}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        },
-                        '& .Mui-disabled': {
-                          opacity: 0.6,
+                    <DateTimePicker
+                      label="Event Date & Time"
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(newValue: Dayjs | null) => {
+                        field.onChange(newValue ? newValue.toISOString() : '');
+                      }}
+                      disablePast
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          error: !!errors.datetime,
+                          helperText: errors.datetime?.message,
+                          sx: {
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            },
+                          },
                         },
                       }}
                     />
                   )}
                 />
-              </Stack>
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  label="Location"
+                  variant="outlined"
+                  placeholder="Enter event location"
+                  {...register("location")}
+                  error={!!errors.location}
+                  helperText={errors.location?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    },
+                    '& .MuiInputBase-input.MuiOutlinedInput-input.Mui-disabled': {
+                      color: 'red',
+                    }
+                  }}
+                />
+              </Box>
             </Box>
-              <Button 
-                  variant="contained" 
-                  sx={{ 
-                    width: 'fit-content', 
-                    alignSelf: 'center',
-                    marginTop: 10
-                  }} 
-                  color="error" 
-                  onClick={() => setShowWarning(true)} 
-                >
-                  Cancel Event
-              </Button>
-          </Box>
 
-          {/* Cancel Event Warning Dialog */}
-          <Dialog
-            open={showWarning}
-            onClose={() => setShowWarning(false)}
-            maxWidth="sm"
-            fullWidth
+            {/* Description */}
+            <TextField
+              fullWidth
+              label="Description"
+              variant="outlined"
+              placeholder="Enter event description"
+              multiline
+              rows={3}
+              {...register("description")}
+              error={!!errors.description}
+              helperText={errors.description?.message}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                },
+              }}
+            />
+
+
+            {/* Max Attendees (only for private events) */}
+            <Controller
+              name="capacity"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  fullWidth
+                  label="Max Attendees"
+                  type="number"
+                  variant="outlined"
+                  placeholder="100"
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                  error={!!errors.capacity}
+                  helperText={errors.capacity?.message || "Min: 1, Max: 10,000"}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    },
+                    '& .Mui-disabled': {
+                      opacity: 0.6,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Stack>
+        </Box>
+          <Button 
+              variant="contained" 
+              sx={{ 
+                width: 'fit-content', 
+                alignSelf: 'center',
+                marginTop: 10
+              }} 
+              color="error" 
+              onClick={() => setShowWarning(true)} 
+            >
+              Cancel Event
+          </Button>
+      </Box>
+
+      {/* Cancel Event Warning Dialog */}
+      <Dialog
+        open={showWarning}
+        onClose={() => setShowWarning(false)}
+        maxWidth="sm"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            backgroundColor: 'background.paper',
+            borderRadius: 2,
+          },
+        }}
+      >
+        <MuiDialogTitle sx={{ 
+          color: 'text.primary',
+          fontWeight: 500,
+          padding: 3,
+          paddingBottom: 1,
+        }}>
+          Cancel Event
+        </MuiDialogTitle>
+        <DialogContent sx={{ padding: 3, paddingTop: 1 }}>
+          <DialogContentText sx={{ 
+            color: 'text.secondary',
+            fontSize: '1rem',
+            lineHeight: 1.5,
+          }}>
+            Are you sure you want to cancel this event? This action cannot be undone and all attendees will be notified of the cancellation.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ 
+          padding: 3, 
+          paddingTop: 1,
+          gap: 2,
+        }}>
+          <Button
+            onClick={() => setShowWarning(false)}
+            variant="outlined"
             sx={{
-              '& .MuiDialog-paper': {
-                backgroundColor: 'background.paper',
-                borderRadius: 2,
+              textTransform: 'none',
+              borderColor: 'text.secondary',
+              color: 'text.secondary',
+              '&:hover': {
+                borderColor: 'primary.main',
+                color: 'primary.main',
               },
             }}
           >
-            <MuiDialogTitle sx={{ 
-              color: 'text.primary',
-              fontWeight: 500,
-              padding: 3,
-              paddingBottom: 1,
-            }}>
-              Cancel Event
-            </MuiDialogTitle>
-            <DialogContent sx={{ padding: 3, paddingTop: 1 }}>
-              <DialogContentText sx={{ 
-                color: 'text.secondary',
-                fontSize: '1rem',
-                lineHeight: 1.5,
-              }}>
-                Are you sure you want to cancel this event? This action cannot be undone and all attendees will be notified of the cancellation.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions sx={{ 
-              padding: 3, 
-              paddingTop: 1,
-              gap: 2,
-            }}>
-              <Button
-                onClick={() => setShowWarning(false)}
-                variant="outlined"
-                sx={{
-                  textTransform: 'none',
-                  borderColor: 'text.secondary',
-                  color: 'text.secondary',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                Keep Event
-              </Button>
-              <Button
-                onClick={handleCancelEvent}
-                variant="contained"
-                color="error"
-                sx={{
-                  textTransform: 'none',
-                }}
-              >
-                Cancel Event
-              </Button>
-            </DialogActions>
-          </Dialog>
+            Keep Event
+          </Button>
+          <Button
+            onClick={handleCancelEvent}
+            variant="contained"
+            color="error"
+            sx={{
+              textTransform: 'none',
+            }}
+          >
+            Cancel Event
+          </Button>
+        </DialogActions>
+      </Dialog>
 
     </LocalizationProvider>
   );

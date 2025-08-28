@@ -24,7 +24,6 @@ interface EventTileProps {
 const EventTile: React.FC<EventTileProps> = ({ event, onClick }) => {
   const eventDate = dayjs(event.date_time);
   const { user } = useAuth();
-  console.log('event below:')
   const isHost = event.host_id === user?.id;
 
   return (

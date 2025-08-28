@@ -16,7 +16,6 @@ const MyEventsPage: React.FC = () => {
   const [expandedOpen, setExpandedOpen] = useState(false);
   const [ events, setEvents ] = useState<Event[]>([]); // Assuming mockEvents is an array of Event objects
 
-
   const handleTileClick = (event: Event) => {
     setSelectedEvent(event);
     setExpandedOpen(true);

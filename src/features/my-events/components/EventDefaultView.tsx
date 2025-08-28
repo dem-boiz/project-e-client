@@ -5,6 +5,7 @@ import {
   Box,
   Chip,
   Stack,
+  DialogTitle,
 } from '@mui/material';
 import {
   LocationOn as LocationIcon,
@@ -12,22 +13,23 @@ import {
   Event as EventIcon,
   Description as DescriptionIcon,
   People as PeopleIcon,
-  QrCode as QrCodeIcon,
+  Edit,
 } from '@mui/icons-material';
 import type { Event } from '../../../types/event';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import DialogTitle from './DialogTitle';
 import { useAuth } from '../../../hooks/useAuth';
 
 dayjs.extend(relativeTime);
 
-interface EventGuestViewProps {
+interface EventDefaultViewProps {
   event: Event | null;
+  onEditClick?: () => void;
+  onGuestsClick?: () => void;
 }
 
-const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
+const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick, onGuestsClick }) => {
   const { user } = useAuth();
   
   if (!event) return null;
@@ -35,17 +37,29 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
   const isHost = event.host_id === user?.id;
   const status = new Date(event.date_time) < new Date() ? 'past' : 'upcoming'; // Update status based on date
   return (
-    <Box>
+    <Box sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
           <Box
             sx={{
               padding: 3,
               borderBottom: '1px solid',
               borderColor: 'divider',
               position: 'relative',
+              paddingY: 1,
+              backgroundColor: 'background.default',
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: 2, paddingRight: 6 }}>
-              <DialogTitle title={event.name} />
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: 0, paddingRight: 6 }}>
+              <DialogTitle 
+                sx={{
+                  color: 'text.primary',
+                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.1rem' },
+                  fontWeight: 500,
+                  lineHeight: 1,
+                  flex: 1,
+                }}
+              >
+                {event.name}
+              </DialogTitle>
             </Box>
           </Box>
 
@@ -180,7 +194,6 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
 
                 }}
               >
-
                 <Stack
                   direction="row"
                   spacing={2}
@@ -188,23 +201,9 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
                   alignItems="center"
                 >
                   {/* View Event Pass Button */}
-                  {event.eventPass && (
-                    <Button
-                      variant="contained"
-                      startIcon={<QrCodeIcon />}
-                      sx={{
-                        textTransform: 'none',
-                        backgroundColor: 'primary.main',
-                        '&:hover': {
-                          backgroundColor: 'primary.dark',
-                        },
-                      }}
-                    >
-                      Event Pass
-                    </Button>
-                  )}
 
-                  {/* Message Host Button (only for guests) */}
+
+                  {/* Leaving an event button */}
                   {!isHost && (
                     <Button
                       variant="contained"
@@ -220,6 +219,36 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
                       Leave Event
                     </Button>
                   )}
+
+                  {!isHost && (
+                    <Button
+                      variant="contained"
+                      onClick={onEditClick}
+                      startIcon={<Edit />}
+                      color="primary"
+                      sx={{
+                        textTransform: 'none',
+                      }}
+                    >
+                      Edit Event
+                    </Button>
+                  )}
+
+                  
+                  {!isHost && (
+                    <Button
+                      variant="contained"
+                      onClick={onGuestsClick}
+                      startIcon={<Edit />}
+                      color="primary"
+                      sx={{
+                        textTransform: 'none',
+                      }}
+                    >
+                      Guests
+                    </Button>
+                  )}
+
                 </Stack>
               </Box>
             </Stack>
@@ -228,4 +257,4 @@ const EventGuestView: React.FC<EventGuestViewProps> = ({ event, }) => {
   );
 };
 
-export default EventGuestView;
+export default EventDefaultView;
