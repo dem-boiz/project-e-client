@@ -23,6 +23,10 @@
   import EmailIcon from '@mui/icons-material/Email';
   import PersonIcon from '@mui/icons-material/Person';
   import LinkIcon from '@mui/icons-material/Link';
+  import { EventApiService } from '../../../service/api/api.service';
+  import { toast } from 'react-toastify';
+  
+
 
   // Dummy API simulation
   const fetchGuests = async () => {
@@ -32,10 +36,6 @@
     ];
   };
 
-  const getInviteLink = async (label: string) => {
-    // Simulate OTP encoding
-    return `https://shareprojectctikename.com/invite/${label}-OTP123456`;
-  };
 
   const validateEmail = (email: string) => {
     if (!email) return true;
@@ -49,7 +49,7 @@
     label?: string;
   }
 
-  const EventGuestsView: React.FC = () => {
+  const EventGuestsView: React.FC<{ eventId: string }> = ({ eventId }) => {
     const [guests, setGuests] = useState<Guest[]>([]);
     const [email, setEmail] = useState('');
     const [label, setLabel] = useState('');
@@ -76,21 +76,25 @@
       }
       setLoading(true);
       // Simulate API call
-      setTimeout(async () => {
+
+      try {
+        await EventApiService.inviteGuest(eventId, email, label);
+        toast.success('Invite sent successfully!');
         const newGuest: Guest = {
           id: Math.random().toString(36).slice(2),
           email: email || '',
           label: label || '',
         };
+
         setGuests((prev) => [...prev, newGuest]);
         setEmail('');
         setLabel('');
         setSuccess('Invite sent successfully!');
-        // Get invite link
-        const link = await getInviteLink(newGuest.label || newGuest.email || newGuest.id);
-        setInviteLink(link);
-        setLoading(false);
-      }, 700);
+        } catch (error) {
+          setError('Failed to send invite.');
+          console.error(error);
+          toast.error('Failed to send invite.');
+        }
     };
 
     const handleCopyLink = () => {

@@ -216,7 +216,7 @@ export const EventApiService = {
       const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/events/${eventId}/invite`, {
         method: 'POST',
-        body: JSON.stringify({ email: guestEmail, label }),
+        body: JSON.stringify({ email: guestEmail, label, type: 'guest' }),
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
