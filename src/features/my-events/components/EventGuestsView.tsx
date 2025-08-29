@@ -62,31 +62,30 @@
     const [expandedAccordion, setExpandedAccordion] = useState<string | false>('currentGuests');
 
 
-    const getCurrentGuests = async () => {
-
-      try {
-        const guests = await EventApiService.getCurrentGuests(eventId);
-        setCurrentGuests(guests);
-      } catch (error) {
-        console.error('Error fetching current guests:', error);
-      }
-    };
-
-    const getPendingInvites = async () => {
-      try {
-        const invites = await EventApiService.getPendingInvites(eventId);
-        setPendingInvites(invites);
-      } catch (error) {
-        console.error('Error fetching pending invites:', error);
-      }
-    };
-
-
     React.useEffect(() => {
-      // Mock data to simulate different types of guests
+      // Define functions inside useEffect to avoid dependency issues
+      const getCurrentGuests = async () => {
+        try {
+          const guests = await EventApiService.getCurrentGuests(eventId);
+          setCurrentGuests(guests);
+        } catch (error) {
+          console.error('Error fetching current guests:', error);
+        }
+      };
+
+      const getPendingInvites = async () => {
+        try {
+          const invites = await EventApiService.getPendingInvites(eventId);
+          setPendingInvites(invites);
+        } catch (error) {
+          console.error('Error fetching pending invites:', error);
+        }
+      };
+
+      // Call the functions to fetch data
       getCurrentGuests();
       getPendingInvites();
-    }, []);
+    }, [eventId]);
 
     const handleAccordionChange = (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
       setExpandedAccordion(isExpanded ? panel : false);
