@@ -27,11 +27,10 @@ export interface CreateAccountRequest {
 }
 
 export interface CreateAccountResponse {
-  company_name: string;
+  id: string;
+  name: string;
   created_at: string;
   email: string;
-  host_number: number;
-  id: string;
 }
 
 // Update Event request type

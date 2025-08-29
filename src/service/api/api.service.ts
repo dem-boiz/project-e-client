@@ -1,3 +1,4 @@
+import type { Guest } from '../../features/my-events/components/EventGuestsView';
 import type { Event } from '../../types/event';
 import type { CreateEventRequest, UpdateEventRequest } from '../../types/network.types';
 import config from '../../utils/config';
@@ -231,6 +232,42 @@ export const EventApiService = {
       throw new Error(newErrorMessage);
     }
   },
+
+  async getCurrentGuests(eventId: string): Promise<Guest[]> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      const response = await apiRequest(`/events/${eventId}/guests`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response as unknown as Guest[];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to fetch current guests. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
+
+  async getPendingInvites(eventId: string): Promise<Guest[]> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      const response = await apiRequest(`/events/${eventId}/invites/pending`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response as unknown as Guest[];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to fetch pending invites. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  }
 
 };
 
