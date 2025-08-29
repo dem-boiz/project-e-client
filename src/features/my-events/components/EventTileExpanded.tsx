@@ -188,7 +188,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         }}
         onBackClick={() => setGuestViewOpen(false)}
       >
-          <EventGuestsView/>
+          <EventGuestsView eventId={event.id} />
       </SlidingView>
       
     </Dialog>
