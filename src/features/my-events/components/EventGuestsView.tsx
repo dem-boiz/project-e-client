@@ -53,7 +53,7 @@
     const [guests, setGuests] = useState<Guest[]>([]);
     const [email, setEmail] = useState('');
     const [label, setLabel] = useState('');
-    const [inviteLink, setInviteLink] = useState('');
+    const [inviteLink] = useState('');
     const [linkCopied, setLinkCopied] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
