@@ -204,7 +204,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
 
 
                   {/* Leaving an event button */}
-                  {!isHost && (
+                  {isHost && (
                     <Button
                       variant="contained"
                       startIcon={<ExitToAppIcon />}
@@ -220,7 +220,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                     </Button>
                   )}
 
-                  {!isHost && (
+                  {isHost && (
                     <Button
                       variant="contained"
                       onClick={onEditClick}
@@ -235,7 +235,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                   )}
 
                   
-                  {!isHost && (
+                  {isHost && (
                     <Button
                       variant="contained"
                       onClick={onGuestsClick}
