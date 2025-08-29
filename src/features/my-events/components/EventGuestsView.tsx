@@ -66,8 +66,8 @@
       // Define functions inside useEffect to avoid dependency issues
       const getCurrentGuests = async () => {
         try {
-          const guests = await EventApiService.getCurrentGuests(eventId);
-          setCurrentGuests(guests);
+          //const guests = await EventApiService.getCurrentGuests(eventId);
+          setCurrentGuests([]);
         } catch (error) {
           console.error('Error fetching current guests:', error);
         }
