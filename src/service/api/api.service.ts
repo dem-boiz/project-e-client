@@ -196,7 +196,7 @@ export const EventApiService = {
   async revokePendingInvite(eventId: string, inviteId: string): Promise<void> {
     try {
       const accessToken = getAuth().getAccessToken();
-      await apiRequest(`/events/${eventId}/invites/${inviteId}`, {
+      await apiRequest(`/events/${eventId}/invites/pending/${inviteId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${accessToken}`,
