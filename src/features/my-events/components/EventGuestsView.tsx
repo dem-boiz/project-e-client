@@ -133,14 +133,19 @@
       setLinkCopied(true);
     };
 
-    const handleRevoke = (id: string, status: 'accepted' | 'pending') => {
-      if (status === 'accepted') {
-        setCurrentGuests((prev) => prev.filter((g) => g.id !== id));
-      } else {
+    const handleRevokePendingInvite = async (id: string) => {
+      try {
+        await EventApiService.revokePendingInvite(eventId, id);
         setPendingInvites((prev) => prev.filter((g) => g.id !== id));
+        setSuccess('Pending invite revoked.');
+      } catch (error) {
+        toast.error('Failed to revoke pending invite.');
+        console.error(error);
       }
-      setSuccess('Invite revoked.');
+
     };
+
+  
 
     return (
       <Box
@@ -223,7 +228,7 @@
                     sx={{ py: 1 }}
                     secondaryAction={
                       <Tooltip title="Revoke Access">
-                        <IconButton edge="end" color="error" onClick={() => handleRevoke(guest.id, 'accepted')}>
+                        <IconButton edge="end" color="error" onClick={() => handleRevokePendingInvite(guest.id)}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
@@ -280,7 +285,7 @@
                     sx={{ py: 1 }}
                     secondaryAction={
                       <Tooltip title="Cancel Invite">
-                        <IconButton edge="end" color="error" onClick={() => handleRevoke(guest.id, 'pending')}>
+                        <IconButton edge="end" color="error" onClick={() => handleRevokePendingInvite(guest.id)}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>

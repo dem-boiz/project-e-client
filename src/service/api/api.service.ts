@@ -192,6 +192,24 @@ export const EventApiService = {
     }
   },
 
+
+  async revokePendingInvite(eventId: string, inviteId: string): Promise<void> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      await apiRequest(`/events/${eventId}/invites/${inviteId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to revoke pending invite. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
+
   /**
    * Delete an event
    */
