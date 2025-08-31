@@ -12,7 +12,7 @@ import {
 import { toast } from 'react-toastify';
 
 import SlidingView from './SlidingView';
-import EventGuestsView from './EventGuestsView';
+import EventGuestsView from './EventGuestsView/EventGuestsView';
 import EventDefaultView from './EventDefaultView';
 
 // TODO: Update any edit forms to store current values and disable if no changes are detected.

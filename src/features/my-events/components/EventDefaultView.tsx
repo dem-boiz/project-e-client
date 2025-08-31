@@ -12,7 +12,6 @@ import {
   Schedule as TimeIcon,
   Event as EventIcon,
   Description as DescriptionIcon,
-  People as PeopleIcon,
   Edit,
 } from '@mui/icons-material';
 import type { Event } from '../../../types/event';
@@ -20,6 +19,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useAuth } from '../../../hooks/useAuth';
+import PeopleIcon from '@mui/icons-material/People';
 
 dayjs.extend(relativeTime);
 
@@ -216,7 +216,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                         },
                       }}
                     >
-                      Leave Event
+                      Leave
                     </Button>
                   )}
 
@@ -230,7 +230,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                         textTransform: 'none',
                       }}
                     >
-                      Edit Event
+                      Edit
                     </Button>
                   )}
 
@@ -239,7 +239,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                     <Button
                       variant="contained"
                       onClick={onGuestsClick}
-                      startIcon={<Edit />}
+                      startIcon={<PeopleIcon />}
                       color="primary"
                       sx={{
                         textTransform: 'none',

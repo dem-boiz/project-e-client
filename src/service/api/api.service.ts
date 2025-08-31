@@ -1,6 +1,6 @@
-import type { Guest } from '../../features/my-events/components/EventGuestsView';
+import type { Guest } from '../../features/my-events/components/EventGuestsView/EventGuestsView';
 import type { Event } from '../../types/event';
-import type { CreateEventRequest, UpdateEventRequest } from '../../types/network.types';
+import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest } from '../../types/network.types';
 import config from '../../utils/config';
 import { getAuthService } from '../auth/index';
 
@@ -230,19 +230,40 @@ export const EventApiService = {
     }
   },
 
-  async inviteGuest(eventId: string, guestEmail?: string,  label?: string): Promise<string> {
+  async inviteGuest(eventId: string, guestEmail?: string,  label?: string): Promise<CreateInviteResponse> {
     try {
       const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/events/${eventId}/invite`, {
         method: 'POST',
-        body: JSON.stringify({ email: guestEmail, label, type: 'guest' }),
+        body: JSON.stringify({ email: guestEmail, label, accessType: 'guest', deliveryMethod: 'email' }),
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
       console.log('Invite response:::')
       console.log(response);
-      return response as unknown as string
+      return response as unknown as CreateInviteResponse;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to invite guest. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
+
+  async getInviteLink(eventId: string): Promise<CreateInviteResponse> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      const response = await apiRequest(`/events/${eventId}/invite`, {
+        method: 'POST',
+        body: JSON.stringify({ accessType: 'guest', deliveryMethod: 'email' }),
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log('get invite link response:::')
+      console.log(response);
+      return response as unknown as CreateInviteResponse;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const newErrorMessage = `Failed to invite guest. ${errorMessage}`;
@@ -287,6 +308,7 @@ export const EventApiService = {
     }
   }
 
+
 };
 
 
@@ -299,7 +321,8 @@ export const {
   createEvent,
   updateEvent,
   deleteEvent,
-  inviteGuest
+  inviteGuest,
+  getInviteLink
 } = EventApiService;
 
 

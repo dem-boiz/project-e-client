@@ -51,3 +51,15 @@ export interface RequestLoginData {
   email: string;
   password: string;
 }
+
+export interface CreateInviteResponse {
+    event_id: string,
+    expires_at: string,
+    used_at: null | string,
+    issued_by_host_id: string,
+    email: string,
+    label: string,
+    id: string,
+    created_at: string,
+    type: string
+}
