@@ -121,7 +121,6 @@ export const EventApiService = {
       const response = await apiRequest('/events', {
         method: 'GET',
       }, false);
-      console.log('Got all events:', response);
       return response as unknown as Event[];
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -306,14 +305,28 @@ export const EventApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
+  },
+
+  async updatePendingInvite(eventId: string, inviteId: string, label: string): Promise<Guest> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      const response = await apiRequest(`/events/${eventId}/invites/pending/${inviteId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ label }),
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response as unknown as Guest;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to update pending invite. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
   }
 
-
-};
-
-
-
-
+}
 // Export individual functions for convenience
 export const {
   getAllEvents,
@@ -322,7 +335,8 @@ export const {
   updateEvent,
   deleteEvent,
   inviteGuest,
-  getInviteLink
+  getInviteLink,
+  updatePendingInvite
 } = EventApiService;
 
 

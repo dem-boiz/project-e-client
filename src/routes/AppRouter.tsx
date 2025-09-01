@@ -14,12 +14,14 @@ const AppRouter: React.FC = () => {
       <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<RootLayout />}>
-            <Route index element={<Navigate to="/join-event" replace />} /> {/* Redirect root to join event page, for good UX */}
+            <Route index element={<Navigate to="/sign-in" replace />} /> {/* Redirect root to sign-in page, for good UX */}
             <Route path="join-event" element={<JoinEventPage />} />
+            <Route path='join-event/:accessCode' element={<JoinEventPage />} />
             <Route path="create-event" element={<CreateEventPage />} />
             <Route path="my-events" element={<MyEventsPage />} />
             <Route path="sign-in" element={<SignInPage />} />
             <Route path="create-account" element={<CreateAccountPage />} />
+            
           </Route>
         </Routes>
       </BrowserRouter>

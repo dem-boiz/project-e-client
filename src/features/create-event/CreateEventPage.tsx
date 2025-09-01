@@ -5,9 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import SignInForm from '../sign-in/components/SignInForm'
 const CreateEventPage: React.FC = () => {
   const authContext = useAuth();
-  console.log(authContext.user)
   useEffect(() => {
-    console.log('Auth context:', authContext.isAuthenticated());
   }, [authContext]);
   return (
     <Container>

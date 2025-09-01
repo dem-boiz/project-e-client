@@ -68,7 +68,6 @@ const CreateEventForm: React.FC = () => {
       //capacity: data.capacity,
     };
 
-    console.log('Creating event:', eventData); // TODO: Replace with actual API call
     setIsLoading(true);
     try {
           await createEvent(eventData); // TODO: Replace with actual API call

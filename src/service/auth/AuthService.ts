@@ -158,13 +158,14 @@ export class AuthService {
       }
 
       const data: RefreshResponse = await response.json();
+      console.log('Refresh response data:', data);
       const decodedAccessToken = jwtDecode(data.access_token);
-      
+      console.log('decodedAccessToken from refresh response:', decodedAccessToken);
       console.log(`✅ Refresh successful, new token exp:`, new Date((decodedAccessToken.exp || 0) * 1000));
 
       // Update tokens
       this.setToken(data.access_token, decodedAccessToken.exp);
-      console.log('Checking if CSRF token is present...');
+      console.log('Checking if CSRF token is present in refresh response...');
       if (data.csrf_token) {
         console.log(`Setting CSRF token:`, data.csrf_token);
         this.setCsrfToken(data.csrf_token);

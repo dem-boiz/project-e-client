@@ -37,7 +37,6 @@ const MyEventsPage: React.FC = () => {
   const updateEvents = async () => {
     try {
       const events = await getAllEvents();
-      console.log('Fetched events:', events);
       setEvents(events);
     } catch (error) {
       console.error('Failed to fetch events:', error);

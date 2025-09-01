@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,9 +14,10 @@ import {
   Divider,
 } from '@mui/material';
 import { toast } from 'react-toastify';
+
 // Zod schema for form validation
 const joinEventSchema = z.object({
-  accessCode: z.string().min(1, "Access code is required"),
+  accessCode: z.string().min(1, "Access code is required").max(6, "Enter a 6 digit access code"),
 });
 
 type JoinEventFormData = z.infer<typeof joinEventSchema>;
@@ -24,11 +25,20 @@ type JoinEventFormData = z.infer<typeof joinEventSchema>;
 const JoinEventPage: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  
+
+  const { accessCode } = useParams<{ accessCode?: string }>();
+
+  useEffect(() => {
+    console.log('accessCode:', accessCode);
+    if (accessCode) {
+      onSubmit({ accessCode });
+    }
+  }, [accessCode]);
+
   const { register, handleSubmit, formState: { errors } } = useForm<JoinEventFormData>({
     resolver: zodResolver(joinEventSchema),
     defaultValues: {
-      accessCode: '',
+      accessCode: accessCode || '',
     },
   });
 
@@ -36,9 +46,8 @@ const JoinEventPage: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Joining event with code:', data.accessCode);
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate network delay
       throw new Error('joinEvent API not integrated');
-      navigate('/my-events');
-      
     } catch (error) {
       console.error('Failed to join event:', error);
       toast.error('Failed to join event. Please try again later.');
@@ -102,6 +111,7 @@ const JoinEventPage: React.FC = () => {
                 }}
               >
                 <TextField
+                  disabled={isLoading}
                   fullWidth
                   variant="outlined"
                   placeholder="Enter your one-time access code"
@@ -146,6 +156,7 @@ const JoinEventPage: React.FC = () => {
               </Divider>
               {/* Create Event Button */}
               <Button
+                disabled={isLoading}
                 color="primary"
                 variant='contained'
                 onClick={handleCreateEvent}
