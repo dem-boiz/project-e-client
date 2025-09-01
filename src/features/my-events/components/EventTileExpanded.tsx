@@ -48,7 +48,6 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error(errorMessage);
         toast.error(errorMessage);
-      } finally {
       }
     }
   };
