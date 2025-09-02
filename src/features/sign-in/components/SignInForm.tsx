@@ -34,12 +34,15 @@ type SignInFormData = z.infer<typeof signInSchema>;
 
 interface SignInFormProps {
     onSubmit?: (values: { email: string; password: string }) => void;
+    accessCode?: string;
+    tryingToCreateEvent?: boolean;
 }
 
-const SignInForm: React.FC<SignInFormProps> = () => {
+const SignInForm: React.FC<SignInFormProps> = ({ accessCode, tryingToCreateEvent }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [guestJoinLoading, setGuestJoinLoading] = useState(false);
   
   const { register, handleSubmit, control, formState: { errors } } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -57,13 +60,37 @@ const SignInForm: React.FC<SignInFormProps> = () => {
       const response = await getAuthService().login(data);
       console.log('sign in response:', response);
       toast.success(`Successfully signed in. Welcome back ${response.name}!`);
-      // Navigate back or to home page
-      navigate('/my-events');
+      
+      // If there's an access code, navigate to join-event page
+      if (accessCode) {
+        navigate(`/join-event/${accessCode}`);
+      } else if (tryingToCreateEvent) {
+        // Otherwise navigate to create event page
+        navigate('/create-event');
+      } else {
+        // Otherwise navigate to my events page
+        navigate('/my-events');
+      }
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error('Failed to sign in. Please check your credentials.');
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handleGuestJoin = async () => {
+    if (!accessCode) return;
+    
+    setGuestJoinLoading(true);
+    try {
+      // Navigate to join event page as guest
+      navigate(`/join-event/${accessCode}`);
+    } catch (error) {
+      console.error('Guest join error:', error);
+      toast.error('Failed to join as guest. Please try again.');
+    } finally {
+      setGuestJoinLoading(false);
     }
   };
 
@@ -211,11 +238,36 @@ const SignInForm: React.FC<SignInFormProps> = () => {
                                 cursor: 'pointer',
                                 '&:hover': { textDecoration: 'underline' }
                             }}
-                            onClick={() => navigate('/create-account')}
+                            onClick={() => navigate(accessCode ? `/create-account/${accessCode}` : '/create-account', 
+                                { state: { tryingToCreateEvent } }
+                            )}
                         >
                             Sign up now
                         </Typography>
                     </Typography>
+                    
+                    {/* Show "Continue as Guest" option only when accessed via an invite link */}
+                    {accessCode && (
+                        <Typography 
+                            variant="body2" 
+                            color="text.secondary" 
+                            sx={{ mt: 1 }}
+                        >
+                            or{' '}
+                            <Typography 
+                                component="span" 
+                                color="primary" 
+                                sx={{ 
+                                    fontWeight: 'medium', 
+                                    cursor: 'pointer',
+                                    '&:hover': { textDecoration: 'underline' }
+                                }}
+                                onClick={handleGuestJoin}
+                            >
+                                {guestJoinLoading ? 'Joining...' : 'Continue as guest'}
+                            </Typography>
+                        </Typography>
+                    )}
                 </Box>
                 </Stack>
             </Box>

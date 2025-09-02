@@ -7,6 +7,7 @@ import MyEventsPage from '../features/my-events/MyEventsPage';
 import config from '../utils/config';
 import SignInPage from '../features/sign-in/SignInPage';
 import CreateAccountPage from '../features/create-account/CreateAccountPage';
+import InviteLinkHandler from '../features/join-event/InviteLinkHandler';
 
 const AppRouter: React.FC = () => {
     const basename = config.BASE_NAME;
@@ -17,10 +18,13 @@ const AppRouter: React.FC = () => {
             <Route index element={<Navigate to="/sign-in" replace />} /> {/* Redirect root to sign-in page, for good UX */}
             <Route path="join-event" element={<JoinEventPage />} />
             <Route path='join-event/:accessCode' element={<JoinEventPage />} />
+            <Route path="invite/:accessCode" element={<InviteLinkHandler />} />
             <Route path="create-event" element={<CreateEventPage />} />
             <Route path="my-events" element={<MyEventsPage />} />
             <Route path="sign-in" element={<SignInPage />} />
+            <Route path="sign-in/:accessCode" element={<SignInPage />} />
             <Route path="create-account" element={<CreateAccountPage />} />
+            <Route path="create-account/:accessCode" element={<CreateAccountPage />} />
             
           </Route>
         </Routes>

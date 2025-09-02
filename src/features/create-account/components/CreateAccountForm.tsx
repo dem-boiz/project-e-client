@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,8 +38,14 @@ const createAccountSchema = z.object({
 
 type CreateAccountFormData = z.infer<typeof createAccountSchema>;
 
-const CreateAccountForm: React.FC = () => {
+export interface CreateAccountFormProps {
+  accessCode?: string;
+}
+
+const CreateAccountForm: React.FC<CreateAccountFormProps> = ({ accessCode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isTryingToCreateEvent = location.state?.isTryingToCreateEvent;
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -63,7 +69,17 @@ const CreateAccountForm: React.FC = () => {
         username: data.username, email: data.email, password: data.password
       });
       toast.success('Account created successfully!');
-      navigate('/create-event'); // Navigate to create event page after successful account creation
+
+      if (accessCode) {
+        navigate(`/join-event/${accessCode}`);
+      } else if (isTryingToCreateEvent) {
+        navigate('/create-event'); // Navigate to create event page after successful account creation
+      } else {
+        navigate('/my-events'); // Navigate to my events page after successful account creation
+      }
+
+
+
     } catch (error) {
       console.error('Failed to create account:', error);
       toast.error('Failed to create account. Please try again.');

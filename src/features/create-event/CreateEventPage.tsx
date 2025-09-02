@@ -9,7 +9,7 @@ const CreateEventPage: React.FC = () => {
   }, [authContext]);
   return (
     <Container>
-      {authContext.isAuthenticated() ? <CreateEventForm /> : <SignInForm />}
+      {authContext.isAuthenticated() ? <CreateEventForm /> : <SignInForm tryingToCreateEvent={true} />}
     </Container>
   );
 };

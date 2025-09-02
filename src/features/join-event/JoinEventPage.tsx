@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,6 +14,7 @@ import {
   Divider,
 } from '@mui/material';
 import { toast } from 'react-toastify';
+import { EventApiService } from '../../service/api/api.service';
 
 // Zod schema for form validation
 const joinEventSchema = z.object({
@@ -28,13 +29,6 @@ const JoinEventPage: React.FC = () => {
 
   const { accessCode } = useParams<{ accessCode?: string }>();
 
-  useEffect(() => {
-    console.log('accessCode:', accessCode);
-    if (accessCode) {
-      onSubmit({ accessCode });
-    }
-  }, [accessCode]);
-
   const { register, handleSubmit, formState: { errors } } = useForm<JoinEventFormData>({
     resolver: zodResolver(joinEventSchema),
     defaultValues: {
@@ -42,19 +36,29 @@ const JoinEventPage: React.FC = () => {
     },
   });
 
-  const onSubmit = async (data: JoinEventFormData) => {
+  const onSubmit = React.useCallback(async (data: JoinEventFormData) => {
     setIsLoading(true);
     try {
       console.log('Joining event with code:', data.accessCode);
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate network delay
-      throw new Error('joinEvent API not integrated');
+      // Call the redeemEventInvite API
+      await EventApiService.redeemEventInvite(data.accessCode);
+      toast.success("Successfully joined the event!");
+      navigate('/my-events'); // Redirect to my events after successful join
     } catch (error) {
       console.error('Failed to join event:', error);
       toast.error('Failed to join event. Please try again later.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [navigate]);
+  
+  // Auto-join when accessed with accessCode
+  React.useEffect(() => {
+    console.log('accessCode:', accessCode);
+    if (accessCode) {
+      onSubmit({ accessCode });
+    }
+  }, [accessCode, onSubmit]);
 
   const handleCreateEvent = () => {
     navigate('/create-event');
