@@ -56,13 +56,20 @@ const ShareableLinkAccordion: React.FC<ShareableLinkAccordionProps> = ({ eventId
         const inviteLabel = result.label;
         const inviteIdValue = result.id; // Assuming the API returns an ID
         const inviteLink = result.invite_link;
+        
+        console.log('setting inviteLink to ', inviteLink);
+        
+        // Set all states at once to ensure a single re-render
         setInviteLink(inviteLink);
         setLoadingShareLinkState('success');
         setExpandedShareLink(true);
         setShareLinkLabel(inviteLabel);
         setInviteId(inviteIdValue);
         originalLabelRef.current = inviteLabel;
-
+        
+        // Call onNewLink directly here instead of in the useEffect
+        // This ensures it's only called once per successful link generation
+        setTimeout(() => onNewLink(), 0);
       } catch (error) {
         console.error('Error setting invite link:', error);
         setLoadingShareLinkState('error');
@@ -110,19 +117,24 @@ const ShareableLinkAccordion: React.FC<ShareableLinkAccordionProps> = ({ eventId
           setUpdatingLabel(false);
           setUpdateSuccess(true);
           
+          // Notify parent component about the label update
+          setTimeout(() => onNewLink(), 0);
+
         } catch (error) {
           console.error('Error updating invite label:', error);
           setUpdatingLabel(false);
         }
       }, 1000);
-    }, [eventId, inviteId]);
+    }, [eventId, inviteId, onNewLink]);
 
 
+    // TODO: fix error where after link generation, onNewLink is called a bunch of times.
+
+    // Update UI text based on loading state
     useEffect(() => {
         if (loadingShareLinkState === 'success') {
             setShareableLinkDesc('Invite link generated!');
             setGenerateLinkButtonDesc('Create Another Link');
-            onNewLink();
         } else if (loadingShareLinkState === 'error') {
             setShareableLinkDesc('Failed to generate link. Try again later.');
             setGenerateLinkButtonDesc('Try Again');
@@ -130,7 +142,7 @@ const ShareableLinkAccordion: React.FC<ShareableLinkAccordionProps> = ({ eventId
             setShareableLinkDesc('Get a shareable link');
             setGenerateLinkButtonDesc('Generate Link');
         }
-    }, [loadingShareLinkState, onNewLink]);
+    }, [loadingShareLinkState]);
 
 
 
