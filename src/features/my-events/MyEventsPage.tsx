@@ -4,17 +4,18 @@ import {
   Typography,
   Container,
   Stack,
+  Skeleton,
 } from '@mui/material';
 import EventTile from './components/EventTile';
 import type { Event } from '../../types/event';
 import EventTileExpanded from './components/EventTileExpanded';
 import { getAllEvents } from '../../service/api/api.service';
 
-
 const MyEventsPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [expandedOpen, setExpandedOpen] = useState(false);
   const [ events, setEvents ] = useState<Event[]>([]); // Assuming mockEvents is an array of Event objects
+  const [loading, setLoading] = useState(true);
 
   const handleTileClick = (event: Event) => {
     setSelectedEvent(event);
@@ -37,9 +38,12 @@ const MyEventsPage: React.FC = () => {
   const updateEvents = async () => {
     try {
       const events = await getAllEvents();
+      //await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate network delay
       setEvents(events);
     } catch (error) {
       console.error('Failed to fetch events:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,17 +117,23 @@ const MyEventsPage: React.FC = () => {
               gap: 3,
             }}
           >
-            {events.map((event) => (
-              <EventTile
-                key={event.id}
-                event={event}
-                onClick={() => handleTileClick(event)}
-              />
-            ))}
+            {loading ? (
+              Array.from({ length: 8 }, (_, index) => (
+                <Skeleton animation="wave" key={index} variant="rounded" width="100%" height={375} />
+              ))
+            ) : (
+              events.map((event) => (
+                <EventTile
+                  key={event.id}
+                  event={event}
+                  onClick={() => handleTileClick(event)}
+                />
+              ))
+            )}
           </Box>
 
           {/* Empty State */}
-          {events.length === 0 && (
+          {!loading && events.length === 0 && (
             <Box
               sx={{
                 textAlign: 'center',
