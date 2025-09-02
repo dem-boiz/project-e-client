@@ -55,7 +55,8 @@ const ShareableLinkAccordion: React.FC<ShareableLinkAccordionProps> = ({ eventId
         const result = await EventApiService.getInviteLink(eventId);
         const inviteLabel = result.label;
         const inviteIdValue = result.id; // Assuming the API returns an ID
-        setInviteLink(`https://example.com/invite/${inviteLabel}`);
+        const inviteLink = result.invite_link;
+        setInviteLink(inviteLink);
         setLoadingShareLinkState('success');
         setExpandedShareLink(true);
         setShareLinkLabel(inviteLabel);

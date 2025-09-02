@@ -61,5 +61,6 @@ export interface CreateInviteResponse {
     label: string,
     id: string,
     created_at: string,
-    type: string
+    type: string,
+    invite_link: string
 }
