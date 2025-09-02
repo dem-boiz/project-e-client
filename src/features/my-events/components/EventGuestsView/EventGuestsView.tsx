@@ -28,7 +28,7 @@
   import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
   import { EventApiService } from '../../../../service/api/api.service';
   import { toast } from 'react-toastify';
-import ShareableLinkAccordion from './ShareableLinkAccordian';
+  import ShareableLinkAccordion from './ShareableLinkAccordian';
 
 
   // No longer needed as we use inline mock data in useEffect
@@ -57,13 +57,15 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
     const [sendInviteLoading, setSendInviteLoading] = useState(false);
     const [loadingRevoke, setLoadingRevoke] = useState<string | null>(null); // Track which invite is being revoked
     const [expandedAccordion, setExpandedAccordion] = useState<string | false>('');
-
+    const [pendingInvitesLoading, setPendingInvitesLoading] = useState(false);
     const getPendingInvites = React.useCallback(async () => {
       try {
         const invites = await EventApiService.getPendingInvites(eventId);
         setPendingInvites(invites);
       } catch (error) {
         console.error('Error fetching pending invites:', error);
+      } finally {
+        setPendingInvitesLoading(false);
       }
     }, [eventId]);
 
@@ -89,14 +91,14 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
     };
 
 
-    const handleInvite = async () => {
+    const handleEmailInvite = async () => {
       setError('');
       setSuccess('');
       if (email && !validateEmail(email)) {
         setError('Please enter a valid email address.');
         return;
       }
-      if (!label && !email) {
+      if (!email) {
         setError('Please provide at least a label or an email.');
         return;
       }
@@ -104,19 +106,12 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
       // Simulate API call
 
       try {
-        const result = await EventApiService.inviteGuest(eventId, email, label);
-        toast.success('Invite sent successfully!');
-        const newGuest: Guest = {
-          id: result.id,
-          email: email || '',
-          label: label || '',
-          status: 'pending',
-        };
-
-        setPendingInvites(prev => [...prev, newGuest]);
+        await EventApiService.inviteGuest(eventId, email, label);
+        toast.success('Invite successfully sent!');
+        handleNewLinkCreated();
         setEmail('');
         setLabel('');
-        setSuccess('Invite sent successfully!');
+        setSuccess('Invite successfully sent!');
         } catch (error) {
           setError('Failed to send invite.');
           console.error(error);
@@ -146,6 +141,7 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
     };
 
     const handleNewLinkCreated = () => {
+      setPendingInvitesLoading(true);
       getPendingInvites();
     }
 
@@ -166,7 +162,9 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
         <Stack spacing={2}>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
-              label="Email (optional)"
+              error={!!error}
+              helperText={error || ' '}
+              label="Email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               variant="outlined"
@@ -185,18 +183,24 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
               }}
             />
           </Box>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            height: 'fit-content', 
+          }}>
+            <Button
+              
+              variant="contained"
+              color="primary"
+              onClick={handleEmailInvite}
+              loading={sendInviteLoading}
+              sx={{ alignSelf: 'flex-end', minWidth: 120, height: '48px' }}
+            >
+              Send Invite
+            </Button>
+            {success && <Alert sx={{ width: '100%'}} severity="success">{success}</Alert>}
+          </Box>
 
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleInvite}
-            disabled={sendInviteLoading}
-            sx={{ alignSelf: 'flex-start', minWidth: 120 }}
-          >
-            Send Invite
-          </Button>
-          {error && <Alert severity="error">{error}</Alert>}
-          {success && <Alert severity="success">{success}</Alert>}
         </Stack>
 
         <Divider sx={{ my: 3 }} />
@@ -227,7 +231,7 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
               />
             </Box>
           </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
+          <AccordionDetails sx={{ p: 0, position: 'relative', minHeight: '50px' }}>
             {pendingInvites.length > 0 ? (
               <List>
                 {pendingInvites.map((guest) => (
@@ -269,6 +273,26 @@ import ShareableLinkAccordion from './ShareableLinkAccordian';
               <Typography sx={{ p: 2, color: 'text.secondary' }}>
                 No pending invites.
               </Typography>
+            )}
+
+            {/* Loading overlay for accordion content only */}
+            {pendingInvitesLoading && (
+              <Box 
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  bgcolor: 'rgba(0, 0, 0, 0.5)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1
+                }}
+              >
+                <CircularProgress color="inherit" />
+              </Box>
             )}
           </AccordionDetails>
         </Accordion>
