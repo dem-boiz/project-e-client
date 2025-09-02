@@ -324,6 +324,20 @@ export const EventApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
+  },
+
+  async redeemEventInvite(inviteId: string): Promise<Event> {
+    try {
+      const response = await apiRequest(`/events/join/${inviteId}`, {
+        method: 'POST'
+      });
+      return response as unknown as Event;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to redeem event invite. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
   }
 
 }
@@ -336,7 +350,8 @@ export const {
   deleteEvent,
   inviteGuest,
   getInviteLink,
-  updatePendingInvite
+  updatePendingInvite,
+  redeemEventInvite
 } = EventApiService;
 
 
