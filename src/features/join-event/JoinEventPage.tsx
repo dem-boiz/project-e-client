@@ -16,9 +16,10 @@ import {
 import { toast } from 'react-toastify';
 import { EventApiService } from '../../service/api/api.service';
 
+
 // Zod schema for form validation
 const joinEventSchema = z.object({
-  accessCode: z.string().min(1, "Access code is required").max(6, "Enter a 6 digit access code"),
+  accessCode: z.string().min(1, "Access code is required").regex(/^\d{6}$/, "Access code must be exactly 6 digits"),
 });
 
 type JoinEventFormData = z.infer<typeof joinEventSchema>;
@@ -26,15 +27,43 @@ type JoinEventFormData = z.infer<typeof joinEventSchema>;
 const JoinEventPage: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [urlParamError, setUrlParamError] = useState<string | null>(null);
 
   const { accessCode } = useParams<{ accessCode?: string }>();
+  
+  // Validate the accessCode from params using Zod
+  const isValidAccessCode = React.useMemo(() => {
+    if (!accessCode) return false;
+    
+    try {
+      // Parse will throw if validation fails
+      joinEventSchema.parse({ accessCode });
+      setUrlParamError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = z.flattenError(error).fieldErrors as { accessCode?: string[] };
+        const errorMessage = fieldErrors.accessCode?.[0] || "Invalid access code";
+        setUrlParamError(errorMessage);
+        console.log('errr', errorMessage);
+      }
+      return false;
+    }
+  }, [accessCode]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<JoinEventFormData>({
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm<JoinEventFormData>({
     resolver: zodResolver(joinEventSchema),
     defaultValues: {
       accessCode: accessCode || '',
     },
   });
+  
+  // Ensure the access code from URL params shows up in the form field
+  React.useEffect(() => {
+    if (accessCode) {
+      setValue('accessCode', accessCode);
+    }
+  }, [accessCode, setValue]);
 
   const onSubmit = React.useCallback(async (data: JoinEventFormData) => {
     setIsLoading(true);
@@ -52,13 +81,17 @@ const JoinEventPage: React.FC = () => {
     }
   }, [navigate]);
   
-  // Auto-join when accessed with accessCode
+  // Auto-join when accessed with valid accessCode
   React.useEffect(() => {
     console.log('accessCode:', accessCode);
-    if (accessCode) {
+    if (accessCode && isValidAccessCode) {
+      console.log('Auto-submitting valid access code');
       onSubmit({ accessCode });
+    } else if (accessCode && !isValidAccessCode) {
+      console.log('Invalid access code format, not auto-submitting');
+      // Don't navigate away, just show error in form
     }
-  }, [accessCode, onSubmit]);
+  }, [accessCode, onSubmit, isValidAccessCode]);
 
   const handleCreateEvent = () => {
     navigate('/create-event');
@@ -120,8 +153,8 @@ const JoinEventPage: React.FC = () => {
                   variant="outlined"
                   placeholder="Enter your one-time access code"
                   {...register('accessCode')}
-                  error={!!errors.accessCode}
-                  helperText={errors.accessCode?.message}
+                  error={!!errors.accessCode || !!urlParamError}
+                  helperText={errors.accessCode?.message || urlParamError || ' '} // Add space to maintain height
                   sx={{
                     flex: 0.7,
                     '& .MuiOutlinedInput-root': {
@@ -133,7 +166,7 @@ const JoinEventPage: React.FC = () => {
                   type="submit"
                   variant="contained"
                   color="primary"
-                  loading={isLoading}
+                  disabled={isLoading}
                   sx={{
                     height: '56px',
                     flex: 0.3,

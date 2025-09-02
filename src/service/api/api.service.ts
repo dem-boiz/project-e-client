@@ -330,7 +330,7 @@ export const EventApiService = {
     try {
       const response = await apiRequest(`/events/join/${inviteId}`, {
         method: 'POST'
-      });
+      }, false);
       return response as unknown as Event;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

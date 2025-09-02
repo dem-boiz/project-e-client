@@ -15,14 +15,6 @@ const InviteLinkHandler: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    // Validate the access code format (6 digits)
-    const isValidAccessCode = /^\d{6}$/.test(accessCode || '');
-    
-    if (!isValidAccessCode) {
-      navigate('/join-event', { replace: true });
-      return;
-    }
-
     if (isAuthenticated()) {
       // User is already signed in, redirect to join event page
       navigate(`/join-event/${accessCode}`, { replace: true });
