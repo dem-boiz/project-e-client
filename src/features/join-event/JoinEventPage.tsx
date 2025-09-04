@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { toast } from 'react-toastify';
 import { EventApiService } from '../../service/api/api.service';
+import { useAuth } from '../../hooks/useAuth';
 
 
 // Zod schema for form validation
@@ -30,7 +31,8 @@ const JoinEventPage: React.FC = () => {
   const [urlParamError, setUrlParamError] = useState<string | null>(null);
 
   const { accessCode } = useParams<{ accessCode?: string }>();
-  
+  const { isAuthenticated } = useAuth();
+
   // Validate the accessCode from params using Zod
   const isValidAccessCode = React.useMemo(() => {
     if (!accessCode) return false;
@@ -70,7 +72,7 @@ const JoinEventPage: React.FC = () => {
     try {
       console.log('Joining event with code:', data.accessCode);
       // Call the redeemEventInvite API
-      await EventApiService.redeemEventInvite(data.accessCode);
+      await EventApiService.redeemEventInvite(data.accessCode, isAuthenticated());
       toast.success("Successfully joined the event!");
       navigate('/my-events'); // Redirect to my events after successful join
     } catch (error) {
@@ -79,8 +81,8 @@ const JoinEventPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [navigate]);
-  
+  }, [navigate, isAuthenticated]);
+
   // Auto-join when accessed with valid accessCode
   React.useEffect(() => {
     console.log('accessCode:', accessCode);

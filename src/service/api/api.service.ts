@@ -326,11 +326,12 @@ export const EventApiService = {
     }
   },
 
-  async redeemEventInvite(inviteId: string): Promise<Event> {
+  async redeemEventInvite(inviteId: string, useAuth: boolean): Promise<Event> {
     try {
       const response = await apiRequest(`/events/join/${inviteId}`, {
-        method: 'POST'
-      }, false);
+        method: 'POST',
+        body: JSON.stringify({ useAuth }),
+      }, useAuth);
       return response as unknown as Event;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

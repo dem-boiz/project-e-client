@@ -20,7 +20,6 @@
     AccordionSummary,
     AccordionDetails,
     Badge,
-    CircularProgress,
   } from '@mui/material';
   import DeleteIcon from '@mui/icons-material/Delete';
   import EmailIcon from '@mui/icons-material/Email';
@@ -29,6 +28,7 @@
   import { EventApiService } from '../../../../service/api/api.service';
   import { toast } from 'react-toastify';
   import ShareableLinkAccordion from './ShareableLinkAccordian';
+import PendingInvitesAccordion from './PendingInvitesAccordian';
 
 
   // No longer needed as we use inline mock data in useEffect
@@ -49,25 +49,44 @@
 
   const EventGuestsView: React.FC<{ eventId: string }> = ({ eventId }) => {
     const [currentGuests, setCurrentGuests] = useState<Guest[]>([]);
-    const [pendingInvites, setPendingInvites] = useState<Guest[]>([]);
     const [email, setEmail] = useState('');
     const [label, setLabel] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [sendInviteLoading, setSendInviteLoading] = useState(false);
-    const [loadingRevoke, setLoadingRevoke] = useState<string | null>(null); // Track which invite is being revoked
     const [expandedAccordion, setExpandedAccordion] = useState<string | false>('');
-    const [pendingInvitesLoading, setPendingInvitesLoading] = useState(false);
+    const [loadingRevoke, setLoadingRevoke] = useState<string | null>(null);
+    const [pendingInvites, setPendingInvites] = useState<Guest[]>([]);
+    const [loadingPendingInvites, setLoadingPendingInvites] = useState(false);
+
     const getPendingInvites = React.useCallback(async () => {
-      try {
+        try {
         const invites = await EventApiService.getPendingInvites(eventId);
         setPendingInvites(invites);
-      } catch (error) {
+        } catch (error) {
         console.error('Error fetching pending invites:', error);
-      } finally {
-        setPendingInvitesLoading(false);
-      }
+        } finally {
+        setLoadingPendingInvites(false);
+        }
     }, [eventId]);
+
+
+    const handleRevokePendingInvite = async (id: string) => {
+        // Set the loading state for this specific invite button
+        setLoadingRevoke(id);
+        
+        try {
+        // Add a small delay to simulate API call
+        await EventApiService.revokePendingInvite(eventId, id);
+        setPendingInvites((prev) => prev.filter((g) => g.id !== id));
+        } catch (error) {
+        toast.error('Failed to revoke pending invite.');
+        console.error(error);
+        } finally {
+        // Clear the loading state when done
+        setLoadingRevoke(null);
+        }
+    };
 
 
     React.useEffect(() => {
@@ -123,25 +142,10 @@
 
 
 
-    const handleRevokePendingInvite = async (id: string) => {
-      // Set the loading state for this specific invite button
-      setLoadingRevoke(id);
-      
-      try {
-        // Add a small delay to simulate API call
-        await EventApiService.revokePendingInvite(eventId, id);
-        setPendingInvites((prev) => prev.filter((g) => g.id !== id));
-      } catch (error) {
-        toast.error('Failed to revoke pending invite.');
-        console.error(error);
-      } finally {
-        // Clear the loading state when done
-        setLoadingRevoke(null);
-      }
-    };
+
 
     const handleNewLinkCreated = () => {
-      setPendingInvitesLoading(true);
+      setLoadingPendingInvites(true);
       getPendingInvites();
     }
 
@@ -210,92 +214,16 @@
         <Divider sx={{ my: 5 }} />
 
         {/* Pending Invites Accordion */}
-        <Accordion 
-          expanded={expandedAccordion === 'pendingInvites'} 
-          onChange={handleAccordionChange('pendingInvites')}
-          sx={{ mb: 2, bgcolor: 'rgba(255, 255, 255, 0.03)' }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="pending-invites-content"
-            id="pending-invites-header"
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                Pending Invites
-              </Typography>
-              <Badge 
-                badgeContent={pendingInvites.length} 
-                color="warning"
-                sx={{ mr: 2 }}
-              />
-            </Box>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0, position: 'relative', minHeight: '50px' }}>
-            {pendingInvites.length > 0 ? (
-              <List>
-                {pendingInvites.map((guest) => (
-                  <ListItem
-                    key={guest.id}
-                    sx={{ py: 1 }}
-                    secondaryAction={
-                      <Tooltip title={loadingRevoke === guest.id ? "Cancelling..." : "Cancel Invite"}>
-                        <span> {/* Wrapper span needed for disabled tooltip */}
-                          <IconButton 
-                            edge="end" 
-                            color="error" 
-                            onClick={() => handleRevokePendingInvite(guest.id)}
-                            loading={loadingRevoke === guest.id}
-                          >
-                            {loadingRevoke === guest.id ? (
-                              <CircularProgress size={20} color="inherit" />
-                            ) : (
-                              <DeleteIcon />
-                            )}
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar>
-                        {guest.email ? <EmailIcon /> : <PersonIcon />}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={guest.label || guest.email || 'Unnamed'}
-                      secondary={guest.email && guest.label ? guest.email : guest.email || guest.label}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Typography sx={{ p: 2, color: 'text.secondary' }}>
-                No pending invites.
-              </Typography>
-            )}
-
-            {/* Loading overlay for accordion content only */}
-            {pendingInvitesLoading && (
-              <Box 
-                sx={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  bgcolor: 'rgba(0, 0, 0, 0.5)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 1
-                }}
-              >
-                <CircularProgress color="inherit" />
-              </Box>
-            )}
-          </AccordionDetails>
-        </Accordion>
+        <PendingInvitesAccordion
+          handleRevokePendingInvite={handleRevokePendingInvite}
+          loadingPendingInvites={loadingPendingInvites}
+          expandedAccordion={expandedAccordion}
+          handleAccordionChange={
+            (panel: string) => (__: React.SyntheticEvent, isExpanded: boolean) => setExpandedAccordion(isExpanded ? panel : false)
+          }
+          pendingInvites={pendingInvites}
+          loadingRevoke={loadingRevoke}
+        />
 
         {/* Current Guests Accordion */}
         <Accordion 

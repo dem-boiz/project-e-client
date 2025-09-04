@@ -17,6 +17,12 @@ const AppRouter: React.FC = () => {
           <Route path="/" element={<RootLayout />}>
             <Route index element={<Navigate to="/sign-in" replace />} /> {/* Redirect root to sign-in page, for good UX */}
             <Route path="join-event" element={<JoinEventPage />} />
+            {/* TODO: disallow access to join-event/:accessCode directly from a link... or rather,
+              in this scenario, DO NOT make the API request. Find a way to redirect the user back to the
+              page where we ask the user to sign in if theyre not signed in (meaning direct acess is ok if theyre signed in?)
+              ... one possible way is by passing a value from create-event/join-event page to join event, and if this value is not present,
+               and they are not authenticated, redirect them to the sign-in page.
+            */}
             <Route path='join-event/:accessCode' element={<JoinEventPage />} />
             <Route path="invite/:accessCode" element={<InviteLinkHandler />} />
             <Route path="create-event" element={<CreateEventPage />} />
