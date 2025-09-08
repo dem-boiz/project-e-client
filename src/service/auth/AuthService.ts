@@ -251,7 +251,7 @@ export class AuthService {
   async createAccount(data: CreateAccountRequest): Promise<CreateAccountResponse> {
     try {
       console.log('Creating account:', data);
-      const response = await this.apiRequest('/user', {
+      const response = await this.apiRequest('/users', {
         method: 'POST',
         body: JSON.stringify({ name: data.username, email: data.email, password: data.password, created_at: new Date().toISOString() }),
       });
