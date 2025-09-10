@@ -14,7 +14,7 @@ import { getAllEvents } from '../../service/api/api.service';
 const MyEventsPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [expandedOpen, setExpandedOpen] = useState(false);
-  const [ events, setEvents ] = useState<Event[]>([]); // Assuming mockEvents is an array of Event objects
+  const [events, setEvents] = useState<Event[]>([]); // Assuming mockEvents is an array of Event objects
   const [loading, setLoading] = useState(true);
 
   const handleTileClick = (event: Event) => {

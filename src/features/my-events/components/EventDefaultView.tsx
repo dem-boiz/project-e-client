@@ -6,7 +6,9 @@ import {
   Chip,
   Stack,
   DialogTitle,
+  Divider,
 } from '@mui/material';
+import EventVendorsList from './EventVendorsList';
 import {
   LocationOn as LocationIcon,
   Schedule as TimeIcon,
@@ -34,7 +36,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
   
   if (!event) return null;
   
-  const isHost = event.host_id === user?.id;
+  const isHost = event.host_id !== user?.id;
   const status = new Date(event.date_time) < new Date() ? 'past' : 'upcoming'; // Update status based on date
   return (
     <Box sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
@@ -250,6 +252,11 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                   )}
 
                 </Stack>
+
+                <Divider sx={{ marginTop: 3 }} />
+
+                <EventVendorsList eventId={event.id} />
+
               </Box>
             </Stack>
           </Box>

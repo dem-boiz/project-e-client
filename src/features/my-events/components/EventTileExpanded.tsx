@@ -73,9 +73,6 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
     }
   }
 
-
-
-
   useEffect(() => {
     if (open) {
       setEditViewOpen(false);
