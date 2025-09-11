@@ -1,9 +1,6 @@
 import { ArrowBackIos } from "@mui/icons-material"
 import { Box, DialogActions, DialogContent, IconButton, Slide, type SlideProps } from "@mui/material"
-import React from "react";
-
-
-
+import React from "react"; 
 
 
 export interface SlidingViewProps {

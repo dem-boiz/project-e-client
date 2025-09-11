@@ -63,3 +63,14 @@ export interface CreateInviteResponse {
     type: string,
     invite_link: string
 }
+
+export interface VendorImageCreation {
+    event_vendor_id: string, 
+    image_data: string
+}
+
+export interface VendorImageData {
+    event_vendor_id: string, 
+    image_data: string, 
+    created_at: string
+}

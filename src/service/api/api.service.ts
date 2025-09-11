@@ -1,8 +1,11 @@
 import type { Guest } from '../../features/my-events/components/EventGuestsView/EventGuestsView';
 import type { Event } from '../../types/event';
-import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest } from '../../types/network.types';
+import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, VendorImageCreation, VendorImageData } from '../../types/network.types';
 import config from '../../utils/config';
 import { getAuthService } from '../auth/index';
+import type { Vendor } from '../../features/my-events/components/EventVendorsList';
+
+
 
 // Lazy load auth service to avoid initialization order issues
 function getAuth() {
@@ -339,8 +342,58 @@ export const EventApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
-  }
+  }, 
 
+  async getEventVendors(eventId: string): Promise<Vendor[]> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      const response = await apiRequest(`/event-vendors/event-id/${eventId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response as unknown as Vendor[];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to fetch pending invites. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
+   
+  async addVendorImage(data: VendorImageCreation): Promise<void> {
+    try {
+      const response = await apiRequest(`/event-vendors/image`, {
+        method: 'POST',
+        body: JSON.stringify( data ),
+      });
+      return  response as unknown as void;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to upload image. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  }, 
+
+  async getEventVendorImages(eventVendorId: string): Promise<VendorImageData[]> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      const response = await apiRequest(`/event-vendors/images/${eventVendorId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response as unknown as VendorImageData[];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to fetch pending invites. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  } 
 }
 // Export individual functions for convenience
 export const {
@@ -352,7 +405,10 @@ export const {
   inviteGuest,
   getInviteLink,
   updatePendingInvite,
-  redeemEventInvite
+  redeemEventInvite,
+  getEventVendors,
+  addVendorImage,
+  getEventVendorImages
 } = EventApiService;
 
 
