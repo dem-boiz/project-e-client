@@ -13,11 +13,12 @@ import { toast } from 'react-toastify';
 
 import SlidingView from './SlidingView';
 import EventGuestsView from './EventGuestsView/EventGuestsView';
-import EventDefaultView from './EventDefaultView';
+import EventDefaultView, { type Vendor } from './EventDefaultView';
+import EventVendorView from './EventVendorsView/EventVendorsView';
 
 // TODO: Update any edit forms to store current values and disable if no changes are detected.
 
-type TransitioningComponent = 'EditView' | 'GuestView'
+type TransitioningComponent = 'EditView' | 'GuestView' | 'VendorView'
 
 interface EventTileExpandedProps {
   event: Event | null;
@@ -30,7 +31,11 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
   const dialogRef = React.useRef<HTMLDivElement>(null);
   const [ editViewOpen, setEditViewOpen ] = React.useState(false);
   const [ guestViewOpen, setGuestViewOpen ] = React.useState(false);
+  const [ vendorViewOpen, setVendorViewOpen ] = React.useState(false);
   const [ transitioningComponent, setTransitioningComponent ] = React.useState<TransitioningComponent | null>(null);
+  const [ selectedVendor, setSelectedVendor ] = React.useState<any | null>(null); // Replace 'any' with actual vendor type
+  
+
 
   const onCancelEvent = async () => {
     if (event) {
@@ -73,6 +78,13 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
     }
   }
 
+
+  const handleVendorClick = (vendor: Vendor) => {
+    console.log('Vendor clicked in expanded view:', vendor);
+    setSelectedVendor(vendor);
+    setTransitioningComponent('VendorView');
+  }
+
   useEffect(() => {
     if (open) {
       setEditViewOpen(false);
@@ -81,24 +93,31 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
   }, [open]);
 
   useEffect(() => {
-    if (!(editViewOpen || guestViewOpen)) {
+    if (!(editViewOpen || guestViewOpen || vendorViewOpen)) {
       setTransitioningComponent(null);
     }
 
-  }, [editViewOpen, guestViewOpen]);
+  }, [editViewOpen, guestViewOpen, vendorViewOpen]);
 
 
   useEffect(() => {
-    if (transitioningComponent === 'GuestView'){
-      setGuestViewOpen((prevState) => !prevState);
-
-    } else if (transitioningComponent === 'EditView') {
-      setEditViewOpen((prevState) => !prevState);
-    } else {
-      console.warn('Unknown transitioning component:', transitioningComponent);
-    }
-
+     switch (transitioningComponent) {
+       case 'EditView':
+         setEditViewOpen(true);
+         break;
+       case 'GuestView':
+         setGuestViewOpen(true);
+         break;
+       case 'VendorView':
+         setVendorViewOpen(true);
+         break;
+       default:
+        console.warn('Unknown transitioning component:', transitioningComponent);
+         break;
+     }
   }, [transitioningComponent]);
+
+
 
   if (!event) return null;
 
@@ -132,8 +151,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         backgroundColor: 'background.default',
       }}
       >
-    
-
+  
       {/**
        * Below are the different sliding views that this component supports.
        */}
@@ -141,7 +159,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         type="default"
         slideProps={{
           appear: false,
-          in: !(editViewOpen || guestViewOpen),
+          in: !(editViewOpen || guestViewOpen || vendorViewOpen),
           direction: 'right',
           unmountOnExit: true,
           mountOnEnter: true,
@@ -152,6 +170,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
           event={event}
           onEditClick={() => setTransitioningComponent('EditView')}
           onGuestsClick={() => setTransitioningComponent('GuestView')}
+          onVendorsClick={(vendor: Vendor) => handleVendorClick(vendor)}
         />
       </SlidingView>
       <SlidingView
@@ -183,7 +202,18 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
       >
           <EventGuestsView eventId={event.id} />
       </SlidingView>
-      
+      <SlidingView
+        slideProps={{
+          appear: false,
+          in: vendorViewOpen,
+          direction: 'left',
+          unmountOnExit: true,
+          mountOnEnter: true,
+        }}
+        onBackClick={() => setVendorViewOpen(false)}
+      >
+        <EventVendorView eventId={event.id} selectedVendor={selectedVendor} />
+      </SlidingView>
     </Dialog>
         
   );

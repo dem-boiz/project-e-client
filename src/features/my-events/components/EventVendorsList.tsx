@@ -25,15 +25,9 @@ import { getEventVendors, addVendorImage, getEventVendorImages } from '../../../
 import type { VendorImageCreation } from '../../../types/network.types';  
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';  
+import ImageSlider from '../../components/ImageSlider';
  
-export interface Vendor { 
-  id: string,
-  name: string;
-  vendor_description: string;
-  vendor_images: string[]; //base64 encoded image string 
-  imageUrl: string; // Processed image URL for display
-  imageUrls: string[]; // Array of processed image URLs for slideshow
-}
+
 
 interface EventVendorsListProps {
   eventId: string;
@@ -128,7 +122,7 @@ const EventVendorsList: React.FC<EventVendorsListProps> = ({ eventId }) => {
 
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % vendors.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 0) % vendors.length);
   };
 
   const handlePrev = () => {
@@ -358,24 +352,6 @@ const EventVendorsList: React.FC<EventVendorsListProps> = ({ eventId }) => {
             }}
           >
             {/* Swiper slideshow for this vendor’s images */}
-            <Swiper
-              key={vendor.imageUrls?.length}
-              modules={[Navigation, Pagination]}
-              navigation
-              pagination={{ clickable: true }}
-              style={{ width: "100%", height: 280 }}
-            >
-              {(vendor.imageUrls ?? []).map((url, index) => (
-                <SwiperSlide key={index}>
-                  <CardMedia
-                    component="img"
-                    image={url}
-                    alt={`${vendor.name} ${index + 1}`}
-                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
 
             <CardContent>
               <Typography variant="h6" gutterBottom>

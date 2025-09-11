@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   Typography,
@@ -8,7 +8,6 @@ import {
   DialogTitle,
   Divider,
 } from '@mui/material';
-import EventVendorsList from './EventVendorsList';
 import {
   LocationOn as LocationIcon,
   Schedule as TimeIcon,
@@ -22,25 +21,145 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useAuth } from '../../../hooks/useAuth';
 import PeopleIcon from '@mui/icons-material/People';
+import ImageSlider from '../../components/ImageSlider';
+import { getEventVendors, getEventVendorImages } from '../../../service/api/api.service';
 
 dayjs.extend(relativeTime);
 
 interface EventDefaultViewProps {
-  event: Event | null;
+  event: Event;
   onEditClick?: () => void;
   onGuestsClick?: () => void;
+  onVendorsClick?: (vendor: Vendor) => void;
 }
 
-const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick, onGuestsClick }) => {
+export interface Vendor { 
+  id: string,
+  name: string;
+  vendor_description: string;
+  vendor_images: string[]; //base64 encoded image string 
+  imageUrl: string; // Processed image URL for display
+  imageUrls: string[]; // Array of processed image URLs for slideshow
+}
+
+const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick, onGuestsClick, onVendorsClick }) => {
   const { user } = useAuth();
-  
-  if (!event) return null;
-  
-  console.log('event.host_id', event.host_id);
-  console.log('user', user);
-  console.log('user.id', user?.id);
+  const [loadingVendors, setLoadingVendors] = React.useState(false);
+  const [vendorError, setVendorError] = React.useState<string>();
+  const [vendors, setVendors] = React.useState<Vendor[]>([]);
+
+    
+
   const isHost = event.host_id === user?.id;
   const status = new Date(event.date_time) < new Date() ? 'past' : 'upcoming'; // Update status based on date
+
+    // Fetch vendors data (simulated)
+  useEffect(() => {
+  const fetchVendors = async () => {
+    try {
+      setLoadingVendors(true);
+
+      const vendorsList = await getEventVendors(event.id);
+
+      if (vendorsList && vendorsList.length > 0) {
+        // Fetch images for each vendor in parallel
+        const processed = await Promise.all(
+          vendorsList.map(async (vendor) => {
+            const image_list = await getEventVendorImages(vendor.id.toString());
+            console.log("Fetched images for vendor", vendor.id, image_list);
+
+            let vendor_images: string[] = [];
+            if (image_list && image_list.length > 0) {
+              vendor_images = image_list.map((img) => img.image_data);
+            }
+
+            let imageUrls: string[];
+            if (vendor_images.length > 0) {
+              imageUrls = vendor_images.map((img, index) => {
+              try {
+                const url = base64ToObjectUrl(img);
+                console.log(`Created URL for vendor ${vendor.id}, image ${index}:`, url);
+                return url;
+              } catch (error) {
+                console.error(`Failed to create URL for vendor ${vendor.id}, image ${index}:`, error);
+                return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNzUgMTUwSDIyNVYyNTBIMTc1VjE1MFoiIGZpbGw9IiNEREREREQiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxNyAyOCAyMCAyOFoiIGZpbGw9IiNEREREREQiLz4KPC9zdmc+Cg==';
+              }
+              });
+            } else {
+              imageUrls = ["/path/to/placeholder-image.png"];
+            }
+            console.log("Fetched imageUrls for vendor", vendor.id, imageUrls);
+            return {
+              ...vendor,
+              vendor_images,
+              imageUrls,
+              imageUrl: imageUrls[0], // first one for fallback
+            };
+          })
+        );
+
+        setVendors(processed);
+      } else {
+        setVendorError("Failed to load vendors");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      setVendorError("Failed to load vendors");
+    } finally {
+      setLoadingVendors(false);
+    }
+  };
+
+  if (event.id) {
+    fetchVendors();
+  }
+}, [event]);
+
+
+  const handleVendorClick = (index: number) => {
+    const vendor = vendors[index];
+    console.log('Clicked vendor:', vendor);
+    onVendorsClick?.(vendor);
+  }
+
+  // Convert base64 image string to Blob to Object URL for more efficient rendering
+  function base64ToObjectUrl(base64: string, contentType = "image/png"): string {
+    try {
+      // Validate base64 string
+      if (!base64 || typeof base64 !== 'string') {
+        console.error('Invalid base64 string provided:', base64);
+        throw new Error('Invalid base64 string');
+      }
+      
+      // Remove any whitespace and validate base64 format
+      const cleanBase64 = base64.trim();
+      if (cleanBase64.length === 0) {
+        console.error('Empty base64 string provided');
+        throw new Error('Empty base64 string');
+      }
+      
+      const byteCharacters = atob(cleanBase64);
+      const byteArrays = [];
+      for (let i = 0; i < byteCharacters.length; i += 512) {
+        const slice = byteCharacters.slice(i, i + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let j = 0; j < slice.length; j++) {
+          byteNumbers[j] = slice.charCodeAt(j);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+      }
+      const blob = new Blob(byteArrays, { type: contentType });
+      const objectUrl = URL.createObjectURL(blob);
+      console.log('Successfully created object URL from base64');
+      return objectUrl;
+    } catch (error) {
+      console.error('Error converting base64 to object URL:', error);
+      // Return a placeholder SVG data URL
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNzUgMTUwSDIyNVYyNTBIMTc1VjE1MFoiIGZpbGw9IiNEREREREQiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxNyAyOCAyMCAyOFoiIGZpbGw9IiNEREREREQiLz4KPC9zdmc+Cg==';
+    }
+  }
+
+
   return (
     <Box sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
           <Box
@@ -258,10 +377,18 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
 
                 <Divider sx={{ marginTop: 3 }} />
 
-                <EventVendorsList eventId={event.id} />
-
               </Box>
+
+              <ImageSlider 
+                images={vendors.map(v => v.imageUrl)} 
+                loading={loadingVendors} 
+                error={vendorError}
+                onSlideClick={handleVendorClick}
+                />
+
             </Stack>
+
+
           </Box>
     </Box>
   );

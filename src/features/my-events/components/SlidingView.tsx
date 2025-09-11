@@ -4,7 +4,7 @@ import React from "react";
 
 
 export interface SlidingViewProps {
-    type?: 'default' | 'edit' | 'guest'; // Different types of sliding views
+    type?: 'default' | 'edit' | 'guest' | 'vendor'; // Different types of sliding views
     onBackClick?: () => void;
     children: React.ReactNode;
     slideProps: Omit<SlideProps, 'children'>; 
