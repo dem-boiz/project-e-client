@@ -36,7 +36,10 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
   
   if (!event) return null;
   
-  const isHost = event.host_id !== user?.id;
+  console.log('event.host_id', event.host_id);
+  console.log('user', user);
+  console.log('user.id', user?.id);
+  const isHost = event.host_id === user?.id;
   const status = new Date(event.date_time) < new Date() ? 'past' : 'upcoming'; // Update status based on date
   return (
     <Box sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
