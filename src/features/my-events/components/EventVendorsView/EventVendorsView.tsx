@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box, Typography, Paper, Divider, Chip } from '@mui/material';
+import { Box, Typography, Paper, Divider, Chip, DialogTitle } from '@mui/material';
 import type { Vendor } from '../EventDefaultView';
 import ImageSlider from '../../../components/ImageSlider';
 
@@ -42,28 +42,7 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
         maxWidth: '100%',
         mx: 'auto',
       }}
-    >
-      {/* Image Slider Section */}
-      <Paper
-        elevation={2}
-        sx={{
-          borderRadius: 3,
-          overflow: 'hidden',
-          mb: 3,
-          backgroundColor: 'background.paper',
-        }}
-      >
-        <Box
-          sx={{
-            position: 'relative',
-            height: { xs: 300, sm: 400, md: 450 },
-            width: '100%',
-          }}
-        >
-          <ImageSlider images={selectedVendor.imageUrls || []} />
-        </Box>
-      </Paper>
-
+    > 
       {/* Vendor Information Section */}
       <Paper
         elevation={1}
@@ -74,7 +53,7 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
         }}
       >
         {/* Header Section */}
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Typography
             variant="h4"
             component="h1"
@@ -85,22 +64,24 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
               fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
             }}
           >
-            {selectedVendor.name}
+            {}
           </Typography>
           
-          {/* Vendor ID Chip */}
-          <Chip
-            label={`Vendor ID: ${selectedVendor.id}`}
-            size="small"
-            variant="outlined"
-            sx={{
-              fontSize: '0.75rem',
-              height: 24,
-            }}
-          />
+          {/* Vendor Name */}
+          <DialogTitle 
+                sx={{
+                  color: 'text.primary',
+                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.1rem' },
+                  fontWeight: 500,
+                  lineHeight: 1,
+                  flex: 2 
+                }}
+              >
+                {selectedVendor.name}
+              </DialogTitle>
         </Box>
 
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{ my: 1 }} />
 
         {/* Description Section */}
         {selectedVendor.vendor_description && (
@@ -128,35 +109,13 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
             </Typography>
           </Box>
         )}
-
-        {/* Image Count Info */}
-        {selectedVendor.imageUrls && selectedVendor.imageUrls.length > 0 && (
-          <Box sx={{ mb: 3 }}>
-            <Divider sx={{ mb: 2 }} />
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              📸 
-              <span>
-                {selectedVendor.imageUrls.length} 
-                {selectedVendor.imageUrls.length === 1 ? ' image' : ' images'} available
-              </span>
-            </Typography>
-          </Box>
-        )}
-
+ 
         {/* Additional Information Section */}
         <Paper
           variant="outlined"
           sx={{
             p: 3,
-            backgroundColor: 'grey.50',
+            backgroundColor: 'background.paper',
             borderRadius: 2,
             mt: 3,
           }}
@@ -181,6 +140,51 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
             They will be able to provide you with detailed information tailored to your event needs.
           </Typography>
         </Paper>
+      </Paper>
+
+      {/* Image Slider Section */}
+      <Paper
+        elevation={2}
+        sx={{
+          borderRadius: 3,
+          overflow: 'hidden',
+          mb: 2,
+          backgroundColor: 'background.paper',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            height: { xs: 300, sm: 400, md: 450 },
+            width: '90%', 
+            margin: '0 auto',
+            paddingTop: 3
+          }}
+        >
+          <ImageSlider images={selectedVendor.imageUrls || []} />
+          {/* Image Count Info */}
+          
+          {selectedVendor.imageUrls && selectedVendor.imageUrls.length > 0 && (
+            <Box sx={{ mb: 3 }}>
+              <Divider sx={{ mb: 2 }} />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                📸 
+                <span>
+                  {selectedVendor.imageUrls.length} 
+                  {selectedVendor.imageUrls.length === 1 ? ' image' : ' images'} available
+                </span>
+              </Typography>
+            </Box>
+          )}
+        </Box> 
       </Paper>
     </Box>
   );
