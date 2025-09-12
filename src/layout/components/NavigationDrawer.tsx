@@ -92,7 +92,9 @@ const NavigationDrawer: React.FC = () => {
     } else {
       // Handle drawer close
     }
-
+    console.log('Drawer useEffect called');
+    console.log('isOpen:', isOpen);
+    console.log('isAuthenticated:', auth.isAuthenticated());
 
   }, [auth, isOpen]);
 

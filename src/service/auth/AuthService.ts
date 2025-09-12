@@ -121,7 +121,7 @@ export class AuthService {
       console.log('✅ User data fetched successfully:', userData);
       
       return {
-        id: userData.host_id,
+        id: userData.id,
         name: userData.name,
         email: userData.email,
       };

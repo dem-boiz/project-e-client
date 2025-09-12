@@ -5,7 +5,5 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   // Causes double rendering in dev mode
-  <StrictMode>
     <App />
-  </StrictMode>,
 )
