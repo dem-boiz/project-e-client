@@ -77,6 +77,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('💥 Failed to initialize authentication:', error);
         toast.error('An error occurred while restoring your session. Please sign in again.');
       }
+
+      try {
+        console.log('refreshing device token')
+        await authService.refreshDeviceToken();
+      } catch (error) {
+        console.error('💥 Failed to refresh device token:', error);
+      }
+
+
     };
 
     initializeAuth();

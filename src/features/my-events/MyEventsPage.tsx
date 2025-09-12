@@ -9,6 +9,7 @@ import {
 import EventTile from './components/EventTile';
 import type { Event } from '../../types/event';
 import EventTileExpanded from './components/EventTileExpanded';
+import { useAuth } from '../../hooks/useAuth';
 import { getAllEvents } from '../../service/api/api.service';
 
 const MyEventsPage: React.FC = () => {
@@ -16,6 +17,8 @@ const MyEventsPage: React.FC = () => {
   const [expandedOpen, setExpandedOpen] = useState(false);
   const [events, setEvents] = useState<Event[]>([]); // Assuming mockEvents is an array of Event objects
   const [loading, setLoading] = useState(true);
+  const auth = useAuth();
+  const useCallback = React.useCallback;
 
   const handleTileClick = (event: Event) => {
     setSelectedEvent(event);
@@ -35,21 +38,24 @@ const MyEventsPage: React.FC = () => {
     }
   }
 
-  const updateEvents = async () => {
+  const updateEvents = useCallback(async () => {
     try {
-      const events = await getAllEvents();
-      //await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate network delay
+
+      const isAuthenticated = auth.isAuthenticated();
+      const events = await getAllEvents(isAuthenticated);
+    
+      console.log('Fetched events:', events); 
       setEvents(events);
     } catch (error) {
       console.error('Failed to fetch events:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [auth]);
 
   useEffect(() => {
     updateEvents();
-  }, [])
+  }, [updateEvents])
 
   // TODO: Refactor my events page to !!! IMPROVE MOBILE EXPERIENCE !!!...
   // remove use of dialogs.. they take up too much space on mobile

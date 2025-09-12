@@ -188,6 +188,31 @@ export class AuthService {
     }
   }
 
+  
+
+  public async refreshDeviceToken(): Promise<void> {
+    try {
+      console.log('🔄 Refreshing device token...')
+      const response = await fetch(`/api/auth/device/refresh`, {
+        method: 'POST'
+      });
+
+      if (!response.ok) {
+        console.log('❌ Device token refresh failed');
+        return;
+      }
+
+      if (response.status === 204) {
+        console.log('✅ Device token refresh successful (204 No Content)');
+        return; // No content to return
+      }
+
+    } catch (error) {
+      console.error('💥 Device token refresh error:', error);
+      return;
+    }
+
+  }
 
   async login(data: RequestLoginData): Promise<RequestLoginResponse> {
     try {

@@ -21,7 +21,8 @@ function getAuth() {
 async function apiRequest(
   endpoint: string,
   options: RequestInit = {},
-  useAuth = true
+  useAuth = true,
+  useDeviceAuth = false
 
 ): Promise<Response> {
   const controller = new AbortController();
@@ -50,7 +51,7 @@ async function apiRequest(
     const response = await fetch(`/api${endpoint}`, {
       ...options,
       signal: controller.signal,
-      credentials: useAuth ? 'include' : 'omit', // Include cookies for refresh token
+      credentials: useAuth || useDeviceAuth ? 'include' : 'omit', // Include cookies for refresh token
       headers: useAuth ? headers : (options.headers as Record<string, string> | undefined),
     });
 
@@ -118,12 +119,12 @@ export const EventApiService = {
   /**
    * Get all events for the current user
    */
-  async getAllEvents(): Promise<Event[]> {
+  async getAllEvents(isAuthenticated: boolean): Promise<Event[]> {
     try {
       console.log('getting all events ');
       const response = await apiRequest('/events', {
         method: 'GET',
-      }, false);
+      }, isAuthenticated, true);
       return response as unknown as Event[];
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -334,7 +335,7 @@ export const EventApiService = {
       const response = await apiRequest(`/events/join/${inviteId}`, {
         method: 'POST',
         body: JSON.stringify({ useAuth }),
-      }, useAuth);
+      }, useAuth, true);
       return response as unknown as Event;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
