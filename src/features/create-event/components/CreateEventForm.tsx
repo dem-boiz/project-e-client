@@ -10,14 +10,10 @@ import {
   Paper,
   Stack,
   Container,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dayjs, { Dayjs } from 'dayjs';
 import { useNavigate } from 'react-router';
 import { createEvent } from '../../../service/api/api.service';
@@ -29,7 +25,7 @@ const schema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().min(10, "Description must be at least 10 characters").max(500, "Description cannot exceed 500 characters"),
   location: z.string().optional(),
-  datetime: z.string()
+  date_time: z.string()
     .min(1, "Date is required")
     .refine((dateString) => {
       const date = new Date(dateString);
@@ -50,7 +46,7 @@ const CreateEventForm: React.FC = () => {
       name: '',
       description: '',
       location: '',
-      datetime: '',
+      date_time: '',
       capacity: 100,
     },
   });
@@ -64,10 +60,12 @@ const CreateEventForm: React.FC = () => {
     }
     const eventData = {
       ...data,
+
       host_id: user?.id
       //capacity: data.capacity,
     };
 
+    console.log('Creating event with data:', eventData);
     setIsLoading(true);
     try {
           await createEvent(eventData); // TODO: Replace with actual API call
@@ -130,172 +128,118 @@ const CreateEventForm: React.FC = () => {
               >
                 CREATE EVENT
               </Typography>
-
-              {/* Form */}
               <Box
                 component="form"
                 onSubmit={handleSubmit(onSubmit)}
                 sx={{ width: '100%' }}
               >
-                <Stack spacing={3}>
-                  {/* Event Name */}
-                  <TextField
-                    required
-                    fullWidth
-                    label="Event Name"
-                    variant="outlined"
-                    placeholder="Enter event name"
-                    {...register("name")}
-                    error={!!errors.name}
-                    helperText={errors.name?.message}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      },
-                    }}
-                  />
-
-                  {/* Event Date */}
-                  <Controller
-                    name="datetime"
-                    control={control}
-                    render={({ field }) => (
-                      <DateTimePicker
-                        label="Event Date & Time"
-                        value={field.value ? dayjs(field.value) : null}
-                        onChange={(newValue: Dayjs | null) => {
-                          field.onChange(newValue ? newValue.toISOString() : '');
-                        }}
-                        disablePast
-                        slotProps={{
-                          textField: {
-                            required: true,
-                            fullWidth: true,
-                            error: !!errors.datetime,
-                            helperText: errors.datetime?.message,
-                            sx: {
-                              '& .MuiOutlinedInput-root': {
-                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                              },
-                            },
-                          },
-                        }}
-                      />
-                    )}
-                  />
-
-
-                  {/* Advanced Options Accordion */}
-                  <Accordion
-                    sx={{
-                      backgroundColor: 'background.default',
-                      boxShadow: 'none',
-                      '&:before': {
-                        display: 'none',
-                      },
-                      '& .MuiAccordionSummary-root': {
-                        backgroundColor: 'transparent',
-                      },
-                      '& .MuiAccordionDetails-root': {
-                        backgroundColor: 'transparent',
-                        paddingX: 0,
-
-                      },
-                      '&.MuiPaper-root': {
-                        boxShadow: 'none',
-                      },
-                    }}
-                  >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon  sx={{ color: 'text.secondary', fontSize: '1.5rem' }} />}
+                  <Stack spacing={3}>
+                    {/* Event Name */}
+                    <TextField
+                      required
+                      fullWidth
+                      label="Event Name"
+                      variant="outlined"
+                      placeholder="Enter event name"
+                      {...register("name")}
+                      error={!!errors.name}
+                      helperText={errors.name?.message}
                       sx={{
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        '& .MuiAccordionSummary-content': {
-                          margin: '8px 0 4px 0',
-                          justifyContent: 'center',
-                          order: 2,
-                        },
-                        '& .MuiAccordionSummary-expandIconWrapper': {
-                          order: 1,
-                          margin: '0 0 4px 0',
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
                         },
                       }}
-                    >
-                      <Typography sx={{ color: 'text.secondary', fontSize: '1rem' }}>
-                          More Options
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Stack spacing={3}>
-                        {/* Description */}
-                        <TextField
-                          required
-                          fullWidth
-                          label="Description"
-                          variant="outlined"
-                          placeholder="Enter event description"
-                          multiline
-                          rows={3}
-                          {...register("description")}
-                          error={!!errors.description}
-                          helperText={errors.description?.message}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                            },
+                    />
+                    <TextField
+                      required
+                      fullWidth
+                      label="Description"
+                      variant="outlined"
+                      placeholder="Enter event description"
+                      multiline
+                      rows={3}
+                      {...register("description")}
+                      error={!!errors.description}
+                      helperText={errors.description?.message}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        },
+                      }}
+                    />
+                    {/* Event Date */}
+                    <Controller
+                      name="date_time"
+                      control={control}
+                      render={({ field }) => (
+                        <DateTimePicker
+                          label="Event Date & Time"
+                          value={field.value ? dayjs(field.value) : null}
+                          onChange={(newValue: Dayjs | null) => {
+                            field.onChange(newValue ? newValue.toISOString() : '');
                           }}
-                        />
-
-                        {/* Location */}
-                        <TextField
-                          required
-                          fullWidth
-                          label="Location"
-                          variant="outlined"
-                          placeholder="Enter event location"
-                          {...register("location")}
-                          error={!!errors.location}
-                          helperText={errors.location?.message}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                            },
-                          }}
-                        />
-
-                        {/* Max Attendees (only for private events) */}
-                        <Controller
-                          name="capacity"
-                          control={control}
-                          render={({ field }) => (
-                            <TextField
-                            
-                              fullWidth
-                              label="Max Attendees"
-                              type="number"
-                              variant="outlined"
-                              placeholder="100"
-                              {...field}
-                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                              error={!!errors.capacity}
-                              helperText={errors.capacity?.message || "Min: 1, Max: 10,000"}
-                              sx={{
+                          disablePast
+                          slotProps={{
+                            textField: {
+                              required: true,
+                              fullWidth: true,
+                              error: !!errors.date_time,
+                              helperText: errors.date_time?.message,
+                              sx: {
                                 '& .MuiOutlinedInput-root': {
                                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                                 },
-                                '& .Mui-disabled': {
-                                  opacity: 0.6,
-                                },
-                              }}
-                            />
-                          )}
+                              },
+                            },
+                          }}
                         />
-                      </Stack>
-                    </AccordionDetails>
-                  </Accordion>
+                      )}
+                    />
+                    {/* Location */}
+                    <TextField
+                      required
+                      fullWidth
+                      label="Location"
+                      variant="outlined"
+                      placeholder="Enter event location"
+                      {...register("location")}
+                      error={!!errors.location}
+                      helperText={errors.location?.message}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        },
+                      }}
+                    />
 
+                    {/* Max Attendees (only for private events) */}
+                    <Controller
+                      name="capacity"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                        
+                          fullWidth
+                          label="Max Attendees"
+                          type="number"
+                          variant="outlined"
+                          placeholder="100"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                          error={!!errors.capacity}
+                          helperText={errors.capacity?.message || "Min: 1, Max: 10,000"}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            },
+                            '& .Mui-disabled': {
+                              opacity: 0.6,
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Stack>
                   {/* Submit Button */}
                   <Button
                     type="submit"
@@ -331,7 +275,6 @@ const CreateEventForm: React.FC = () => {
                   >
                     Have an event code? Join
                   </Typography>
-                </Stack>
               </Box>
             </Stack>
           </Paper>

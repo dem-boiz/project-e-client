@@ -17,7 +17,7 @@ export interface CreateEventRequest {
   name: string;
   description?: string;
   location?: string;
-  datetime: string;
+  date_time: string;
   host_id: string
 }
 export interface CreateAccountRequest {

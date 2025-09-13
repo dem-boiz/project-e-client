@@ -21,7 +21,7 @@ import EventVendorView from './EventVendorsView/EventVendorsView';
 type TransitioningComponent = 'EditView' | 'GuestView' | 'VendorView'
 
 interface EventTileExpandedProps {
-  event: Event | null;
+  event: Event;
   open: boolean;
   onClose: () => void;
   onEventChanged?: (change: 'DELETE' | 'UPDATE', event: Event) => void;
@@ -63,7 +63,7 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
         await updateEvent(event.id, data as unknown as UpdateEventRequest);
         toast.success('Event updated successfully');
         if (onEventChanged) {
-          event.date_time = data.datetime; // Update the event date_time
+          event.date_time = data.date_time; // Update the event date_time
           event.name = data.name;
           event.description = data.description;
           event.location = data.location;

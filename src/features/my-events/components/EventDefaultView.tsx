@@ -33,7 +33,7 @@ interface EventDefaultViewProps {
   onVendorsClick?: (vendor: Vendor) => void;
 }
 
-export interface Vendor { 
+export interface Vendor {
   id: string,
   name: string;
   vendor_description: string;

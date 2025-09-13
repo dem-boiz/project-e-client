@@ -5,31 +5,18 @@
     Stack,
     TextField,
     Button,
-    Tooltip,
-    IconButton,
     Typography,
-    List,
-    ListItem,
-    ListItemAvatar,
-    Avatar,
-    ListItemText,
     Alert,
     Divider,
     InputAdornment,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    Badge,
+
   } from '@mui/material';
-  import DeleteIcon from '@mui/icons-material/Delete';
   import EmailIcon from '@mui/icons-material/Email';
-  import PersonIcon from '@mui/icons-material/Person';
-  import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
   import { EventApiService } from '../../../../service/api/api.service';
   import { toast } from 'react-toastify';
   import ShareableLinkAccordion from './ShareableLinkAccordian';
-import PendingInvitesAccordion from './PendingInvitesAccordian';
-
+  import PendingInvitesAccordion from './PendingInvitesAccordian';
+  import ParticipantsAccordion from './ParticipantsAccordian';
 
   // No longer needed as we use inline mock data in useEffect
 
@@ -40,12 +27,20 @@ import PendingInvitesAccordion from './PendingInvitesAccordian';
     return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
   };
 
-  export interface Guest {
+  export interface Invite {
     id: string;
     email?: string;
     label?: string;
     status?: 'accepted' | 'pending';
   }
+
+   export interface Guest {
+    id: string;
+    name: string;
+    email?: string;
+    type: string;
+  }
+
 
   const EventGuestsView: React.FC<{ eventId: string }> = ({ eventId }) => {
     const [currentGuests, setCurrentGuests] = useState<Guest[]>([]);
@@ -56,8 +51,9 @@ import PendingInvitesAccordion from './PendingInvitesAccordian';
     const [sendInviteLoading, setSendInviteLoading] = useState(false);
     const [expandedAccordion, setExpandedAccordion] = useState<string | false>('');
     const [loadingRevoke, setLoadingRevoke] = useState<string | null>(null);
-    const [pendingInvites, setPendingInvites] = useState<Guest[]>([]);
+    const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
     const [loadingPendingInvites, setLoadingPendingInvites] = useState(false);
+    const [loadingCurrentGuests, setLoadingCurrentGuests] = useState(false);
 
     const getPendingInvites = React.useCallback(async () => {
         try {
@@ -71,46 +67,70 @@ import PendingInvitesAccordion from './PendingInvitesAccordian';
     }, [eventId]);
 
 
+    const getCurrentGuests = React.useCallback(async () => {
+        try {
+            console.log('Fetching current guests for event:', eventId);
+            setLoadingCurrentGuests(true);
+            const guests = await EventApiService.getCurrentGuests(eventId);
+            setCurrentGuests(guests);
+        } catch (error) {
+            console.error('Error fetching current guests:', error);
+        } finally {
+            setLoadingCurrentGuests(false);
+        }
+    }, [eventId]);
+
     const handleRevokePendingInvite = async (id: string) => {
         // Set the loading state for this specific invite button
         setLoadingRevoke(id);
         
         try {
-        // Add a small delay to simulate API call
-        await EventApiService.revokePendingInvite(eventId, id);
-        setPendingInvites((prev) => prev.filter((g) => g.id !== id));
+            // Add a small delay to simulate API call
+            await EventApiService.revokePendingInvite(eventId, id);
+            setPendingInvites((prev) => prev.filter((g) => g.id !== id));
         } catch (error) {
-        toast.error('Failed to revoke pending invite.');
-        console.error(error);
+            toast.error('Failed to revoke pending invite.');
+            console.error(error);
         } finally {
-        // Clear the loading state when done
-        setLoadingRevoke(null);
+            // Clear the loading state when done
+            setLoadingRevoke(null);
+        }
+    };
+
+
+    const handleRevokeAccess = async (id: string) => {
+        // Set the loading state for this specific invite button
+        setLoadingRevoke(id);
+        try {
+            // Add a small delay to simulate API call
+            await EventApiService.revokeAccess(eventId, id);
+            setCurrentGuests((prev) => prev.filter((g) => g.id !== id));
+        } catch (error) {
+            toast.error('Failed to revoke guest access.');
+            console.error(error);
+        } finally {
+            // Clear the loading state when done
+            setLoadingRevoke(null);
         }
     };
 
 
     React.useEffect(() => {
-      // Define functions inside useEffect to avoid dependency issues
-      const getCurrentGuests = async () => {
-        try {
-          //const guests = await EventApiService.getCurrentGuests(eventId);
-          setCurrentGuests([]);
-        } catch (error) {
-          console.error('Error fetching current guests:', error);
-        }
-      };
-
-      // Call the functions to fetch data
       getCurrentGuests();
+    }, [getCurrentGuests]);
+
+    React.useEffect(() => {
       getPendingInvites();
-    }, [eventId, getPendingInvites]);
+    }, [getPendingInvites]);
+
+
 
     const handleAccordionChange = (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
       setExpandedAccordion(isExpanded ? panel : false);
     };
 
 
-    const handleEmailInvite = async () => {
+    const handleSendEmailInvite = async () => {
       setError('');
       setSuccess('');
       if (email && !validateEmail(email)) {
@@ -140,16 +160,11 @@ import PendingInvitesAccordion from './PendingInvitesAccordian';
         }
     };
 
-
-
-
-
     const handleNewLinkCreated = () => {
       setLoadingPendingInvites(true);
       getPendingInvites();
     }
 
-  
 
     return (
       <Box
@@ -196,7 +211,7 @@ import PendingInvitesAccordion from './PendingInvitesAccordian';
               
               variant="contained"
               color="primary"
-              onClick={handleEmailInvite}
+              onClick={handleSendEmailInvite}
               loading={sendInviteLoading}
               sx={{ alignSelf: 'flex-end', minWidth: 120, height: '48px' }}
             >
@@ -226,62 +241,18 @@ import PendingInvitesAccordion from './PendingInvitesAccordian';
         />
 
         {/* Current Guests Accordion */}
-        <Accordion 
-          expanded={expandedAccordion === 'currentGuests'} 
-          onChange={handleAccordionChange('currentGuests')}
-          sx={{ mb: 2, bgcolor: 'rgba(255, 255, 255, 0.03)' }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="current-guests-content"
-            id="current-guests-header"
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                Current Guests
-              </Typography>
-              <Badge 
-                badgeContent={currentGuests.length} 
-                color="primary"
-                sx={{ mr: 2 }}
-              />
-            </Box>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
-            {currentGuests.length > 0 ? (
-              <List>
-                {currentGuests.map((guest) => (
-                  <ListItem
-                    key={guest.id}
-                    sx={{ py: 1 }}
-                    secondaryAction={
-                      <Tooltip title="Revoke Access">
-                        <IconButton edge="end" color="error" onClick={() => handleRevokePendingInvite(guest.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar>
-                        {guest.email ? <EmailIcon /> : <PersonIcon />}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={guest.label || guest.email || 'Unnamed'}
-                      secondary={guest.email && guest.label ? guest.email : guest.email || guest.label}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Typography sx={{ p: 2, color: 'text.secondary' }}>
-                No guests have accepted invites yet.
-              </Typography>
-            )}
-          </AccordionDetails>
-        </Accordion>
+
+        <ParticipantsAccordion
+          type="guests"
+          loadingParticipants={loadingCurrentGuests}
+          handleRevokeAccess={handleRevokeAccess}
+          expandedAccordion={expandedAccordion}
+          handleAccordionChange={handleAccordionChange}
+          participants={currentGuests}
+          loadingRevoke={loadingRevoke}
+        /> 
         
+
 
       </Box>
 

@@ -175,12 +175,14 @@ const MyEventsPage: React.FC = () => {
       {/* Expanded Event Modal */}
 
 
+    {selectedEvent && (
       <EventTileExpanded
         event={selectedEvent}
         open={expandedOpen}
         onClose={handleCloseExpanded}
         onEventChanged={handleEventChanged}
       />
+    )}
     </Box>
   );
 };

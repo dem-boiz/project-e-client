@@ -3,7 +3,6 @@ import type { Event } from '../../types/event';
 import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, VendorImageCreation, VendorImageData } from '../../types/network.types';
 import config from '../../utils/config';
 import { getAuthService } from '../auth/index';
-import type { Vendor } from '../../features/my-events/components/EventVendorsList';
 
 
 
@@ -213,6 +212,21 @@ export const EventApiService = {
     }
   },
 
+
+  async revokeAccess(eventId: string, guestId: string): Promise<void> {
+    try {
+      await apiRequest(`/events/${eventId}/guests/${guestId}`, {
+        method: 'DELETE',
+      }, true, false);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to revoke guest access. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
+
+
   /**
    * Delete an event
    */
@@ -277,13 +291,9 @@ export const EventApiService = {
 
   async getCurrentGuests(eventId: string): Promise<Guest[]> {
     try {
-      const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/events/${eventId}/guests`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+        method: 'GET'
+      }, true, false);
       return response as unknown as Guest[];
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -409,7 +419,11 @@ export const {
   redeemEventInvite,
   getEventVendors,
   addVendorImage,
-  getEventVendorImages
+  getEventVendorImages, 
+  revokeAccess,
+  revokePendingInvite,
+  getCurrentGuests,
+  getPendingInvites
 } = EventApiService;
 
 

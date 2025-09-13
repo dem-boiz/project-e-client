@@ -23,17 +23,16 @@ import dayjs, { Dayjs } from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import DialogTitle from './DialogTitle';
 import EditIcon from '@mui/icons-material/Edit';
+import { EventApiService } from '../../../service/api/api.service';
 
 dayjs.extend(relativeTime);
-
-
 
 // Zod schema matching CreateEventPage structure
 const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().optional(),
   location: z.string().optional(),
-  datetime: z.string()
+  date_time: z.string()
     .min(1, "Date is required")
     .refine((dateString) => {
       const date = new Date(dateString);
@@ -45,7 +44,7 @@ const editEventSchema = z.object({
 export type EditFormData = z.infer<typeof editEventSchema>;
 
 interface EventEditViewProps {
-  event: Event | null;
+  event: Event;
   onClose: () => void;
   onSave: (data: EditFormData) => void;
   onCancelEvent?: () => void;
@@ -53,16 +52,66 @@ interface EventEditViewProps {
 
 const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEvent }) => {
   const [showWarning, setShowWarning] = React.useState(false);
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<EditFormData>({
+  const [loadingUpdate, setLoadingUpdate] = React.useState(false);
+  const [formHasChanges, setFormHasChanges] = React.useState(false);
+  
+
+  
+  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<EditFormData>({
     resolver: zodResolver(editEventSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      location: '',
-      datetime: '',
-      capacity: 100,
+      name: event.name || '',
+      description: event.description || '',
+      location: event.location || '',
+      date_time: event.date_time || '',
+      capacity: event.capacity || 100,
     },
   });
+  
+  // Watch all form fields to detect changes
+  const watchedFields = watch();
+  
+  // Check if form values have changed from original values
+  React.useEffect(() => {
+    
+    console.log('Event in useEffect:', event);
+    console.log('Watched fields:', watchedFields);
+
+
+    // TODO: Add capacity to backend?
+    const hasChanged = 
+      watchedFields.name?.toUpperCase() !== event.name?.toUpperCase() ||
+      watchedFields.description?.toUpperCase() !== event.description?.toUpperCase() ||
+      watchedFields.location?.toUpperCase() !== event.location?.toUpperCase() ||
+      new Date(watchedFields.date_time).getTime() !== new Date(event.date_time).getTime()
+      //watchedFields.capacity !== event.capacity;
+
+    
+      
+    setFormHasChanges(hasChanged);
+  }, [watchedFields, event]);
+
+
+  const handleSubmitForm = async (formData: EditFormData) => {
+    setLoadingUpdate(true);
+    try {
+      await EventApiService.updateEvent(event!.id, {
+        id: event!.id,
+        name: formData.name,
+        description: formData.description,
+        location: formData.location,
+        date_time: formData.date_time,
+      });
+      
+      // Call the onSave callback from parent component
+      onSave(formData);
+    } catch (error) {
+      console.error('Error saving changes:', error);
+    } finally {
+      setLoadingUpdate(false);
+    }
+  }
+
 
 
   const handleCancelEvent = () => {
@@ -76,7 +125,7 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
         name: event?.name,
         description: event?.description || '',
         location: event?.location || '',
-        datetime: event?.date_time,
+        date_time: event?.date_time,
         capacity: event?.capacity || 100,
       });
       scrollTo(0, 0);
@@ -124,7 +173,7 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
         <Box
           id="event-edit-form"
           component="form"
-          onSubmit={handleSubmit(onSave)}
+          onSubmit={handleSubmit(handleSubmitForm)}
           sx={{ width: '100%' }}
         >
           <Stack spacing={4}>
@@ -150,7 +199,7 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
             <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
               <Box sx={{ flex: 1 }}>
                 <Controller
-                  name="datetime"
+                  name="date_time"
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
@@ -163,8 +212,8 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          error: !!errors.datetime,
-                          helperText: errors.datetime?.message,
+                          error: !!errors.date_time,
+                          helperText: errors.date_time?.message,
                           sx: {
                             '& .MuiOutlinedInput-root': {
                               backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -244,18 +293,36 @@ const EventEditView: React.FC<EventEditViewProps> = ({ event, onSave, onCancelEv
             />
           </Stack>
         </Box>
-          <Button 
-              variant="contained" 
+          <Box sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              justifyContent: 'center',
+              marginTop: 10 
+            }}>
+            <Button 
+                variant="outlined" 
+                sx={{ 
+                  width: 'fit-content'
+                }} 
+                color="error" 
+                onClick={() => setShowWarning(true)} 
+              >
+                Cancel Event
+            </Button>
+
+            <Button
+              disabled={formHasChanges === false}
+              loading={loadingUpdate}
+              type="submit"
+              form="event-edit-form"
+              variant="contained"
               sx={{ 
-                width: 'fit-content', 
-                alignSelf: 'center',
-                marginTop: 10
-              }} 
-              color="error" 
-              onClick={() => setShowWarning(true)} 
+                width: 'fit-content'
+              }}
             >
-              Cancel Event
-          </Button>
+              {loadingUpdate ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </Box>
       </Box>
 
       {/* Cancel Event Warning Dialog */}
