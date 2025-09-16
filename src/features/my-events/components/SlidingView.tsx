@@ -29,7 +29,6 @@ const SlidingView = ({ onBackClick, children, slideProps, type }: SlidingViewPro
                     height: '100%',
                     position: 'absolute',
                     zIndex: slideProps.in ? 1200 : -1, // Ensure it appears above other content when sliding in
-                    backgroundColor: 'background.default',
                 }}
             >
                 {onBackClick && (
