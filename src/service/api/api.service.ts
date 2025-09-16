@@ -213,9 +213,9 @@ export const EventApiService = {
   },
 
 
-  async revokeAccess(eventId: string, guestId: string): Promise<void> {
+  async revokeAccess(eventId: string, guestId: string, type: string): Promise<void> {
     try {
-      await apiRequest(`/events/${eventId}/guests/${guestId}`, {
+      await apiRequest(`/events/${eventId}/guests/${guestId}?type=${type}`, {
         method: 'DELETE',
       }, true, false);
     } catch (error) {
@@ -289,7 +289,7 @@ export const EventApiService = {
     }
   },
 
-  async getCurrentGuests(eventId: string): Promise<Guest[]> {
+  async getEventGuests(eventId: string): Promise<Guest[]> {
     try {
       const response = await apiRequest(`/events/${eventId}/guests`, {
         method: 'GET'
@@ -404,7 +404,25 @@ export const EventApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
-  } 
+  },
+  
+  async leaveEvent(eventId: string): Promise<void> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      await apiRequest(`/events/${eventId}/leave`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }, false, true);
+    }
+    catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to leave event. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  }
 }
 // Export individual functions for convenience
 export const {
@@ -422,8 +440,9 @@ export const {
   getEventVendorImages, 
   revokeAccess,
   revokePendingInvite,
-  getCurrentGuests,
-  getPendingInvites
+  getEventGuests,
+  getPendingInvites,
+  leaveEvent
 } = EventApiService;
 
 
