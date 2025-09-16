@@ -331,7 +331,8 @@ const NavigationDrawer: React.FC = () => {
             height: '100vh',
             zIndex: 1200,
             width: 75,
-            paddingTop: '15px'
+            paddingTop: '15px',
+            backgroundColor: 'background.paper',
           }}
         >
 
@@ -350,8 +351,16 @@ const NavigationDrawer: React.FC = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Divider />
-            <List sx={{ width: '100%', padding: '0px 0px', marginTop: '22px'}}>
+              <Divider sx={{ width: '80%', margin: '10px 0' }} />
+            <List sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              width: '100%', 
+              padding: '0px 0px', 
+              height: '100%',
+            }}>
               {navigationItems.map((item) => {
                 const isActive = location.pathname === item.route;
                 const isDisabled = item.enabled === false;
@@ -409,8 +418,50 @@ const NavigationDrawer: React.FC = () => {
                   </ListItem>
                 );
               })}
+              
+              <Divider sx={{ width: '80%', margin: '10px 0' }} />
+
+              <ListItem sx={{ marginTop: 'auto', marginBottom: '15px' }} disablePadding>
+                
+                <ListItemButton
+                  onClick={handleSignOut}
+                  sx={{
+                    padding: '16px 0px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    borderRadius: '8px',
+                    backgroundColor: 'transparent',
+                    color: 'text.primary',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    }
+                  }}
+                  >
+                   <ListItemIcon
+                    sx={{
+                      minWidth: '24px',
+                      marginRight: 0,
+                      padding: 0,
+                      color: 'inherit',
+                      alignSelf: 'center', 
+                    }}
+                  >
+                    {isAuthenticated ? <LogoutIcon /> : <LoginIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={isAuthenticated ? 'Sign Out' : 'Sign In'}
+                    sx={{
+                      '& .MuiTypography-root': {
+                        fontSize: '10px',
+                        fontWeight: 400, 
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
             </List>
-        </Box>
+          </Box>
 
       )}
 
