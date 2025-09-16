@@ -71,7 +71,7 @@
         try {
             console.log('Fetching current guests for event:', eventId);
             setLoadingCurrentGuests(true);
-            const guests = await EventApiService.getCurrentGuests(eventId);
+            const guests = await EventApiService.getEventGuests(eventId);
             setCurrentGuests(guests);
         } catch (error) {
             console.error('Error fetching current guests:', error);
@@ -98,12 +98,12 @@
     };
 
 
-    const handleRevokeAccess = async (id: string) => {
+    const handleRevokeAccess = async (id: string, type: string) => {
         // Set the loading state for this specific invite button
         setLoadingRevoke(id);
         try {
             // Add a small delay to simulate API call
-            await EventApiService.revokeAccess(eventId, id);
+            await EventApiService.revokeAccess(eventId, id, type);
             setCurrentGuests((prev) => prev.filter((g) => g.id !== id));
         } catch (error) {
             toast.error('Failed to revoke guest access.');

@@ -140,15 +140,12 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
             margin: '0px 0px 0px 0px',
             marginX: { xs: 0, sm: 5 },
             borderRadius: { xs: 0, sm: 2 },
-            backgroundColor: '#121212',
-            backgroundImage: 'none'
         },
         '& .MuiDialog-paper': {
           borderRadius: 2,
           height: '90vh',
           maxHeight: '90vh',
-        },
-        backgroundColor: 'background.default',
+        }
       }}
       >
   
