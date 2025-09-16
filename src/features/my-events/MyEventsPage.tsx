@@ -68,7 +68,6 @@ const MyEventsPage: React.FC = () => {
     <Box
       sx={{
         height: '100vh', // Fixed height instead of minHeight
-        backgroundColor: 'background.default',
         overflowY: 'auto', // Enable vertical scrolling
         padding: { xs: 2, sm: 3 },
         paddingTop: { xs: 10, sm: 12 }, // Extra top padding to account for hamburger menu
