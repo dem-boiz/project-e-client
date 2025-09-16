@@ -85,21 +85,21 @@ const CreateEventForm: React.FC = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box
         sx={{
-          height: '100vh',
+          height: 'fit-content',
           scrollbarGutter: 'stable', // Fixes shifting from scrollbar appearence... only works on modern browsers.
           backgroundColor: 'background.default',
           position: 'relative',
           display: 'flex',
           justifyContent: 'center',
           padding: { xs: 1, sm: 1, md: 2, lg: 2 },
-          overflow: 'auto',
+          overflow: 'none',
         }}
       >
         <Container 
           maxWidth="sm" 
           sx={{ 
             padding: { xs: 1, sm: 1, md: 2, lg: 2 },
-            marginTop: { xs: 10, sm: 12, md: 20, lg: 20 },
+            marginTop: { xs: 10, sm: 15, md: 10, lg: 10 },
             height: 'fit-content',
             marginBottom: '100px'
           }}
@@ -167,6 +167,25 @@ const CreateEventForm: React.FC = () => {
                         },
                       }}
                     />
+
+                    {/* Location */}
+                    <TextField
+                      required
+                      fullWidth
+                      label="Location"
+                      variant="outlined"
+                      placeholder="Enter event location"
+                      {...register("location")}
+                      error={!!errors.location}
+                      helperText={errors.location?.message}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        },
+                      }}
+                    />
+
+
                     {/* Event Date */}
                     <Controller
                       name="date_time"
@@ -195,50 +214,7 @@ const CreateEventForm: React.FC = () => {
                         />
                       )}
                     />
-                    {/* Location */}
-                    <TextField
-                      required
-                      fullWidth
-                      label="Location"
-                      variant="outlined"
-                      placeholder="Enter event location"
-                      {...register("location")}
-                      error={!!errors.location}
-                      helperText={errors.location?.message}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        },
-                      }}
-                    />
 
-                    {/* Max Attendees (only for private events) */}
-                    <Controller
-                      name="capacity"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                        
-                          fullWidth
-                          label="Max Attendees"
-                          type="number"
-                          variant="outlined"
-                          placeholder="100"
-                          {...field}
-                          onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                          error={!!errors.capacity}
-                          helperText={errors.capacity?.message || "Min: 1, Max: 10,000"}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                            },
-                            '& .Mui-disabled': {
-                              opacity: 0.6,
-                            },
-                          }}
-                        />
-                      )}
-                    />
                   </Stack>
                   {/* Submit Button */}
                   <Button
