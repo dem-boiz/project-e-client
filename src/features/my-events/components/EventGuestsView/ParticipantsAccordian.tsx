@@ -28,7 +28,7 @@ export interface ParticipantsAccordionProps {
   participants: Guest[] | Vendor[];
   loadingParticipants: boolean;
   loadingRevoke: string | null;
-  handleRevokeAccess: (id: string) => Promise<void>;
+  handleRevokeAccess: (id: string, type: string) => Promise<void>;
 }
 
     const ParticipantsAccordion: React.FC<ParticipantsAccordionProps> = ({
@@ -50,6 +50,13 @@ export interface ParticipantsAccordionProps {
             return participant.email;
         } else return 'No Email Provided';
     }
+
+    const handleDeleteButtonClick = async (participant: Guest | Vendor) => {
+        const guestType = 'type' in participant ? participant.type : 'user';
+        console.log('guest type:', guestType);
+        await handleRevokeAccess(participant.id, guestType);
+    }
+
 
     return (
         <Accordion 
@@ -86,7 +93,7 @@ export interface ParticipantsAccordionProps {
                           <IconButton 
                             edge="end" 
                             color="error" 
-                            onClick={() => handleRevokeAccess(participant.id)}
+                            onClick={() => handleDeleteButtonClick(participant)}
                             loading={loadingRevoke === participant.id}
                           >
                             {loadingRevoke === participant.id ? (
