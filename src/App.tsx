@@ -23,14 +23,13 @@ const darkTheme = createTheme({
     },
     background: {
       default: '#121212',
-      paper: '#0a0a0a',
+      paper: '#1E1E1E',
     },
     text: {
       primary: '#ffffff',
       secondary: '#b3b3b3',
     },
-
-    divider: '#161616',
+    divider: '#373737',
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
