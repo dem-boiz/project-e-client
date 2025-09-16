@@ -4,10 +4,6 @@ import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperSlideProps } from 'swiper/react';
 import type { SwiperOptions } from 'swiper/types';
 
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/scrollbar';
 
 import mrKirk from '../../../mr-kirk.jpg';
 
@@ -22,7 +18,7 @@ interface ImageSliderProps {
 }
 
 const ImageSlider: React.FC<ImageSliderProps> = ({ 
-    images, loading, error, SwiperOptions, SwiperSlideOptions, onSlideClick 
+    images, SwiperOptions, SwiperSlideOptions, onSlideClick 
 }) => {
 
     
@@ -40,7 +36,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
                 style={{ width: "100%", height: 400 }}
                 {...SwiperOptions}
             >
-                {(images ?? []).map((url, index) => (
+                {(images ?? []).map((_url, index) => (
                 <SwiperSlide key={index} {...SwiperSlideOptions}>
                     <CardMedia
                         onClick={() => onSlideClick?.(index)}
