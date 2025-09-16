@@ -29,7 +29,7 @@ export default function RootLayout() {
           width: !isMobile && isDrawerOpen ? `calc(100% - ${drawerWidth}px)` : '100%',
           minHeight: '100vh',
           overflow: 'auto',
-          marginLeft: !isMobile && isDrawerOpen ? `${drawerWidth}px` : 0,
+          marginLeft: !isMobile && isDrawerOpen ? `${drawerWidth}px` : isMobile ? 0 : '25px',
           paddingTop: theme.spacing(2),
           paddingLeft: theme.spacing(2),
           paddingRight: theme.spacing(2),
