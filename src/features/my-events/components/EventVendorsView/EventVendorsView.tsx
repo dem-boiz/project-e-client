@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Typography, Paper, Divider, Chip } from '@mui/material';
 import type { Vendor } from '../EventDefaultView';
 import ImageSlider from '../../../components/ImageSlider';
@@ -8,7 +8,7 @@ interface EventVendorsViewProps {
     selectedVendor: Vendor | null;
 }
 
-const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVendor }) => {
+const EventVendorsView: React.FC<EventVendorsViewProps> = ({ selectedVendor }) => {
   
   // Handle case when no vendor is selected
   if (!selectedVendor) {
