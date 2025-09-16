@@ -1,3 +1,4 @@
+import type { Vendor } from '../../features/my-events/components/EventDefaultView';
 import type { Guest } from '../../features/my-events/components/EventGuestsView/EventGuestsView';
 import type { Event } from '../../types/event';
 import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, VendorImageCreation, VendorImageData } from '../../types/network.types';

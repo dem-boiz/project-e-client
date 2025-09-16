@@ -22,7 +22,8 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useAuth } from '../../../hooks/useAuth';
 import PeopleIcon from '@mui/icons-material/People';
 import ImageSlider from '../../components/ImageSlider';
-import { getEventVendors, getEventVendorImages } from '../../../service/api/api.service';
+import { getEventVendors, getEventVendorImages, leaveEvent } from '../../../service/api/api.service';
+import { toast } from 'react-toastify';
 
 dayjs.extend(relativeTime);
 
@@ -45,6 +46,7 @@ export interface Vendor {
 const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick, onGuestsClick, onVendorsClick }) => {
   const { user } = useAuth();
   const [loadingVendors, setLoadingVendors] = React.useState(false);
+  const [loadingLeave, setLoadingLeave] = React.useState(false);
   const [vendorError, setVendorError] = React.useState<string>();
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
 
@@ -160,6 +162,24 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
   }
 
 
+  async function handleLeaveEvent(id: string) {
+    try {
+      // Call API to leave event
+      setLoadingLeave(true);
+      await leaveEvent(id);
+      toast.success('Successfully left the event');
+      // Optionally refresh event list or navigate away
+
+    } catch (error: Error | unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to leave event. ${errorMessage}`);
+    } finally {
+      setLoadingLeave(false);
+    }
+  }
+
+
+
   return (
     <Box sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
           <Box
@@ -169,7 +189,6 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
               borderColor: 'divider',
               position: 'relative',
               paddingY: 1,
-              backgroundColor: 'background.default',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'flex-start', marginBottom: 0, paddingRight: 6 }}>
@@ -196,7 +215,7 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                     height: 450,
                     borderRadius: 2,
                     overflow: 'hidden',
-                    backgroundColor: 'grey.50',
+                    backgroundColor: '#121212a8',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -328,10 +347,12 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
 
 
                   {/* Leaving an event button */}
-                  {isHost && (
+                  {!isHost && (
                     <Button
+                      loading={loadingLeave}
                       variant="contained"
                       startIcon={<ExitToAppIcon />}
+                      onClick={() => handleLeaveEvent(event.id)}
                       sx={{
                         textTransform: 'none',
                         backgroundColor: 'primary.main',
@@ -384,6 +405,11 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                 loading={loadingVendors} 
                 error={vendorError}
                 onSlideClick={handleVendorClick}
+                SwiperOptions={{
+                  slidesPerView: 1.25,
+                  spaceBetween: 10,
+          
+                }}
                 />
 
             </Stack>

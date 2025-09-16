@@ -67,8 +67,8 @@ const MyEventsPage: React.FC = () => {
   return (
     <Box
       sx={{
-        height: '100vh', // Fixed height instead of minHeight
-        overflowY: 'auto', // Enable vertical scrolling
+        height: 'fit-conent', // Fixed height instead of minHeight
+        overflowY: 'none', // Enable vertical scrolling
         padding: { xs: 2, sm: 3 },
         paddingTop: { xs: 10, sm: 12 }, // Extra top padding to account for hamburger menu
         paddingBottom: 0, // Remove bottom padding from here
@@ -115,9 +115,10 @@ const MyEventsPage: React.FC = () => {
               display: 'grid',
               gridTemplateColumns: {
                 xs: 'repeat(1, 1fr)', // 1 column on mobile
-                sm: 'repeat(2, 1fr)', // 1 column on small screens
-                md: 'repeat(2, 1fr)', // 2 columns on medium screens
-                lg: 'repeat(4, 1fr)', // 4 columns on large screens
+                sm: 'repeat(2, 1fr)', // 2 columns on small screens
+                md: 'repeat(2, 1fr)', // 3 columns on medium screens
+                lg: 'repeat(3, 1fr)', // 4 columns on large screens
+                xl: 'repeat(4, 1fr)', // 4 columns on large screens
               },
               gap: 3,
             }}

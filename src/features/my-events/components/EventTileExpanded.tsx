@@ -33,8 +33,8 @@ const EventTileExpanded: React.FC<EventTileExpandedProps> = ({ event, open, onCl
   const [ guestViewOpen, setGuestViewOpen ] = React.useState(false);
   const [ vendorViewOpen, setVendorViewOpen ] = React.useState(false);
   const [ transitioningComponent, setTransitioningComponent ] = React.useState<TransitioningComponent | null>(null);
-  const [ selectedVendor, setSelectedVendor ] = React.useState<any | null>(null); // Replace 'any' with actual vendor type
-  
+  const [ selectedVendor, setSelectedVendor ] = React.useState<Vendor | null>(null);
+
 
 
   const onCancelEvent = async () => {

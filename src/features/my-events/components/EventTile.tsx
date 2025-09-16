@@ -31,6 +31,7 @@ const EventTile: React.FC<EventTileProps> = ({ event, onClick }) => {
       elevation={2}
       onClick={onClick}
       sx={{
+        minWidth: 250,
         height: '375px',
         cursor: 'pointer',
         backgroundColor: 'background.paper',
