@@ -4,7 +4,7 @@ const DialogTitle = ({ title }: { title: string }) => (
   <Typography
     variant="h4"
 
-              >
+      >
                 {title}
     </Typography>
 )
