@@ -21,6 +21,9 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
     images, SwiperOptions, SwiperSlideOptions, onSlideClick 
 }) => {
 
+    console.log('Rendering ImageSlider with images:', images);
+        
+
     return (
         <Container sx={{
             backgroundColor: 'red',

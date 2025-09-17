@@ -6,13 +6,14 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 import type { VendorImageCreation, VendorInformationUpdate } from '../../../../types/network.types';
-import { addVendorImage, updateVendorDescription } from '../../../../service/api/api.service';
+import { addVendorImage, EventApiService, updateVendorDescription } from '../../../../service/api/api.service';
 interface EventVendorsViewProps {
     eventId: string;
     selectedVendor: Vendor | null;
 }
 
 const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVendor }) => {
+    const userId = useAuth().getUserId();
     // Edit mode state
     const [editMode, setEditMode] = useState(false);
     
@@ -20,13 +21,90 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
     const [editedDescription, setEditedDescription] = useState('');
     
     // Image upload state
+    const [vendorImages, setVendorImages] = useState<string[]>([]);
     const [uploadedImages, setUploadedImages] = useState<{[key: string]: string}>({});
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadLoading, setUploadLoading] = useState(false); 
     const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+    // const isOwnVendorProfile = userId === selectedVendor?.created_by_user_id;
     
+    const fetchAllVendorImages = React.useCallback(async () => {
+        if (!eventId) return;
+        try {
+          const response = await EventApiService.getEventVendorImages(selectedVendor?.id || '');
+          let imageUrls = response.map(img => img.image_data);
+          console.log('Fetched vendor images: ', imageUrls);
+            if (imageUrls.length > 0) {
+              imageUrls = imageUrls.map((img) => {
+                try {
+                  const url = base64ToObjectUrl(img);
+                  return url;
+                } catch (error: Error | unknown) {
+                  console.log('error in base64ToObjectUrl: ', error);
+                  return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNzUgMTUwSDIyNVYyNTBIMTc1VjE1MFoiIGZpbGw9IiNEREREREQiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxNyAyOCAyMCAyOFoiIGZpbGw9IiNEREREREQiLz4KPC9zdmc+Cg==';
+                }
+              });
+            } else {
+              imageUrls = ["/path/to/placeholder-image.png"];
+            }
+
+
+          console.log('setting vendor images: ', imageUrls);
+          setVendorImages(imageUrls);
+            // Fetch images for all vendors associated with the event
+        } catch (error) {
+
+                console.error('Error fetching vendor images:', error);  
+        }
+    } , [eventId, selectedVendor?.id, vendorImages]);
+
+    
+  // Convert base64 image string to Blob to Object URL for more efficient rendering
+  function base64ToObjectUrl(base64: string, contentType = "image/png"): string {
+    try {
+      // Validate base64 string
+      if (!base64 || typeof base64 !== 'string') {
+        console.error('Invalid base64 string provided:', base64);
+        throw new Error('Invalid base64 string');
+      }
+      
+      // Remove any whitespace and validate base64 format
+      const cleanBase64 = base64.trim();
+      if (cleanBase64.length === 0) {
+        console.error('Empty base64 string provided');
+        throw new Error('Empty base64 string');
+      }
+      
+      const byteCharacters = atob(cleanBase64);
+      const byteArrays = [];
+      for (let i = 0; i < byteCharacters.length; i += 512) {
+        const slice = byteCharacters.slice(i, i + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let j = 0; j < slice.length; j++) {
+          byteNumbers[j] = slice.charCodeAt(j);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+      }
+      const blob = new Blob(byteArrays, { type: contentType });
+      const objectUrl = URL.createObjectURL(blob);
+      console.log('Successfully created object URL from base64');
+      return objectUrl;
+    } catch (error) {
+      console.error('Error converting base64 to object URL:', error);
+      // Return a placeholder SVG data URL
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNzUgMTUwSDIyNVYyNTBIMTc1VjE1MFoiIGZpbGw9IiNEREREREQiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxNyAyOCAyMCAyOFoiIGZpbGw9IiNEREREREQiLz4KPC9zdmc+Cg==';
+    }
+  }
+
+
+   useEffect(() => {
+        fetchAllVendorImages();
+    }, [eventId, selectedVendor]);
+
+
     // Initialize edited description when selectedVendor changes
     useEffect(() => {
         if (selectedVendor?.vendor_description) {
@@ -136,7 +214,7 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
             image_data: base64
           };
           await addVendorImage(vendorImageData);
-  
+          setVendorImages(prev => [...prev, objectUrl]);
           setUploadSuccess(true);
         }
   
@@ -264,7 +342,7 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
                 minHeight: '1.5rem', // Ensure some height even if empty
               }}
             >
-              {selectedVendor.vendor_description || 'No description available'}
+              {editedDescription || 'No description available'}
             </Typography>
           )}
         </Box>
@@ -320,7 +398,7 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
             paddingTop: 3
           }}
         >
-          <ImageSlider images={selectedVendor.imageUrls || []} />
+          <ImageSlider images={vendorImages} />
           {/* Image Count Info */}
           
           {selectedVendor.imageUrls && selectedVendor.imageUrls.length > 0 && (
@@ -337,8 +415,8 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
               >
                 📸 
                 <span>
-                  {selectedVendor.imageUrls.length} 
-                  {selectedVendor.imageUrls.length === 1 ? ' image' : ' images'} available
+                  {vendorImages.length} 
+                  {vendorImages.length === 1 ? ' image' : ' images'} available
                 </span>
               </Typography>
             </Box>

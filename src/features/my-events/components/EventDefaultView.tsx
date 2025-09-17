@@ -50,8 +50,6 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
   const [vendorError, setVendorError] = React.useState<string>();
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
 
-    
-
   const isHost = event.host_id === user?.id;
   const status = new Date(event.date_time) < new Date() ? 'past' : 'upcoming'; // Update status based on date
 
@@ -116,6 +114,9 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
     fetchVendors();
   }
 }, [event]);
+
+
+
 
 
   const handleVendorClick = (index: number) => {
