@@ -123,16 +123,6 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
     console.log('Clicked vendor:', vendor);
     onVendorsClick?.(vendor);
   }
-  
-  const handleVendorUpdate = (updatedVendor: Partial<Vendor>) => {
-    // Update your vendors state here
-    setVendors(prev => prev.map(vendor => 
-        vendor.id === updatedVendor.id 
-            ? { ...vendor, ...updatedVendor }
-            : vendor
-    ));
-};
-
 
   // Convert base64 image string to Blob to Object URL for more efficient rendering
   function base64ToObjectUrl(base64: string, contentType = "image/png"): string {

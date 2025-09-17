@@ -10,14 +10,9 @@ import { addVendorImage, updateVendorDescription } from '../../../../service/api
 interface EventVendorsViewProps {
     eventId: string;
     selectedVendor: Vendor | null;
-    onVendorUpdate?: (updatedVendor: Partial<Vendor>) => void; // Callback prop
 }
 
-const EventVendorsView: React.FC<EventVendorsViewProps> = 
-  ({ eventId, 
-    selectedVendor,
-    onVendorUpdate
- }) => {
+const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVendor }) => {
     // Edit mode state
     const [editMode, setEditMode] = useState(false);
     
@@ -63,21 +58,17 @@ const EventVendorsView: React.FC<EventVendorsViewProps> =
             const new_desc: VendorInformationUpdate = {
                 event_vendor_id: selectedVendor?.id || '',
                 description: editedDescription
-            }; 
+            };
+            console.log('Vendor description saved successfully: ', new_desc);
             await updateVendorDescription(new_desc);
             
-            // Notify parent component of the update
-            if (onVendorUpdate && selectedVendor) {
-                onVendorUpdate({ vendor_description: editedDescription });
-            }
-
             console.log('Vendor description saved successfully: ', new_desc);
         } catch (error) {
             console.error('Error saving vendor description:', error);
             // Handle error (show toast notification, etc.)
         }
-    };  
-    
+    };
+
     // Handle description text change
     const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setEditedDescription(event.target.value);
