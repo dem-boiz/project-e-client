@@ -26,6 +26,7 @@ import type { VendorImageCreation } from '../../../types/network.types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';  
 import ImageSlider from '../../components/ImageSlider';
+import type { Vendor } from './EventDefaultView';
  
 
 

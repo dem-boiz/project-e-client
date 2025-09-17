@@ -69,6 +69,11 @@ export interface VendorImageCreation {
     image_data: string
 }
 
+export interface VendorInformationUpdate {
+    event_vendor_id: string,
+    description: string
+}
+
 export interface VendorImageData {
     event_vendor_id: string, 
     image_data: string, 

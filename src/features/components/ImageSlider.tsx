@@ -45,7 +45,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
                     <CardMedia
                         onClick={() => onSlideClick?.(index)}
                         component="img"
-                        image={mrKirk}
+                        image={images[index] || mrKirk}
                         alt={`Image ${index + 1}`}
                         sx={{ 
                             width: "100%", 

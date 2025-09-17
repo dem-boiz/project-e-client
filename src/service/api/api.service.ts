@@ -1,9 +1,9 @@
 import type { Guest } from '../../features/my-events/components/EventGuestsView/EventGuestsView';
 import type { Event } from '../../types/event';
-import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, VendorImageCreation, VendorImageData } from '../../types/network.types';
+import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, VendorDescriptionUpdate, VendorImageCreation, VendorImageData } from '../../types/network.types';
 import config from '../../utils/config';
 import { getAuthService } from '../auth/index';
-import type { Vendor } from '../../features/my-events/components/EventVendorsList';
+import type { Vendor } from '../../features/my-events/components/EventDefaultView';
 
 
 
@@ -393,7 +393,27 @@ export const EventApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
-  } 
+  }, 
+
+  async updateVendorDescription(data: VendorDescriptionUpdate): Promise<void> {
+    try {
+      const accessToken = getAuth().getAccessToken();
+      const response = await apiRequest(`/event-vendors/`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),  // Remove the wrapper object
+        headers: {
+          'Content-Type': 'application/json',  // Add content type
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return  response as unknown as void;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to update vendor information. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  }, 
 }
 // Export individual functions for convenience
 export const {
@@ -408,7 +428,8 @@ export const {
   redeemEventInvite,
   getEventVendors,
   addVendorImage,
-  getEventVendorImages
+  getEventVendorImages,
+  updateVendorDescription
 } = EventApiService;
 
 

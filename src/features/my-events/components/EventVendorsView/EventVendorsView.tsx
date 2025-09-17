@@ -1,15 +1,164 @@
-import React, { useEffect } from 'react';
-import { Box, Typography, Paper, Divider, Chip, DialogTitle } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Typography, Paper, Divider, Chip, DialogTitle, Fab, TextField } from '@mui/material';
 import type { Vendor } from '../EventDefaultView';
 import ImageSlider from '../../../components/ImageSlider';
-
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import EditIcon from '@mui/icons-material/Edit';
+import DoneIcon from '@mui/icons-material/Done';
+import type { VendorImageCreation, VendorInformationUpdate } from '../../../../types/network.types';
+import { addVendorImage, updateVendorDescription } from '../../../../service/api/api.service';
 interface EventVendorsViewProps {
     eventId: string;
     selectedVendor: Vendor | null;
+    onVendorUpdate?: (updatedVendor: Partial<Vendor>) => void; // Callback prop
 }
 
-const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVendor }) => {
+const EventVendorsView: React.FC<EventVendorsViewProps> = 
+  ({ eventId, 
+    selectedVendor,
+    onVendorUpdate
+ }) => {
+    // Edit mode state
+    const [editMode, setEditMode] = useState(false);
+    
+    // Vendor description editing state
+    const [editedDescription, setEditedDescription] = useState('');
+    
+    // Image upload state
+    const [uploadedImages, setUploadedImages] = useState<{[key: string]: string}>({});
+    const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadLoading, setUploadLoading] = useState(false); 
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+    
+    // Initialize edited description when selectedVendor changes
+    useEffect(() => {
+        if (selectedVendor?.vendor_description) {
+            setEditedDescription(selectedVendor.vendor_description);
+        } else {
+            setEditedDescription('');
+        }
+    }, [selectedVendor]);
+    
+    // Toggle edit mode
+    const handleEditToggle = () => {
+        if (editMode) {
+            // Exiting edit mode - save changes
+            handleSaveChanges();
+        }
+        setEditMode(!editMode);
+    };
+
+    // Placeholder function for saving changes
+    const handleSaveChanges = async () => {
+        try {
+            // TODO: Implement API call to save vendor description
+            console.log('Saving vendor description:', {
+                vendorId: selectedVendor?.id,
+                description: editedDescription
+            });
+            
+            // API Call to update vendor description
+            const new_desc: VendorInformationUpdate = {
+                event_vendor_id: selectedVendor?.id || '',
+                description: editedDescription
+            }; 
+            await updateVendorDescription(new_desc);
+            
+            // Notify parent component of the update
+            if (onVendorUpdate && selectedVendor) {
+                onVendorUpdate({ vendor_description: editedDescription });
+            }
+
+            console.log('Vendor description saved successfully: ', new_desc);
+        } catch (error) {
+            console.error('Error saving vendor description:', error);
+            // Handle error (show toast notification, etc.)
+        }
+    };  
+    
+    // Handle description text change
+    const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setEditedDescription(event.target.value);
+    };
+
+    // Convert file to base64
+    const fileToBase64 = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            // Remove the data URL prefix to get just the base64 string
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+          } else {
+            reject(new Error('Failed to convert file to base64'));
+          }
+        };
+        reader.onerror = (error) => reject(error);
+      });
+    };
+    
+   // Trigger file input
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
   
+  // Handle file upload
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+  
+      try {
+        setUploadError(null);
+        const file = files[0];
+  
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          setUploadError('Please select a valid image file');
+          return;
+        }
+  
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          setUploadError('Image size must be less than 5MB');
+          return;
+        }
+  
+        // Convert to base64 and create object URL
+        const base64 = await fileToBase64(file);
+        const objectUrl = URL.createObjectURL(file);
+  
+        // For demo purposes, associate with the current vendor or create a new one
+        const currentVendor = selectedVendor;
+        if (currentVendor) {
+          setUploadedImages(prev => ({
+            ...prev,
+            [currentVendor.id]: objectUrl
+          }));
+  
+          // Update the vendor's image in the API (you would implement this)
+          const vendorImageData: VendorImageCreation = {
+            event_vendor_id: currentVendor.id,
+            image_data: base64
+          };
+          await addVendorImage(vendorImageData);
+  
+          setUploadSuccess(true);
+        }
+  
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } catch (err) {
+        console.error('Error uploading image:', err);
+        setUploadError('Failed to upload image. Please try again.');
+      }
+    };
+
   // Handle case when no vendor is selected
   if (!selectedVendor) {
     return (
@@ -74,7 +223,8 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
                   fontSize: { xs: '1.5rem', sm: '2rem', md: '2.1rem' },
                   fontWeight: 500,
                   lineHeight: 1,
-                  flex: 2 
+                  flex: 2,
+                  paddingLeft: 0,
                 }}
               >
                 {selectedVendor.name}
@@ -84,31 +234,49 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
         <Divider sx={{ my: 1 }} />
 
         {/* Description Section */}
-        {selectedVendor.vendor_description && (
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              variant="h6"
-              component="h2"
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            variant="h6"
+            component="h2"
+            sx={{
+              fontWeight: 500,
+              mb: 2,
+              color: 'text.primary',
+            }}
+          >
+            About This Vendor
+          </Typography>
+          
+          {editMode ? (
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              value={editedDescription}
+              onChange={handleDescriptionChange}
+              placeholder="Enter vendor description..."
+              variant="outlined"
               sx={{
-                fontWeight: 500,
-                mb: 2,
-                color: 'text.primary',
+                '& .MuiOutlinedInput-root': {
+                  fontSize: '1rem',
+                  lineHeight: 1.7,
+                },
               }}
-            >
-              About This Vendor
-            </Typography>
+            />
+          ) : (
             <Typography
               variant="body1"
               sx={{
                 lineHeight: 1.7,
                 color: 'text.secondary',
                 fontSize: '1rem',
+                minHeight: '1.5rem', // Ensure some height even if empty
               }}
             >
-              {selectedVendor.vendor_description}
+              {selectedVendor.vendor_description || 'No description available'}
             </Typography>
-          </Box>
-        )}
+          )}
+        </Box>
  
         {/* Additional Information Section */}
         <Paper
@@ -186,6 +354,49 @@ const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVe
           )}
         </Box> 
       </Paper>
+
+      {/* Edit Button */}
+      <Fab
+        color="secondary"
+        aria-label="edit mode"
+        onClick={handleEditToggle}
+        sx={{
+          position: 'absolute',
+          bottom: 16,
+          right: 16,
+          zIndex: 1000,
+        }}
+      >
+        {editMode ? <DoneIcon /> : <EditIcon />}
+      </Fab>
+
+      {/* Image Upload Button - Only visible in edit mode */}
+      {editMode && (
+        <Fab
+          color="primary"
+          aria-label="upload image"
+          onClick={handleUploadClick}
+          disabled={uploadLoading}
+          sx={{
+            position: 'absolute',
+            bottom: 16,
+            left: 16,
+            zIndex: 1000,
+            opacity: uploadLoading ? 0.6 : 1,
+          }}
+        >
+          <AddPhotoAlternateIcon />
+        </Fab>
+      )}
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+        accept="image/*"
+        style={{ display: 'none' }}
+      />
     </Box>
   );
 };
