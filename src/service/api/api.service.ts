@@ -4,10 +4,6 @@ import type { Event } from '../../types/event';
 import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, VendorDescriptionUpdate, VendorImageCreation, VendorImageData } from '../../types/network.types';
 import config from '../../utils/config';
 import { getAuthService } from '../auth/index';
-<<<<<<< HEAD
-=======
-import type { Vendor } from '../../features/my-events/components/EventDefaultView';
->>>>>>> b1403ce (Latest changes)
 
 
 
@@ -409,7 +405,6 @@ export const EventApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
-<<<<<<< HEAD
   },
   
   async leaveEvent(eventId: string): Promise<void> {
@@ -428,9 +423,8 @@ export const EventApiService = {
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
-  }
-=======
-  }, 
+  },
+  
 
   async updateVendorDescription(data: VendorDescriptionUpdate): Promise<void> {
     try {
@@ -451,7 +445,8 @@ export const EventApiService = {
       throw new Error(newErrorMessage);
     }
   }, 
->>>>>>> b1403ce (Latest changes)
+
+
 }
 // Export individual functions for convenience
 export const {
@@ -466,17 +461,13 @@ export const {
   redeemEventInvite,
   getEventVendors,
   addVendorImage,
-<<<<<<< HEAD
   getEventVendorImages, 
   revokeAccess,
   revokePendingInvite,
   getEventGuests,
   getPendingInvites,
-  leaveEvent
-=======
-  getEventVendorImages,
+  leaveEvent,
   updateVendorDescription
->>>>>>> b1403ce (Latest changes)
 } = EventApiService;
 
 
