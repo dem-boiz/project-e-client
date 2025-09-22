@@ -14,9 +14,11 @@
   import EmailIcon from '@mui/icons-material/Email';
   import { EventApiService } from '../../../../service/api/api.service';
   import { toast } from 'react-toastify';
-  import ShareableLinkAccordion from './ShareableLinkAccordian';
-  import PendingInvitesAccordion from './PendingInvitesAccordian';
-  import ParticipantsAccordion from './ParticipantsAccordian';
+  import ShareableLinkAccordion from '../ShareableLinkAccordian';
+  import PendingInvitesAccordion from '../PendingInvitesAccordian';
+  import ParticipantsAccordion from '../ParticipantsAccordian';
+  import type { User } from '../../../../types/network.types';
+
 
   // No longer needed as we use inline mock data in useEffect
 
@@ -34,16 +36,10 @@
     status?: 'accepted' | 'pending';
   }
 
-   export interface Guest {
-    id: string;
-    name: string;
-    email?: string;
-    type: string;
-  }
 
 
-  const EventGuestsView: React.FC<{ eventId: string }> = ({ eventId }) => {
-    const [currentGuests, setCurrentGuests] = useState<Guest[]>([]);
+  const ManageGuestsView: React.FC<{ eventId: string }> = ({ eventId }) => {
+    const [currentGuests, setCurrentGuests] = useState<User[]>([]);
     const [email, setEmail] = useState('');
     const [label, setLabel] = useState('');
     const [error, setError] = useState('');
@@ -224,7 +220,7 @@
 
         <Divider sx={{ my: 3 }} />
 
-        <ShareableLinkAccordion onNewLink={handleNewLinkCreated} eventId={eventId} />
+        <ShareableLinkAccordion onNewLink={handleNewLinkCreated} eventId={eventId} accessType='guest' />
 
         <Divider sx={{ my: 5 }} />
 
@@ -260,4 +256,4 @@
   };
 
 
-export default EventGuestsView;
+export default ManageGuestsView;

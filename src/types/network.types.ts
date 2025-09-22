@@ -7,11 +7,20 @@ export interface Event {
     capacity: number;
 }
 
+
+
+
+export interface CurrentUser {
+    id: string;
+    email: string;
+    name: string;
+    isAuthenticated: boolean;
+}
 export interface User {
     id: string;
     name: string;
     email: string;
-    isAuthenticated: boolean;
+    type: 'guest' | 'vendor' | 'host'
 }
 export interface CreateEventRequest {
   name: string;

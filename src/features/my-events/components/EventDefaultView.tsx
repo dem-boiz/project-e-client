@@ -7,6 +7,7 @@ import {
   Stack,
   DialogTitle,
   Divider,
+  Container,
 } from '@mui/material';
 import {
   LocationOn as LocationIcon,
@@ -24,13 +25,15 @@ import PeopleIcon from '@mui/icons-material/People';
 import ImageSlider from '../../components/ImageSlider';
 import { getEventVendors, getEventVendorImages, leaveEvent } from '../../../service/api/api.service';
 import { toast } from 'react-toastify';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 
 dayjs.extend(relativeTime);
 
 interface EventDefaultViewProps {
   event: Event;
   onEditClick?: () => void;
-  onGuestsClick?: () => void;
+  onManageGuestsClick?: () => void;
+  onManageVendorsClick?: () => void;
   onVendorsClick?: (vendor: Vendor) => void;
 }
 
@@ -43,7 +46,13 @@ export interface Vendor {
   imageUrls: string[]; // Array of processed image URLs for slideshow
 }
 
-const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick, onGuestsClick, onVendorsClick }) => {
+const EventDefaultView: React.FC<EventDefaultViewProps> = ({ 
+  event, 
+  onEditClick, 
+  onManageGuestsClick, 
+  onManageVendorsClick, 
+  onVendorsClick 
+}) => {
   const { user } = useAuth();
   const [loadingVendors, setLoadingVendors] = React.useState(false);
   const [loadingLeave, setLoadingLeave] = React.useState(false);
@@ -367,6 +376,8 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                   )}
 
                   {isHost && (
+                    <Container>
+
                     <Button
                       variant="contained"
                       onClick={onEditClick}
@@ -378,13 +389,20 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                     >
                       Edit
                     </Button>
-                  )}
-
-                  
-                  {isHost && (
                     <Button
                       variant="contained"
-                      onClick={onGuestsClick}
+                      onClick={onManageVendorsClick}
+                      startIcon={<StorefrontIcon />}
+                      color="primary"
+                      sx={{
+                        textTransform: 'none',
+                      }}
+                    >
+                      Vendors
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={onManageGuestsClick}
                       startIcon={<PeopleIcon />}
                       color="primary"
                       sx={{
@@ -393,7 +411,10 @@ const EventDefaultView: React.FC<EventDefaultViewProps> = ({ event, onEditClick,
                     >
                       Guests
                     </Button>
+                    </Container>
+
                   )}
+
 
                 </Stack>
 

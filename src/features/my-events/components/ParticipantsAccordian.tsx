@@ -14,36 +14,54 @@ import {
     Avatar,
     ListItemText
 } from "@mui/material";
-import type { Invite } from "./EventGuestsView";
+import type { Guest } from "./ManageGuestsView/ManageGuestsView";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
-import EmailIcon from '@mui/icons-material/Email';
 import React from "react";
+import type { Vendor } from "./EventDefaultView";
 
-export interface PendingInvitesAccordionProps {
+export interface ParticipantsAccordionProps {
+  type: 'guests' | 'vendors';
   expandedAccordion: string | false;
   handleAccordionChange: (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
-  pendingInvites: Invite[];
-  loadingPendingInvites: boolean;
+  participants: Guest[] | Vendor[];
+  loadingParticipants: boolean;
   loadingRevoke: string | null;
-  handleRevokePendingInvite: (id: string) => Promise<void>;
+  handleRevokeAccess: (id: string, type: string) => Promise<void>;
 }
 
-const PendingInvitesAccordion: React.FC<PendingInvitesAccordionProps> = ({
-  expandedAccordion,
-  handleAccordionChange,
-  handleRevokePendingInvite,
-  pendingInvites,
-  loadingPendingInvites,
-  loadingRevoke
-}) => {
-    
+    const ParticipantsAccordion: React.FC<ParticipantsAccordionProps> = ({
+    type,
+    expandedAccordion,
+    handleAccordionChange,
+    handleRevokeAccess,
+    participants,
+    loadingParticipants,
+    loadingRevoke
+    }) => {
+
+    const getParticipantName = (participant: Guest | Vendor): string => {
+        return participant.name || 'Unnamed';
+    }
+
+    const getSecondaryText = (participant: Guest | Vendor): string => {
+        if ('email' in participant && participant.email) {
+            return participant.email;
+        } else return 'No Email Provided';
+    }
+
+    const handleDeleteButtonClick = async (participant: Guest | Vendor) => {
+        const guestType = 'type' in participant ? participant.type : 'user';
+        console.log('guest type:', guestType);
+        await handleRevokeAccess(participant.id, guestType);
+    }
+
 
     return (
         <Accordion 
-          expanded={expandedAccordion === 'pendingInvites'} 
-          onChange={handleAccordionChange('pendingInvites')}
+          expanded={expandedAccordion === 'participants'} 
+          onChange={handleAccordionChange('participants')}
           sx={{ mb: 2, bgcolor: 'rgba(255, 255, 255, 0.03)' }}
         >
           <AccordionSummary
@@ -53,32 +71,32 @@ const PendingInvitesAccordion: React.FC<PendingInvitesAccordionProps> = ({
           >
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                Pending Invites
+                {type === 'guests' ? 'Current Guests' : 'Vendors'}
               </Typography>
               <Badge 
-                badgeContent={pendingInvites.length} 
+                badgeContent={participants.length} 
                 color="warning"
                 sx={{ mr: 2 }}
               />
             </Box>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0, position: 'relative', minHeight: '50px' }}>
-            {pendingInvites.length > 0 ? (
+            {participants.length > 0 ? (
               <List>
-                {pendingInvites.map((invite) => (
+                {participants.map((participant) => (
                   <ListItem
-                    key={invite.id}
+                    key={participant.id}
                     sx={{ py: 1 }}
                     secondaryAction={
-                      <Tooltip title={loadingRevoke === invite.id ? "Cancelling..." : "Cancel Invite"}>
+                      <Tooltip title={loadingRevoke === participant.id ? "Cancelling..." : "Cancel Invite"}>
                         <span> {/* Wrapper span needed for disabled tooltip */}
                           <IconButton 
                             edge="end" 
                             color="error" 
-                            onClick={() => handleRevokePendingInvite(invite.id)}
-                            loading={loadingRevoke === invite.id}
+                            onClick={() => handleDeleteButtonClick(participant)}
+                            loading={loadingRevoke === participant.id}
                           >
-                            {loadingRevoke === invite.id ? (
+                            {loadingRevoke === participant.id ? (
                               <CircularProgress size={20} color="inherit" />
                             ) : (
                               <DeleteIcon />
@@ -90,24 +108,24 @@ const PendingInvitesAccordion: React.FC<PendingInvitesAccordionProps> = ({
                   >
                     <ListItemAvatar>
                       <Avatar>
-                        {invite.email ? <EmailIcon /> : <PersonIcon />}
+                        <PersonIcon />
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={invite.label || invite.email || 'Unnamed'}
-                      secondary={invite.email && invite.label ? invite.email : invite.email || invite.label}
+                      primary={getParticipantName(participant)}
+                      secondary={getSecondaryText(participant)}
                     />
                   </ListItem>
                 ))}
               </List>
             ) : (
               <Typography sx={{ p: 2, color: 'text.secondary' }}>
-                No pending invites.
+                No {type === 'guests' ? 'guests' : 'vendors'} found. Try inviting some!
               </Typography>
             )}
 
             {/* Loading overlay for accordion content only */}
-            {loadingPendingInvites && (
+            {loadingParticipants && (
               <Box 
                 sx={{
                   position: 'absolute',
@@ -130,4 +148,4 @@ const PendingInvitesAccordion: React.FC<PendingInvitesAccordionProps> = ({
     )
 }
 
-export default PendingInvitesAccordion;
+export default ParticipantsAccordion;

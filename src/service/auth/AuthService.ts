@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import type { CreateAccountRequest, CreateAccountResponse, RequestLoginData, RequestLoginResponse, User } from '../../types/network.types';
+import type { CreateAccountRequest, CreateAccountResponse, CurrentUser, RequestLoginData, RequestLoginResponse } from '../../types/network.types';
 import config from '../../utils/config';
 
 export interface UserData {
@@ -16,7 +16,7 @@ export interface RefreshResponse {
 
 export interface AuthServiceCallbacks {
   onLogout?: () => void;
-  onLogin?: (user: User) => void;
+  onLogin?: (user: CurrentUser) => void;
   onTokenRefreshed?: (userData: UserData) => void;
   onAuthError?: (error: string) => void;
 }

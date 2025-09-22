@@ -19,16 +19,17 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PersonIcon from '@mui/icons-material/Person';
-import { EventApiService } from "../../../../service/api/api.service";
+import { EventApiService } from "../../../service/api/api.service";
 
 
 export interface ShareableLinkAccordionProps {
     eventId: string;
+    accessType: string;
     onNewLink: () => void;
 }
 
 
-const ShareableLinkAccordion: React.FC<ShareableLinkAccordionProps> = ({ eventId, onNewLink }) => {
+const ShareableLinkAccordion: React.FC<ShareableLinkAccordionProps> = ({ eventId, onNewLink, accessType }) => {
 
     const [expandedShareLink, setExpandedShareLink] = useState<boolean>(false);
     const [shareableLinkDesc, setShareableLinkDesc] = useState<string>('Get a one time use shareable link');
@@ -52,7 +53,7 @@ const ShareableLinkAccordion: React.FC<ShareableLinkAccordionProps> = ({ eventId
     const handleShareLinkGenerate = async () => {
       try {
         setLoadingShareLinkState('loading');
-        const result = await EventApiService.getInviteLink(eventId);
+        const result = await EventApiService.getInviteLink(eventId, accessType);
         const inviteLabel = result.label;
         const inviteIdValue = result.id; // Assuming the API returns an ID
         const inviteLink = result.invite_link;

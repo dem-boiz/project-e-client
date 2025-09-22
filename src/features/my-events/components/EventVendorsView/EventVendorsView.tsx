@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Typography, Paper, Divider, Chip, DialogTitle, Fab, TextField } from '@mui/material';
+import { Box, Typography, Paper, Divider, DialogTitle, Fab, TextField } from '@mui/material';
 import type { Vendor } from '../EventDefaultView';
 import ImageSlider from '../../../components/ImageSlider';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
@@ -7,13 +7,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 import type { VendorImageCreation, VendorInformationUpdate } from '../../../../types/network.types';
 import { addVendorImage, EventApiService, updateVendorDescription } from '../../../../service/api/api.service';
+import { useAuth } from '../../../../hooks/useAuth';
 interface EventVendorsViewProps {
     eventId: string;
     selectedVendor: Vendor | null;
 }
 
 const EventVendorsView: React.FC<EventVendorsViewProps> = ({ eventId, selectedVendor }) => {
-    const userId = useAuth().getUserId();
+    const userId = useAuth().user?.id;
     // Edit mode state
     const [editMode, setEditMode] = useState(false);
     

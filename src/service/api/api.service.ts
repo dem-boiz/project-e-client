@@ -1,7 +1,7 @@
 import type { Vendor } from '../../features/my-events/components/EventDefaultView';
-import type { Guest } from '../../features/my-events/components/EventGuestsView/EventGuestsView';
+import type { Guest } from '../../features/my-events/components/ManageGuestsView/ManageGuestsView';
 import type { Event } from '../../types/event';
-import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, VendorDescriptionUpdate, VendorImageCreation, VendorImageData } from '../../types/network.types';
+import type { CreateEventRequest, CreateInviteResponse, UpdateEventRequest, User, VendorDescriptionUpdate, VendorImageCreation, VendorImageData } from '../../types/network.types';
 import config from '../../utils/config';
 import { getAuthService } from '../auth/index';
 
@@ -250,16 +250,10 @@ export const EventApiService = {
 
   async inviteGuest(eventId: string, guestEmail?: string,  label?: string): Promise<CreateInviteResponse> {
     try {
-      const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/events/${eventId}/invite`, {
         method: 'POST',
         body: JSON.stringify({ email: guestEmail, label, access_type: 'guest', delivery_method: 'email' }),
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log('Invite response:::')
-      console.log(response);
+      }, true, false);
       return response as unknown as CreateInviteResponse;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -269,12 +263,29 @@ export const EventApiService = {
     }
   },
 
-  async getInviteLink(eventId: string): Promise<CreateInviteResponse> {
+
+  async inviteVendor(eventId: string, vendorEmail?: string,  label?: string): Promise<CreateInviteResponse> {
+    try {
+      const response = await apiRequest(`/events/${eventId}/invite`, {
+        method: 'POST',
+        body: JSON.stringify({ email: vendorEmail, label, access_type: 'vendor', delivery_method: 'email' }),
+
+      }, true, false);
+      return response as unknown as CreateInviteResponse;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to invite guest. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
+
+  async getInviteLink(eventId: string, accessType: string): Promise<CreateInviteResponse> {
     try {
       const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/events/${eventId}/invite`, {
         method: 'POST',
-        body: JSON.stringify({ access_type: 'guest', delivery_method: 'link', label: `invite-${eventId.substring(0, 8)}` }),
+        body: JSON.stringify({ access_type: accessType, delivery_method: 'link', label: `invite-${eventId.substring(0, 8)}` }),
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -290,15 +301,29 @@ export const EventApiService = {
     }
   },
 
-  async getEventGuests(eventId: string): Promise<Guest[]> {
+  async getEventGuests(eventId: string): Promise<User[]> {
     try {
       const response = await apiRequest(`/events/${eventId}/guests`, {
         method: 'GET'
       }, true, false);
-      return response as unknown as Guest[];
+      return response as unknown as User[];
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const newErrorMessage = `Failed to fetch current guests. ${errorMessage}`;
+      console.log(newErrorMessage);
+      throw new Error(newErrorMessage);
+    }
+  },
+
+  async getEventVendors(eventId: string): Promise<User[]> {
+    try {
+      const response = await apiRequest(`/events/${eventId}/vendors`, {
+        method: 'GET'
+      }, true, false);
+      return response as unknown as User[];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const newErrorMessage = `Failed to fetch event vendors. ${errorMessage}`;
       console.log(newErrorMessage);
       throw new Error(newErrorMessage);
     }
@@ -356,7 +381,7 @@ export const EventApiService = {
     }
   }, 
 
-  async getEventVendors(eventId: string): Promise<Vendor[]> {
+  async getEventVendorsProfiles(eventId: string): Promise<Vendor[]> {
     try {
       const accessToken = getAuth().getAccessToken();
       const response = await apiRequest(`/event-vendors/event-id/${eventId}`, {
@@ -460,6 +485,7 @@ export const {
   updatePendingInvite,
   redeemEventInvite,
   getEventVendors,
+  getEventVendorsProfiles,
   addVendorImage,
   getEventVendorImages, 
   revokeAccess,

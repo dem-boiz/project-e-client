@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { AuthContext, type AuthContextType } from '../../context/authContext';
 import { createAuthService, type UserData, type AuthServiceCallbacks } from './index';
 import { toast } from 'react-toastify';
-import type { User } from '../../types/network.types';
+import type { CurrentUser } from '../../types/network.types';
 import Cookies from 'js-cookie';
 
 interface AuthProviderProps {
@@ -11,7 +11,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
 
   // Create shared AuthService instance with callbacks for React integration
   const [authService] = useState(() => {
@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isAuthenticated: true,
         }));
       },
-      onLogin: (user: User) => {
+      onLogin: (user: CurrentUser) => {
         setUser(user);
       },
       onLogout: () => {
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               id: userData.id,
               name: userData.name,
               email: userData.email,
-              isAuthenticated: true
+              isAuthenticated: true,
             });
             console.log('👤 User data restored:', userData);
           }
